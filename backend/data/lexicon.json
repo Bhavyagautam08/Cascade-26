@@ -13,7 +13,49 @@
     "doodh": "milk",
     "gas": "gas",
     "bhada": "rent",
-    "kiraya": "rent"
+    "kiraya": "rent",
+    "pyaaz": "onion",
+    "pyaj": "onion",
+    "onion": "onion",
+    "tomato": "tomato",
+    "bhindi": "okra",
+    "lauki": "bottle gourd",
+    "gobhi": "cauliflower",
+    "palak": "spinach",
+    "adrak": "ginger",
+    "lehsun": "garlic",
+    "nimbu": "lemon",
+    "anda": "eggs",
+    "ande": "eggs",
+    "egg": "eggs",
+    "chawal": "rice",
+    "rice": "rice",
+    "cheeni": "sugar",
+    "shakkar": "sugar",
+    "sugar": "sugar",
+    "namak": "salt",
+    "atta": "flour",
+    "maida": "refined flour",
+    "besan": "gram flour",
+    "dahi": "curd",
+    "paneer": "paneer",
+    "makhan": "butter",
+    "ghee": "ghee",
+    "mawa": "mawa",
+    "khoya": "mawa",
+    "kesar": "saffron",
+    "elaichi": "cardamom",
+    "haldi": "turmeric",
+    "jeera": "cumin",
+    "achaar": "pickle",
+    "achar": "pickle",
+    "badam": "almonds",
+    "kaju": "cashew",
+    "pista": "pistachio",
+    "milk": "milk",
+    "oil": "oil",
+    "sooji": "semolina",
+    "dal": "dal"
   },
   "units": {
     "kilo": {
@@ -50,6 +92,62 @@
     },
     "packet": {
       "unit": "packet",
+      "factor": 1.0
+    },
+    "kgs": {
+      "unit": "kg",
+      "factor": 1.0
+    },
+    "g": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "gm": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "gms": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "grams": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "l": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "ltr": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "liter": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "ml": {
+      "unit": "l",
+      "factor": 0.001
+    },
+    "millilitre": {
+      "unit": "l",
+      "factor": 0.001
+    },
+    "dozen": {
+      "unit": "dozen",
+      "factor": 1.0
+    },
+    "darjan": {
+      "unit": "dozen",
+      "factor": 1.0
+    },
+    "piece": {
+      "unit": "piece",
+      "factor": 1.0
+    },
+    "bottle": {
+      "unit": "bottle",
       "factor": 1.0
     }
   },
@@ -99,7 +197,16 @@
     "pandrah": 15,
     "pachees": 25,
     "tees": 30,
-    "chalees": 40
+    "chalees": 40,
+    "aadha": 0.5,
+    "dedh": 1.5,
+    "dhai": 2.5,
+    "saath": 60,
+    "sattar": 70,
+    "assi": 80,
+    "nabbe": 90,
+    "chaalees": 40,
+    "pachas": 50
   },
   "prices": {
     "poha": 20,

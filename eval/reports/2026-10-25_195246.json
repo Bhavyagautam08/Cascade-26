@@ -1,0 +1,60 @@
+{
+  "health": {
+    "device_id": "phone-1",
+    "model_mode": "real",
+    "llm_model": "qwen3-vl:4b-instruct",
+    "whisper_model": "small",
+    "whisper_source": "small",
+    "asr": {
+      "loaded": "small (cuda, en)",
+      "source": "C:\\Users\\LENOVO\\.cache\\huggingface\\hub\\models--Systran--faster-whisper-small\\snapshots\\536b0662742c02347bc0e980a01041f333bce120",
+      "fallback": false,
+      "error": null,
+      "warm": true
+    },
+    "ollama_models": [
+      "qwen3-vl:4b-instruct"
+    ],
+    "ollama_error": null,
+    "llm_ready": true,
+    "llm_problem": null,
+    "mic_listening": false,
+    "mic": null,
+    "hostile_clock": "off",
+    "peers": [],
+    "sync_auth": false,
+    "events": 0
+  },
+  "audio": [
+    {
+      "sample": "101_whatsapp-192506.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 2.6,
+      "heard": "kya chahiya aapko bhai? bhai sahab ek kilo pyaj, ek kilo bindi, aadha kilo tomato soo gram mirchi powder, soo gram tata salt, soo gram dhaniya, dhaishu gram achar yeh sab chahiye",
+      "heard_conf": 0.55,
+      "events": [],
+      "note": "no answer key yet: output shown, not scored"
+    },
+    {
+      "sample": "102_whatsapp-192915.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 1.2,
+      "heard": "bhai sahab kya chahiye phir aap khab 2 liter milk chahiye, 1 kilo mawa chahiye, 200 gm rai, 750 gm sugar chahiye on prasayam al vaninda essence ki dabhi chahiye, 100 gm, badaam chahiye, 70 gm, kaju chahiye and pistachio chahiye, 50 gm, kesar 8 gm chahiye, boh demengi chahiye",
+      "heard_conf": 0.5,
+      "events": [],
+      "note": "no answer key yet: output shown, not scored"
+    },
+    {
+      "sample": "103_whatsapp-193044.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 1.1,
+      "heard": "ke chahiye tana bhai bhai sahab 1 kilo baking soda bheecho 2.5 kilo refined sugar bheecho 700 milliter vinegar aur 1 dozen manda 250 gram cocoa powder chahi jea 250 milliter malatanget kodab ko chahi jea aur 250 milliter malchi chahi jea",
+      "heard_conf": 0.45,
+      "events": [],
+      "note": "no answer key yet: output shown, not scored"
+    }
+  ]
+}

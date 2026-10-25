@@ -103,18 +103,19 @@ def _model_folder(model: str) -> str:
 
 
 class ASR:
-    def __init__(self, model: str, device: str, compute_type: str):
+    def __init__(self, model: str, device: str, compute_type: str, language: str | None = None):
         WhisperModel = _whisper_model_class()  # imported lazily: heavy, needs CUDA libs
 
         self.source = _model_folder(model)
         self.model = WhisperModel(self.source, device=device, compute_type=compute_type)
-        self.name = f"{model} ({device})"
+        self.language = language or None       # "" -> auto-detect
+        self.name = f"{model} ({device}, {self.language or 'auto'})"
 
     def transcribe(self, audio: np.ndarray, hotwords: str | None = None) -> Transcript | None:
         """audio: float32 mono 16 kHz."""
         segments, info = self.model.transcribe(
             audio,
-            language=None,                   # auto: Hindi / English / mixed
+            language=self.language,          # "en" by default: see config.whisper_language
             vad_filter=True,
             condition_on_previous_text=False,
             hotwords=hotwords or None,

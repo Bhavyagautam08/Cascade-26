@@ -1,0 +1,442 @@
+{
+  "health": {
+    "device_id": "phone-1",
+    "model_mode": "real",
+    "llm_model": "qwen3-vl:4b-instruct",
+    "whisper_model": "small",
+    "whisper_source": "small",
+    "asr": {
+      "loaded": "small (cuda, en)",
+      "source": "C:\\Users\\LENOVO\\.cache\\huggingface\\hub\\models--Systran--faster-whisper-small\\snapshots\\536b0662742c02347bc0e980a01041f333bce120",
+      "fallback": false,
+      "error": null,
+      "warm": true
+    },
+    "ollama_models": [
+      "qwen3-vl:4b-instruct"
+    ],
+    "ollama_error": null,
+    "llm_ready": true,
+    "llm_problem": null,
+    "mic_listening": false,
+    "mic": null,
+    "hostile_clock": "off",
+    "peers": [],
+    "sync_auth": false,
+    "events": 0
+  },
+  "slips": [
+    {
+      "sample": "001_kheer-list_sideways.jpg",
+      "verified": false,
+      "reader": "qwen3-vl:4b-instruct",
+      "rotation": 90,
+      "secs": 7.8,
+      "score": {
+        "lines": 9,
+        "found": 9,
+        "qty_ok": 9,
+        "amount_ok": 9,
+        "wrong_unflagged": 0,
+        "extra_lines": 0,
+        "supplier_ok": true,
+        "total_ok": true
+      },
+      "rows": [
+        {
+          "expected": "milk 2kg",
+          "got": "milk 2.0kg",
+          "conf": 1.0,
+          "read_as": "Milk (2kg)",
+          "ok": true
+        },
+        {
+          "expected": "mawa 1kg",
+          "got": "mawa 1.0kg",
+          "conf": 0.937,
+          "read_as": "Mawa (1kg)",
+          "ok": true
+        },
+        {
+          "expected": "rice 200g",
+          "got": "rice 0.2kg",
+          "conf": 1.0,
+          "read_as": "Rice (200g)",
+          "ok": true
+        },
+        {
+          "expected": "sugar 750g",
+          "got": "sugar 0.75kg",
+          "conf": 0.995,
+          "read_as": "Sugar (750g)",
+          "ok": true
+        },
+        {
+          "expected": "vanilla essence 10ml",
+          "got": "vanilla essence 0.01l",
+          "conf": 1.0,
+          "read_as": "Vanilla essence (10ml)",
+          "ok": true
+        },
+        {
+          "expected": "almonds 100g",
+          "got": "almonds 0.1kg",
+          "conf": 1.0,
+          "read_as": "Almonds (100g)",
+          "ok": true
+        },
+        {
+          "expected": "cashew 70g",
+          "got": "cashew 0.07kg",
+          "conf": 1.0,
+          "read_as": "Cashew (70g)",
+          "ok": true
+        },
+        {
+          "expected": "pistachio None",
+          "got": "pistachue None",
+          "conf": 0.939,
+          "read_as": "Pistachue",
+          "ok": true
+        },
+        {
+          "expected": "saffron 1g",
+          "got": "saffron 0.001kg",
+          "conf": 1.0,
+          "read_as": "Kesari (1g)",
+          "ok": true
+        }
+      ],
+      "extra": []
+    },
+    {
+      "sample": "002_baking-list_sideways.jpg",
+      "verified": false,
+      "reader": "qwen3-vl:4b-instruct",
+      "rotation": 90,
+      "secs": 7.8,
+      "score": {
+        "lines": 7,
+        "found": 7,
+        "qty_ok": 7,
+        "amount_ok": 7,
+        "wrong_unflagged": 0,
+        "extra_lines": 0,
+        "supplier_ok": true,
+        "total_ok": true
+      },
+      "rows": [
+        {
+          "expected": "baking soda powder 1kg",
+          "got": "baking soda powder 1.0kg",
+          "conf": 1.0,
+          "read_as": "1 Kg Baking Soda Powder",
+          "ok": true
+        },
+        {
+          "expected": "refined sugar 2.5kg",
+          "got": "refined sugar 2.5kg",
+          "conf": 1.0,
+          "read_as": "2.5 Kg Refined Sugar",
+          "ok": true
+        },
+        {
+          "expected": "vinegar 700ml",
+          "got": "vinegar 0.7l",
+          "conf": 1.0,
+          "read_as": "700ml Vinegar",
+          "ok": true
+        },
+        {
+          "expected": "eggs 1dozen",
+          "got": "eggs 1.0dozen",
+          "conf": 1.0,
+          "read_as": "1 dozen Eggs",
+          "ok": true
+        },
+        {
+          "expected": "cocoa powder 250g",
+          "got": "coco powder 0.25kg",
+          "conf": 1.0,
+          "read_as": "250g Coco Powder",
+          "ok": true
+        },
+        {
+          "expected": "milkmaid 250ml",
+          "got": "milk maid 0.25l",
+          "conf": 1.0,
+          "read_as": "250ml Milk Maid",
+          "ok": true
+        },
+        {
+          "expected": "hershey 250ml",
+          "got": "hershey 0.25l",
+          "conf": 1.0,
+          "read_as": "250ml Hershey",
+          "ok": true
+        }
+      ],
+      "extra": []
+    },
+    {
+      "sample": "003_sabzi-list_sideways.jpg",
+      "verified": false,
+      "reader": "qwen3-vl:4b-instruct",
+      "rotation": 90,
+      "secs": 7.5,
+      "score": {
+        "lines": 7,
+        "found": 6,
+        "qty_ok": 6,
+        "amount_ok": 6,
+        "wrong_unflagged": 0,
+        "extra_lines": 1,
+        "supplier_ok": true,
+        "total_ok": true
+      },
+      "rows": [
+        {
+          "expected": "onion 1kg",
+          "got": "onion 1.0kg",
+          "conf": 1.0,
+          "read_as": "Pyaaaz (1kg)",
+          "ok": true
+        },
+        {
+          "expected": "okra 1kg",
+          "got": "okra 1.0kg",
+          "conf": 1.0,
+          "read_as": "Bhuidi (1kg)",
+          "ok": true
+        },
+        {
+          "expected": "tomato 0.5kg",
+          "got": "tomato 0.5kg",
+          "conf": 1.0,
+          "read_as": "Tamatar (0.5kg)",
+          "ok": true
+        },
+        {
+          "expected": "mirchi powder 100g",
+          "got": "mirchi powder 0.1kg",
+          "conf": 1.0,
+          "read_as": "Mirchi powder (100g)",
+          "ok": true
+        },
+        {
+          "expected": "tata salt 100g",
+          "got": "tata salt 0.1kg",
+          "conf": 1.0,
+          "read_as": "Tata Salt (100g)",
+          "ok": true
+        },
+        {
+          "expected": "coriander 100g",
+          "got": "coriander 0.1kg",
+          "conf": 1.0,
+          "read_as": "Dhaniya (100g)",
+          "ok": true
+        },
+        {
+          "expected": "pickle 250g",
+          "got": "(missing)",
+          "ok": false
+        }
+      ],
+      "extra": [
+        "Achhaa (250g) (+ Bottle)"
+      ]
+    }
+  ],
+  "text": [
+    {
+      "sample": "t001",
+      "text": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 3.4,
+      "score": {
+        "events": 3,
+        "correct": 3,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "purchase:tomato Rs180",
+          "got": "purchase:tomato qty=3.0kg Rs180.0",
+          "ok": true
+        },
+        {
+          "expected": "credit_paid:sharma Rs40",
+          "got": "credit_paid:sharma qty=None Rs40.0",
+          "ok": true
+        },
+        {
+          "expected": "sale:poha",
+          "got": "sale:poha qty=7.0plate RsNone",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t002",
+      "text": "aaj bahut garmi hai bhai",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 0.2,
+      "score": {
+        "events": 0,
+        "correct": 0,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": []
+    },
+    {
+      "sample": "t003",
+      "text": "pandey ji ka 60 udhaar likh do",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 1.1,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "credit_given:pandey Rs60",
+          "got": "credit_given:pandey qty=None Rs60.0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t004",
+      "text": "2 kilo pyaz laya 80 aur 1 kilo aloo 30",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 2.0,
+      "score": {
+        "events": 2,
+        "correct": 2,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "purchase:onion Rs80",
+          "got": "purchase:onion qty=2.0kg Rs80.0",
+          "ok": true
+        },
+        {
+          "expected": "purchase:potato Rs30",
+          "got": "purchase:potato qty=1.0kg Rs30.0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t005",
+      "text": "gas cylinder ka 950 kharcha hua",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 0.9,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "expense:gas Rs950",
+          "got": "expense:gas qty=None Rs950.0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t006",
+      "text": "shaam ko 2 kilo poha bacha hai",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 0.9,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "stock_count:poha",
+          "got": "stock_count:poha qty=2.0kg RsNone",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "random",
+      "text": "6 kilo aloo liya 520 mein",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 1.1,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "purchase:potato Rs520",
+          "got": "purchase:potato qty=6.0kg Rs520.0",
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "sample": "101_whatsapp-192506.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 2.0,
+      "heard": "kya chahiya aapko bhai kya aapko bhai saab ek kilo pyaj ek kilo bhindi aadha kilo tomato soo gram mirchi powder soo gram tata salt soo gram dhaniya 200 gram achar yeh sab chahiye",
+      "heard_conf": 0.49,
+      "events": [],
+      "note": "no answer key yet: output shown, not scored"
+    },
+    {
+      "sample": "102_whatsapp-192915.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 1.3,
+      "heard": "bhai sahab kya chahiye phir aap haab ltr liter ml chahiye ek kilo mawa chahiye 200 gm rice, 750 gm sugar jitoh al prasayam al vaninda essence ki dabhi jitoh, 100 gm gm gm gm badam jitoh, 70 gm kaju jitoh aur pista achu jitoh 50 gm, kesar 8 gm jitoh boh damengi hain",
+      "heard_conf": 0.48,
+      "events": [],
+      "note": "no answer key yet: output shown, not scored"
+    },
+    {
+      "sample": "103_whatsapp-193044.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 6.9,
+      "heard": "ke chaiyataana bhai bhai sahab 1 kilo baking soda baby chho, 2 kilo refined sugar baby chho, 700 millilitre vinegar, 1 dozen manda, 250 gram cocoa powder chai jaa, 250 millilitre mililitre coconut powder chai jaa and 250 millilitre malchi chai jaa",
+      "heard_conf": 0.51,
+      "events": [
+        "purchase baking soda 1.0kg RsNone",
+        "purchase sugar 2.0kg RsNone",
+        "purchase vinegar 0.7l RsNone",
+        "purchase mandu 1.0dozen RsNone",
+        "purchase cocoa powder 0.25kg RsNone",
+        "purchase coconut powder 0.25l RsNone",
+        "purchase malchi 0.25l RsNone"
+      ],
+      "note": "no answer key yet: output shown, not scored"
+    }
+  ]
+}

@@ -5,11 +5,11 @@
   "total_rupees": null,
   "lines": [
     {"item": "onion", "qty": 1, "unit": "kg", "amount_rupees": null},
-    {"item": "bhindi", "qty": 1, "unit": "kg", "amount_rupees": null},
+    {"item": "okra", "qty": 1, "unit": "kg", "amount_rupees": null},
     {"item": "tomato", "qty": 0.5, "unit": "kg", "amount_rupees": null},
     {"item": "mirchi powder", "qty": 100, "unit": "g", "amount_rupees": null},
     {"item": "tata salt", "qty": 100, "unit": "g", "amount_rupees": null},
     {"item": "coriander", "qty": 100, "unit": "g", "amount_rupees": null},
-    {"item": "achaar", "qty": 250, "unit": "g", "amount_rupees": null, "note": "also written: (1 bottle)"}
+    {"item": "pickle", "qty": 250, "unit": "g", "amount_rupees": null, "note": "also written: (1 bottle)"}
   ]
 }

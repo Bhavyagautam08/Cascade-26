@@ -38,8 +38,14 @@ class Lexicon:
             self._mtime = self.path.stat().st_mtime
 
     def hotwords(self) -> str:
-        words = list(self.data.get("items", {})) + list(self.data.get("units", {})) + list(self.data.get("aliases", {}))
-        return " ".join(words)
+        """Words Whisper should expect: the Hindi/local item names and customer names only.
+
+        Measured on eval/samples/audio: these keep "pyaj, bhindi, aadha kilo, achar" in Roman script.
+        Units (g, gm, ml, ltr...) must NOT be listed - short tokens make Whisper repeat them
+        ("100 gm gm gm gm", "ltr liter ml"); English names add nothing Whisper doesn't know.
+        """
+        local = [k for k, v in self.data.get("items", {}).items() if k.lower() != str(v).lower()]
+        return " ".join(local + list(self.data.get("aliases", {})))
 
     def prompt_block(self) -> str:
         return json.dumps(self.data, ensure_ascii=False)

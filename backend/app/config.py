@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     whisper_model: str = "small"
     whisper_device: str = "cuda"
     whisper_compute_type: str = "int8_float16"
+    # "en" on purpose, for Hinglish shop talk. Auto-detect picks Hindi, and Hindi mode writes Devanagari
+    # (mostly garbled on real clips), which the lexicon, rule parser and number cross-check can't read.
+    # English mode + lexicon hotwords writes Roman Hinglish with digits ("1 kilo pyaj, aadha kilo
+    # tomato, 250 gram achar") - measured on eval/samples/audio 101-103. "" = auto-detect.
+    whisper_language: str = "en"
 
     whisper_preload: bool = True           # load + warm Whisper at startup (first call costs ~20 s)
     llm_max_confidence: float = 0.85       # the LLM's self-reported confidence is uncalibrated: cap it

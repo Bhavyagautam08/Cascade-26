@@ -14,6 +14,7 @@ dependencies = [
     "faster-whisper>=1.1",
     # faster-whisper 1.2.1 decodes clips with av.open(..., metadata_errors=...), which PyAV 19 removed
     "av>=11,<19",
+    "pillow>=10",   # slip photos: EXIF orientation, rotation, resizing
     "sounddevice>=0.5",
     "ollama>=0.4",
     "httpx>=0.27",

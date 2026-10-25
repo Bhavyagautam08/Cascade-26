@@ -12,6 +12,6 @@
     {"item": "almonds", "qty": 100, "unit": "g", "amount_rupees": null},
     {"item": "cashew", "qty": 70, "unit": "g", "amount_rupees": null},
     {"item": "pistachio", "qty": null, "unit": null, "amount_rupees": null},
-    {"item": "kesar", "qty": 1, "unit": "g", "amount_rupees": null}
+    {"item": "saffron", "qty": 1, "unit": "g", "amount_rupees": null}
   ]
 }

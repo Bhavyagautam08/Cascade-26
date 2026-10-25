@@ -121,12 +121,12 @@ def asr():
         from app.perception.asr import ASR
         try:
             model = ASR(settings.whisper_ref(settings.whisper_model), settings.whisper_device,
-                        settings.whisper_compute_type)
+                        settings.whisper_compute_type, settings.whisper_language)
         except Exception as e:  # no GPU / CUDA libs missing -> same model on the CPU, and say so
             log.warning("Whisper %s on %s failed (%s); running it on the CPU", settings.whisper_model,
                         settings.whisper_device, e)
             asr_status.update(fallback=True, error=f"{settings.whisper_device} failed: {type(e).__name__}: {e}")
-            model = ASR(settings.whisper_ref(settings.whisper_model), "cpu", "int8")
+            model = ASR(settings.whisper_ref(settings.whisper_model), "cpu", "int8", settings.whisper_language)
     asr_status["loaded"] = model.name
     asr_status["source"] = getattr(model, "source", None)
     return model
