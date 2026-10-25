@@ -106,6 +106,43 @@ export type MicStatus = {
   seconds_since_heard: number | null;
 };
 export type MicDevice = { name: string; default: boolean };
+
+export type InvStatus = "opening" | "purchased" | "unclear";
+export type InvItem = {
+  item: string;
+  said: string | null;
+  qty: number | null;
+  unit: string | null;
+  total_cost: number | null;
+  unit_cost: number | null;
+  status: InvStatus;
+  confidence: number;
+  flags: string[];
+  question: string | null;
+};
+export type InvDraft = {
+  recording_id: string;
+  transcript: string;
+  heard_confidence: number | null;
+  items: InvItem[];
+  open_questions: number;
+  already_saved: boolean;
+  asr: string | null;
+  reader: string | null;
+};
+/** Confirm returns 409 (would overwrite) and 422 (open questions) as data the screen acts on. */
+export type InvConfirmResult =
+  | { status: 200; data: { duplicate: boolean; events: LedgerEvent[]; replaced?: string[] } }
+  | { status: 409; data: { message: string; existing: { id: string; item: string; qty: number; unit: string; kind: string }[] } }
+  | { status: 422; data: { message: string; items: InvItem[] } };
+
+async function confirmInventory(body: unknown): Promise<InvConfirmResult> {
+  const res = await fetch("/api/inventory/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const json = await res.json().catch(() => ({}));
+  if (res.status === 200) return { status: 200, data: json };
+  if (res.status === 409 || res.status === 422) return { status: res.status, data: json.detail } as InvConfirmResult;
+  throw new Error(`${res.status}: ${typeof json.detail === "string" ? json.detail : JSON.stringify(json.detail ?? json)}`);
+}
 export type SlipLine = { item: string; qty: number | null; unit: string | null; amount_rupees: number | null; confidence: number };
 export type Slip = { supplier: string | null; lines: SlipLine[]; total_rupees: number | null; reader: string };
 
@@ -133,6 +170,15 @@ export const api = {
   micDevices: () => call<{ devices: MicDevice[]; current: string | null; wanted: string | null; rescanned: boolean }>("/mic/devices"),
   micStart: (device: string | null) => post<MicStatus>("/mic/start", { device }),
   micStop: () => post<MicStatus>("/mic/stop", {}),
+  inventoryVoice: (audio: Blob) => {
+    const fd = new FormData();
+    fd.append("file", audio, "morning.webm");
+    return call<InvDraft>("/inventory/voice", { method: "POST", body: fd });
+  },
+  inventoryText: (text: string) => post<InvDraft>("/inventory/text", { text }),
+  inventoryConfirm: (recording_id: string, transcript: string, items: InvItem[], replace: boolean, typed: boolean) =>
+    confirmInventory({ recording_id, transcript, items, replace, typed }),
+  inventoryToday: () => call<{ day: string; events: LedgerEvent[] }>("/inventory/today"),
   ingestAudio: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);

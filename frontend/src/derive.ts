@@ -9,6 +9,7 @@ export const KIND_LABEL: Record<string, string> = {
   expense: "Expense",
   stock_count: "Stock count",
   order: "Ordered (no price yet)",
+  opening_stock: "Opening stock",
   adjustment: "Correction",
 };
 

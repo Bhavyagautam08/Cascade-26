@@ -5,6 +5,7 @@ import Books from "./views/Books";
 import Devices from "./views/Devices";
 import Entries from "./views/Entries";
 import Record from "./views/Record";
+import StartDay from "./views/StartDay";
 import Stock from "./views/Stock";
 import Today from "./views/Today";
 import Udhaar from "./views/Udhaar";
@@ -21,6 +22,7 @@ export type Data = {
 };
 
 const ROUTES = {
+  start: { label: "Start your day", icon: Icon.record, group: "Shop" },
   today: { label: "Today", icon: Icon.today, group: "Shop" },
   record: { label: "Record a trade", icon: Icon.record, group: "Shop" },
   entries: { label: "Entries", icon: Icon.entries, group: "Shop" },
@@ -195,6 +197,7 @@ export default function App() {
             maths and family sync are real.
           </div>
         )}
+        {loc.route === "start" && <StartDay {...data} />}
         {loc.route === "today" && <Today {...data} />}
         {loc.route === "record" && <Record {...data} tab={loc.arg} />}
         {loc.route === "entries" && <Entries {...data} selected={loc.arg} />}

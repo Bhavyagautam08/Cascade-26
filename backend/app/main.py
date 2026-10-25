@@ -19,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from app import inventory as inv
 from app.config import settings
 from app.ledger import inference
 from app.ledger.doubleentry import balances, incomplete, trial_balance_ok
@@ -359,6 +360,73 @@ def confirm_slip(body: SlipConfirm):
         for l in body.lines
     ]
     return {"events": record(cands)}
+
+
+# --- morning inventory ("Start Your Day") ------------------------------------
+def _inventory_draft(rec_id: str, transcript: str, **extra) -> dict:
+    from app.pipeline import _model_call, extractor
+    if settings.demo:
+        raise ModelUnavailable("morning inventory needs the language model (MODEL_MODE=real); type the items in instead")
+    ex = _model_call("LLM", extractor)
+    lexicon.reload_if_changed()
+    items = _model_call("LLM", lambda: inv.extract(ex.client, ex.model, transcript, lexicon.data))
+    return inv.Draft(recording_id=rec_id, transcript=transcript, items=items,
+                     open_questions=sum(1 for i in items if i.question),
+                     already_saved=bool(inv.saved(store.all(), rec_id)), reader=ex.name, **extra).model_dump()
+
+
+@app.post("/inventory/voice")
+async def inventory_voice(file: UploadFile = File(...)):
+    """A morning recording -> transcript -> draft inventory table (nothing saved yet)."""
+    from app.pipeline import _model_call, asr
+    data = await file.read()
+    if len(data) < 1000:
+        raise HTTPException(422, "the recording is empty - hold the button and speak, then stop")
+    model = _model_call("speech-to-text", asr)
+    lexicon.reload_if_changed()
+    t = _model_call("speech-to-text", lambda: model.transcribe_file(data, hotwords=lexicon.hotwords()))
+    if t is None:
+        raise HTTPException(422, "no speech was heard in the recording - try again closer to the mic, "
+                                 "or type the items instead")
+    return _inventory_draft(inv.recording_id(data), t.text, heard_confidence=round(t.confidence, 2), asr=model.name)
+
+
+class InventoryText(BaseModel):
+    text: str
+
+
+@app.post("/inventory/text")
+def inventory_text(body: InventoryText):
+    """Typed fallback (or a transcript corrected by hand) -> the same draft table."""
+    if not body.text.strip():
+        raise HTTPException(422, "nothing to read")
+    return _inventory_draft(inv.recording_id(body.text.strip().lower().encode()), body.text.strip())
+
+
+class InventoryConfirm(BaseModel):
+    recording_id: str
+    transcript: str = ""
+    items: list[inv.InventoryItem]
+    replace: bool = False          # explicit "yes, replace what I saved earlier today"
+    typed: bool = False
+
+
+@app.post("/inventory/confirm")
+def inventory_confirm(body: InventoryConfirm):
+    try:
+        return inv.confirm(store, body.recording_id, body.transcript, body.items,
+                           Source.manual if body.typed else Source.voice, body.replace)
+    except inv.NeedsAnswers as e:
+        raise HTTPException(422, {"message": str(e), "items": [i.model_dump() for i in e.items]}) from e
+    except inv.WouldOverwrite as e:
+        raise HTTPException(409, {"message": str(e) + ". Send replace=true to replace them.",
+                                  "existing": e.existing}) from e
+
+
+@app.get("/inventory/today")
+def inventory_today():
+    return {"day": inv.today(),
+            "events": [e.model_dump(mode="json") for e in causal_order(inv.todays_inventory(store.all()))]}
 
 
 # --- lexicon (Lexicon Drop) --------------------------------------------------

@@ -9,6 +9,7 @@ from collections import defaultdict
 from app.ledger.events import CandidateEvent, Event, Kind, Posting
 
 SUSPENSE = "suspense"
+OPENING = "equity:opening_stock"   # the other side of stock the vendor already had (opening balance)
 
 
 def rupees(x: float) -> int:
@@ -39,6 +40,8 @@ def postings_for(c: CandidateEvent) -> list[Posting]:
             return pair("cash", receivable)
         case Kind.expense:
             return pair(f"expense:{c.item or 'misc'}", "cash")
+        case Kind.opening_stock:      # stock already owned at the start of the day: not today's cash
+            return pair(item, OPENING)
         case Kind.adjustment if c.direction == "in":
             return pair("cash", SUSPENSE)
         case Kind.adjustment if c.direction == "out":

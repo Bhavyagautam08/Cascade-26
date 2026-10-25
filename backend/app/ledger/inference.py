@@ -112,12 +112,13 @@ def wastage_from_ledger(events: list[Event], perishable: list[str] | None = None
     perishable_set = set(perishable or [])
     ev = [e for e in _ordered(events) if e.payload.get("item")]
     dishes = sorted({e.payload["item"] for e in ev if e.kind == Kind.sale and e.payload.get("qty")})
+    counts_kinds = (Kind.stock_count, Kind.opening_stock)     # a morning inventory is a count too
     counted = sorted({e.payload["item"] for e in ev
-                      if e.kind == Kind.stock_count and e.payload.get("qty") is not None})
+                      if e.kind in counts_kinds and e.payload.get("qty") is not None})
     out: dict = {"dishes": dishes, "ingredients": {}}
     for ing in counted:
         counts = [i for i, e in enumerate(ev)
-                  if e.kind == Kind.stock_count and e.payload["item"] == ing and e.payload.get("qty") is not None]
+                  if e.kind in counts_kinds and e.payload["item"] == ing and e.payload.get("qty") is not None]
         burn, plates = [], []
         for a, b in zip(counts, counts[1:]):
             between = ev[a + 1:b + 1]
@@ -197,7 +198,8 @@ def profit_range(events: list[Event], collect_alpha: float = 8.0, collect_beta: 
         for p in _certain_postings(e):
             if p.account == "revenue:sales":
                 revenue.append((-p.amount, e.confidence))
-            elif p.account.startswith("inventory:") and e.kind == Kind.purchase:
+            elif p.account.startswith("inventory:") and e.kind in (Kind.purchase, Kind.opening_stock):
+                # opening stock is stock available to be used today, like a purchase (but not today's cash)
                 buys[p.account.split(":", 1)[1]].append((pos, p.amount, e.confidence, e.payload.get("qty")))
             elif p.account.startswith("expense:"):
                 expenses.append((p.amount, e.confidence))
