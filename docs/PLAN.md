@@ -5,7 +5,7 @@ Architecture details: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 | Stage | Goal | Done when | Owner | Status |
 |---|---|---|---|---|
-| 0 | Setup on the new laptop(s): `scripts\setup_models.ps1` | `/health` → `llm_ready: true`; `uv run pytest -q` green | everyone | ⏳ todo |
+| 0 | Setup on the new laptop(s): [`SETUP.md`](SETUP.md) | `/health` → `llm_ready: true`; `uv run pytest -q` green | everyone | ⏳ todo |
 | 1 | Bake-off: whisper turbo (vs Tara only if needed), qwen3-vl:4b vs gemma3:4b on 5 noisy clips + 3 slips | Models chosen, prompts tuned, mic threshold calibrated | perception | ⏳ todo |
 | 2 | Always-on mic → Whisper → extractor → ledger | Speak a sentence, entry appears in UI | perception | 🟡 code + demo stand-ins + UI done; untested with real models |
 | 3 | Slip reading + confirm screen | Photo → lines → confirmed → posted | perception + UI | 🟡 backend + confirm UI done; vision prompt untested with qwen3-vl |

@@ -18,13 +18,75 @@ class Transcript:
         return float(np.clip(np.exp(self.avg_logprob), 0.0, 1.0)) * (1.0 - self.no_speech_prob)
 
 
+def _whisper_model_class():
+    """Import faster-whisper even where PyAV can't load.
+
+    Windows Smart App Control blocks PyAV's unsigned DLLs. faster-whisper only uses PyAV to decode
+    audio *files*; the live mic hands it float32 arrays, so a placeholder module is enough, and
+    clips are decoded by _decode_wav below instead.
+    """
+    global _HAVE_AV
+    _add_cuda_dll_dirs()
+    try:
+        import av  # noqa: F401
+    except ImportError:
+        import sys
+        import types
+        sys.modules["av"] = types.ModuleType("av")
+        _HAVE_AV = False
+    from faster_whisper import WhisperModel
+    return WhisperModel
+
+
+_HAVE_AV = True
+
+
+class UnsupportedAudio(ValueError):
+    """The uploaded clip can't be decoded on this machine."""
+
+
+def _add_cuda_dll_dirs() -> None:
+    """Let CTranslate2 find cuBLAS/cuDNN from the nvidia-*-cu12 pip wheels (Windows doesn't look there)."""
+    import os
+    import sys
+    from pathlib import Path
+
+    if sys.platform != "win32":
+        return
+    for site in map(Path, sys.path):
+        for bin_dir in (site / "nvidia").glob("*/bin"):
+            os.add_dll_directory(str(bin_dir))
+            os.environ["PATH"] = f"{bin_dir}{os.pathsep}{os.environ['PATH']}"
+
+
+def _decode_wav(data: bytes) -> np.ndarray:
+    """WAV -> float32 mono 16 kHz with the standard library (used when PyAV is unavailable)."""
+    import wave
+    from math import gcd
+
+    from scipy.signal import resample_poly
+
+    try:
+        with wave.open(BytesIO(data)) as w:
+            sr, ch, width, frames = w.getframerate(), w.getnchannels(), w.getsampwidth(), w.readframes(w.getnframes())
+    except wave.Error as e:
+        raise UnsupportedAudio("only WAV clips can be decoded on this machine (PyAV is blocked)") from e
+    if width not in (1, 2, 4):
+        raise UnsupportedAudio(f"unsupported WAV sample width: {width} bytes")
+    pcm = np.frombuffer(frames, dtype={1: np.uint8, 2: np.int16, 4: np.int32}[width]).astype(np.float32)
+    pcm = (pcm - 128) / 128 if width == 1 else pcm / float(2 ** (8 * width - 1))
+    pcm = pcm.reshape(-1, ch).mean(axis=1)
+    g = gcd(sr, 16_000)
+    return resample_poly(pcm, 16_000 // g, sr // g).astype(np.float32) if sr != 16_000 else pcm
+
+
 # Known Whisper hallucinations on noise/silence
 _BLOCKLIST = ("thanks for watching", "subscribe", "thank you for watching")
 
 
 class ASR:
     def __init__(self, model: str, device: str, compute_type: str):
-        from faster_whisper import WhisperModel  # imported lazily: heavy, needs CUDA libs
+        WhisperModel = _whisper_model_class()  # imported lazily: heavy, needs CUDA libs
 
         self.model = WhisperModel(model, device=device, compute_type=compute_type)
         self.name = f"{model} ({device})"
@@ -53,7 +115,9 @@ class ASR:
         )
 
     def transcribe_file(self, data: bytes, hotwords: str | None = None) -> Transcript | None:
-        """A recorded clip (wav/mp3/m4a/ogg...), decoded to 16 kHz mono by faster-whisper's PyAV."""
+        """A recorded clip, decoded to 16 kHz mono (any format via PyAV, else WAV only)."""
+        if not _HAVE_AV:
+            return self.transcribe(_decode_wav(data), hotwords)
         from faster_whisper import decode_audio
 
         return self.transcribe(decode_audio(BytesIO(data), sampling_rate=16_000), hotwords)

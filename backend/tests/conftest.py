@@ -14,4 +14,7 @@ os.environ.update({
     "MIC_ENABLED": "false",
     "PEERS": "",
     "HOSTILE_CLOCK": "off",
+    "ALLOW_REMOTE_UI": "true",   # TestClient is not a loopback address
+    "SYNC_KEY": "",
+    "WHISPER_PRELOAD": "false",
 })

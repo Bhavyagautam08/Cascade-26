@@ -133,7 +133,7 @@ is not used. Sizes/VRAM are estimates from model pages and community guides; ver
 |---|---|---|
 | GPU | NVIDIA, ≥ 8 GB VRAM (tested target: RTX 4060 Laptop 8 GB) | Whisper ~2 GB + qwen3-vl:4b ~4–5 GB |
 | RAM | 16 GB | Keep browser tabs low; avoid models that spill out of VRAM |
-| Disk | ~10 GB free for models + ~3 GB for Python/Node deps | Put models on a data drive via `-Root` |
+| Disk | ~5.5 GB for models (Ollama's own folder + `backend/models/`) + ~3 GB for Python/Node deps | Ollama manages its own model folder |
 | OS | Windows 10/11 x64 | Scripts are PowerShell |
 
 Devices **without** a GPU still run everything except fast speech/vision (CPU Whisper `small` works, slower).
@@ -273,6 +273,9 @@ bad debt: they were never booked as income.
 | POST | `/ingest/audio` | multipart `file` | pre-recorded clip → same ASR + extractor as the mic |
 | POST | `/ledger/resolve` | `{ids[], amount_rupees}` | settles a suspense item with a superseding event |
 | POST | `/ledger/void` | `{id}` | withdraws a wrong entry (superseding adjustment, append-only) |
+| POST | `/ledger/correct` | `{id, kind?, item?, qty?, unit?, amount_rupees?, party?, direction?}` | vendor's fix or classification; supersedes the original |
+| POST | `/ledger/separate` | `{ids[]}` | "these are different trades": undoes a duplicate merge or a dispute |
+| GET | `/inference/ledger` | — | recipe, wastage and loss split from the ledger's stock counts, purchases and sales |
 | POST | `/ingest/slip` | multipart `file` | proposed lines (not posted) |
 | POST | `/ingest/slip/confirm` | `{supplier, lines[]}` | purchase events created |
 | GET / POST | `/lexicon` | `{section, key, value}` | full lexicon |
@@ -283,7 +286,14 @@ bad debt: they were never booked as income.
 | POST | `/sync/push` | `{events[]}` | number added |
 | POST | `/sync/now` | — | per-peer result |
 
-Errors: model unavailable → `503` (only when `engine=llm`); `auto` silently falls back to rules.
+Errors: `503` model unavailable, `502` model answered outside its schema, `422` bad input, `500` a bug in
+our code. `engine=auto` falls back to rules only for the first two and says why in `fallback_reason`.
+LLM amounts that don't appear in the text are removed (`cross_check`), and LLM confidence is capped
+(`LLM_MAX_CONFIDENCE`). Bank/UPI SMS go to a dedicated parser (`perception/sms.py`); money whose
+purpose is unknown is parked in `suspense` until `/ledger/correct` classifies it.
+
+Access: `/sync/*` needs `X-Sync-Key` when `SYNC_KEY` is set; all other endpoints answer loopback only
+unless `ALLOW_REMOTE_UI=true`; CORS is limited to localhost.
 
 **`MODEL_MODE=demo`** (in `backend/.env`) swaps the three models for stand-ins with the same interfaces
 (`perception/demo.py`: scripted ASR, rule parser behind the LLM interface, one sample slip). Every demo
@@ -350,30 +360,16 @@ All on the same phone hotspot. Each backend has `PEERS=` pointing at the other t
 
 ## 12. Setup on a new laptop
 
-```powershell
-# 0. Prerequisites: Git, Node.js 20+, NVIDIA driver. (Python is installed by uv.)
-git clone https://github.com/Bhavyagautam08/Cascade-26.git
-cd Cascade-26
+Step-by-step with download links: **[`SETUP.md`](SETUP.md)**. Principles:
 
-# 1. Everything: Ollama, models, Python deps, UI deps (resumes and retries on bad networks)
-powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1             # models in E:\ai (or %USERPROFILE%\ai)
-#   options: -Root D:\ai   -SkipBakeoffModels
-#   watch:   Get-Content E:\ai\logs\setup.log -Wait
-
-# 2. Configure this device
-copy .env.example backend\.env       # then edit DEVICE_ID, DB_PATH, PEERS, MIC_ENABLED
-
-# 3. Run
-cd backend;  uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
-cd frontend; npm run dev              # http://localhost:5173
-
-# 4. Check
-curl http://localhost:8000/health     # llm_ready should be true
-cd backend; uv run pytest -q          # all tests pass
-```
-
-To copy models to another laptop instead of downloading: copy the whole `<Root>` folder
-(e.g. `E:\ai`) and the Ollama installer, run the script once (it skips what exists).
+- Ollama is installed normally and keeps its models in its **own default folder**. The app never sets
+  `OLLAMA_MODELS` or any model path; it only calls Ollama's local API (`OLLAMA_HOST`, default
+  `http://127.0.0.1:11434`) and reports clearly (`/health.llm_problem`) when Ollama isn't running or the
+  model isn't downloaded. It never installs Ollama or downloads models by itself.
+- Whisper models live in `backend/models/whisper-<name>/` (git-ignored) and are found automatically;
+  without them faster-whisper downloads the model once on first use.
+- `scripts/setup_models.ps1` is an optional helper: Python + UI packages, Whisper models, and a check
+  (not an install) of Ollama.
 
 ---
 
@@ -415,7 +411,7 @@ Stage-by-stage plan with status: see [`PLAN.md`](PLAN.md).
 |---|---|---|
 | Hinglish ASR accuracy in a noisy hall | Voice demo weak | Bake-off; lexicon hotwords; typed/SMS path; pre-recorded clips |
 | Windows CUDA/cuDNN setup | No GPU ASR | pip-installed CUDA libs; CPU `small` fallback |
-| Slow / flaky venue network | Setup blocked | Script resumes; copy `<Root>` between laptops by USB |
+| Slow / flaky venue network | Setup blocked | Script resumes; copy `backend/models/` between laptops by USB; Ollama models re-download per laptop |
 | 8 GB VRAM pressure | Model swapping, slow | One 4B VLM for both jobs; no 7B+ models |
 | Real Bluetooth demanded | Requirement gap | Transport abstraction; LAN demo; ask organisers early |
 | Judges probe the maths | Credibility | Every number has a plain-language reason; tests prove properties |

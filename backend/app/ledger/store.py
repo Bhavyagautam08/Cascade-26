@@ -3,9 +3,17 @@ import sqlite3
 import threading
 import time
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from app.ledger.events import Event, Kind, Posting, Source
+
+
+@dataclass
+class IngestResult:
+    added: int = 0
+    duplicates: int = 0                                  # already had it (normal on re-sync)
+    rejected: list[dict] = field(default_factory=list)   # {"id", "reason"}
 
 
 class EventStore:
@@ -35,10 +43,23 @@ class EventStore:
         return [Event.model_validate_json(r[0]) for r in rows]
 
     def frontier(self) -> dict[str, int]:
-        """Highest seq seen per device — this device's current vector clock."""
+        """Per device, the highest seq up to which we hold *every* event (1..n, no gaps).
+
+        Using the plain maximum would be wrong after a partial sync: a peer would think we already
+        have the events in the gap and never send them.
+        """
         with self._lock:
-            rows = self.db.execute("SELECT device_id, MAX(seq) FROM events GROUP BY device_id").fetchall()
-        return {d: s for d, s in rows}
+            rows = self.db.execute("SELECT device_id, seq FROM events ORDER BY device_id, seq").fetchall()
+        out: dict[str, int] = {}
+        for device, seq in rows:
+            if seq == out.get(device, 0) + 1:
+                out[device] = seq
+        return out
+
+    def _max_own_seq(self) -> int:
+        with self._lock:
+            row = self.db.execute("SELECT MAX(seq) FROM events WHERE device_id = ?", (self.device_id,)).fetchone()
+        return row[0] or 0
 
     def missing_for(self, their_frontier: dict[str, int]) -> list[Event]:
         """Events we have that a peer with `their_frontier` has not seen."""
@@ -59,7 +80,7 @@ class EventStore:
     ) -> Event:
         with self._lock:
             vc = self.frontier()
-            seq = vc.get(self.device_id, 0) + 1
+            seq = self._max_own_seq() + 1
             vc[self.device_id] = seq
             ev = Event(
                 id=f"{self.device_id}:{seq}",
@@ -78,13 +99,32 @@ class EventStore:
             self._insert(ev)
         return ev
 
-    def ingest(self, events: list[Event]) -> int:
-        """Merge events from a peer. Set union: duplicates are ignored, so merge order doesn't matter."""
-        added = 0
+    def ingest(self, events: list[Event]) -> IngestResult:
+        """Merge events from a peer. Set union, so merge order doesn't matter.
+
+        Rejected: ids that don't match device_id:seq, a vector clock that doesn't count the event
+        itself, and an id we already hold with *different* content (corruption or forgery: the
+        log is immutable, so the first version wins and the clash is reported).
+        """
+        res = IngestResult()
         with self._lock:
             for ev in events:
-                added += self._insert(ev)
-        return added
+                reason = None
+                if ev.device_id == "fusion" or ev.seq < 1 or ev.id != f"{ev.device_id}:{ev.seq}":
+                    reason = "id must be device_id:seq with seq >= 1"
+                elif ev.vclock.get(ev.device_id) != ev.seq:
+                    reason = "vclock must count the event itself"
+                if reason is None:
+                    row = self.db.execute("SELECT body FROM events WHERE id = ?", (ev.id,)).fetchone()
+                    if row is None:
+                        res.added += self._insert(ev)
+                        continue
+                    if Event.model_validate_json(row[0]) == ev:
+                        res.duplicates += 1
+                        continue
+                    reason = "different content already stored under this id"
+                res.rejected.append({"id": ev.id, "reason": reason})
+        return res
 
     def _insert(self, ev: Event) -> int:
         with self._lock:

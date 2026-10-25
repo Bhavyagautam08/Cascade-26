@@ -37,5 +37,6 @@ class SlipReader:
             messages=[{"role": "user", "content": PROMPT, "images": [image_bytes]}],
             format=Slip.model_json_schema(),
             options={"temperature": 0},
+            think=False,   # qwen3-vl:4b is a thinking model; reasoning would leave the JSON empty
         )
         return Slip.model_validate_json(resp.message.content)

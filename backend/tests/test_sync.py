@@ -34,10 +34,4 @@ def test_merge_is_order_independent_and_balanced(tmp_path):
     assert trial_balance_ok(y.all())
 
 
-def test_wall_clock_jump_does_not_reorder(tmp_path):
-    a = EventStore(tmp_path / "a.db", "a")
-    first = _sale(a, 10)
-    second = _sale(a, 20)
-    second.wall_time = 0.0  # device "reset to 1970"
-    order = [e.id for e in causal_order([second, first])]
-    assert order == [first.id, second.id]
+# The hostile-clock test lives in test_faults.py (test_F7_...): the old one here could not fail.

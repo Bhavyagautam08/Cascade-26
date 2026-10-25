@@ -3,7 +3,7 @@
 Money is stored as integer paise to avoid float rounding in the ledger.
 """
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -23,7 +23,7 @@ class Kind(str, Enum):
     credit_paid = "credit_paid"      # customer paid back (jama)
     expense = "expense"              # gas, rent, transport...
     stock_count = "stock_count"      # observed remaining stock
-    adjustment = "adjustment"        # inferred loss, conflict resolution, corrections
+    adjustment = "adjustment"        # unclassified money (direction set), voids, "not a duplicate" markers
 
 
 class Posting(BaseModel):
@@ -63,4 +63,6 @@ class CandidateEvent(BaseModel):
     unit: str | None = None
     amount_rupees: float | None = None
     party: str | None = None                  # customer / supplier name or alias
+    direction: Literal["in", "out"] | None = None   # money whose purpose is unknown (bank SMS): parked in suspense
+    flags: list[str] = Field(default_factory=list)  # why this needs a human look (priced_from_list, ...)
     raw: str | None = None

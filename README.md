@@ -14,10 +14,11 @@ Three family devices sync peer-to-peer without a server, and survive broken cloc
 [Sync]         grow-only event set (CRDT) + vector clocks; wall clocks are stored but never trusted
 ```
 
-Nothing calls the internet at runtime. Models are downloaded once by `scripts/setup_models.ps1`.
+Nothing calls the internet at runtime. Models are downloaded once during setup ([docs/SETUP.md](docs/SETUP.md)).
 
 **Full design, exact models, offline matrix, API, setup and demo checklist:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 · **Stage plan + status:** [docs/PLAN.md](docs/PLAN.md)
+· **Setup on any laptop (download links, configuration, known fixes):** [docs/SETUP.md](docs/SETUP.md)
 
 | Role | Model |
 |---|---|
@@ -40,21 +41,15 @@ Nothing calls the internet at runtime. Models are downloaded once by `scripts/se
 
 ## Setup (Windows)
 
+Full guide with download links: **[docs/SETUP.md](docs/SETUP.md)**. In short: install Git, Node.js, uv and
+Ollama (standard installers, no special model folder), download `qwen3-vl:4b` in Ollama, then:
+
 ```powershell
-# 1. Everything: Ollama, models, Python + UI deps (~10 GB to E:\ai, or -Root D:\ai)
-#    Watch progress: Get-Content E:\ai\logs\setup.log -Wait
-powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1
-
-# 2. Configure this device
-copy .env.example backend\.env
-
-# 3. Backend
-cd backend
-uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-# 4. Frontend (new terminal)
-cd frontend
-npm run dev
+cd backend;  uv sync --python 3.12
+cd frontend; npm install
+copy .env.example backend\.env          # set DEVICE_ID, MODEL_MODE, SYNC_KEY, PEERS
+cd backend;  uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+cd frontend; npm run dev                 # http://localhost:5173
 ```
 
 Run a second/third "device" on another laptop with `DEVICE_ID=phone-2`, or all three on one laptop with

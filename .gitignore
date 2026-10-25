@@ -22,3 +22,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.tsbuildinfo
+
+# Whisper models downloaded by scripts/setup_models.ps1 or by hand (docs/SETUP.md)
+backend/models/

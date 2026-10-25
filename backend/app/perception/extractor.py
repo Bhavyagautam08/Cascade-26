@@ -38,6 +38,7 @@ class Extractor:
             ],
             format=Extraction.model_json_schema(),
             options={"temperature": 0},
+            think=False,   # qwen3-vl:4b is a thinking model; reasoning would leave the JSON empty
         )
         out = Extraction.model_validate_json(resp.message.content)
         for ev in out.events:
