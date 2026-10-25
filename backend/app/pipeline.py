@@ -33,7 +33,7 @@ from app.sync.clock import wall_clock
 
 log = logging.getLogger("pipeline")
 
-store = EventStore(settings.resolve(settings.db_path), settings.device_id, wall_clock(settings.hostile_clock))
+store = EventStore.open(settings.resolve(settings.db_path), settings.device_id, wall_clock(settings.hostile_clock))
 lexicon = Lexicon(settings.resolve(settings.lexicon_path))
 recent_transcripts: deque[dict] = deque(maxlen=20)   # last few heard utterances, text only, no audio
 asr_status: dict = {"loaded": None, "source": None, "fallback": False, "error": None, "warm": False}

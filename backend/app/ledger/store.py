@@ -1,5 +1,6 @@
 """Append-only SQLite event log. Events are never updated or deleted; corrections are new events."""
 import bisect
+import json
 import re
 import sqlite3
 import threading
@@ -8,6 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from app.ledger import identity
 from app.ledger.events import Event, Kind, Posting, Source
 
 ACTOR_RE = re.compile(r"[A-Za-z0-9_.-]+")    # an event's device_id: no ":" (ids are device_id:seq), no spaces
@@ -20,6 +22,9 @@ class IngestResult:
     added: int = 0
     duplicates: int = 0                                  # already had it (normal on re-sync)
     rejected: list[dict] = field(default_factory=list)   # {"id", "reason"}
+    rotated: dict | None = None                          # {"from", "to", "because"}: see identity.py
+
+CLASH = "different content already stored under this id"
 
 
 def _holds(ranges: list[tuple[int, int]], seq: int) -> bool:
@@ -39,6 +44,42 @@ class EventStore:
         self.listeners: list[Callable[[str], None]] = []
         self.path = path
         self._open()
+
+    @classmethod
+    def open(cls, path: Path, name: str, wall_clock: Callable[[], float] = time.time) -> "EventStore":
+        """The app's way in: the ledger file of device `name`, writing as this file's own actor
+        (identity.py). Refuses a file that belongs to another name."""
+        identity.check_name(name)
+        s = cls(path, name, wall_clock)
+        with s._lock:
+            owner, actor = s.get_meta("name"), s.get_meta("actor")
+            if owner is not None and owner != name:
+                s.db.close()
+                raise identity.IdentityError(
+                    f"{path} is the ledger of {owner!r}, but DEVICE_ID is {name!r}. Start with "
+                    f"DEVICE_ID={owner}, or point DB_PATH at another file for {name!r}.")
+            if actor is None:          # new file, or one written before actors existed: a fresh actor
+                actor = identity.new_actor(name)
+                s.set_meta("name", name)
+                s.set_meta("actor", actor)
+            s.device_id = actor
+        return s
+
+    @property
+    def name(self) -> str:
+        return self.get_meta("name") or identity.name_of(self.device_id)
+
+    def previous_actors(self) -> list[str]:
+        return json.loads(self.get_meta("previous_actors") or "[]")
+
+    def rotate_actor(self, because: str) -> dict:
+        """Write as a fresh actor from now on (another ledger has written, or may write, as this one)."""
+        with self._lock:
+            old, new = self.device_id, identity.new_actor(self.name)
+            self.set_meta("previous_actors", json.dumps([*self.previous_actors(), old]))
+            self.set_meta("actor", new)
+            self.device_id = new
+        return {"from": old, "to": new, "because": because}
 
     def _open(self) -> None:
         self.db = sqlite3.connect(self.path, check_same_thread=False)
@@ -173,9 +214,12 @@ class EventStore:
         itself, and an id we already hold with *different* content (corruption or forgery: the
         log is immutable, so the first version wins and the clash is reported).
         One transaction: a failure part-way leaves the ledger as it was.
+        An entry under our own actor id that we don't hold means another ledger file writes as us: it is
+        kept, and we switch to a fresh actor before writing again (identity.py).
         """
         res = IngestResult()
         with self._lock:
+            me, foreign_own = self.device_id, []
             try:
                 for ev in events:
                     reason = None
@@ -188,16 +232,24 @@ class EventStore:
                         row = self.db.execute("SELECT body FROM events WHERE id = ?", (ev.id,)).fetchone()
                         if row is None:
                             res.added += self._insert(ev, commit=False)
+                            if ev.device_id == me:
+                                foreign_own.append(ev.id)
                             continue
                         if Event.model_validate_json(row[0]) == ev:
                             res.duplicates += 1
                             continue
-                        reason = "different content already stored under this id"
+                        reason = CLASH
+                        if ev.device_id == me:
+                            foreign_own.append(ev.id)
                     res.rejected.append({"id": ev.id, "reason": reason})
                 self.db.commit()
             except BaseException:
                 self.db.rollback()
                 raise
+            if foreign_own:
+                res.rotated = self.rotate_actor(
+                    f"another ledger file wrote as {me} ({', '.join(foreign_own[:3])}"
+                    f"{', ...' if len(foreign_own) > 3 else ''}): a copied or restored file")
         if res.added:
             self._notify("ingest")
         return res

@@ -15,6 +15,7 @@ BACKEND = Path(__file__).resolve().parent.parent / "backend"
 sys.path.insert(0, str(BACKEND))
 
 from app import seed  # noqa: E402
+from app.ledger.identity import IdentityError  # noqa: E402
 from app.ledger.store import EventStore  # noqa: E402
 
 
@@ -26,8 +27,8 @@ def main() -> int:
     sc = json.loads(Path(a.scenario).read_text(encoding="utf-8"))
     db = Path(a.db) if Path(a.db).is_absolute() else BACKEND / a.db
     try:
-        report = seed.run(EventStore(db, sc["device_id"]), sc)
-    except (seed.NotEmpty, seed.ScenarioError) as e:
+        report = seed.run(EventStore.open(db, sc["device_id"]), sc)
+    except (seed.NotEmpty, seed.ScenarioError, IdentityError) as e:
         print(f"refused: {e}", file=sys.stderr)
         return 1
     print(f"wrote {report['events']} entries over {report['days']} simulated days into {db}")

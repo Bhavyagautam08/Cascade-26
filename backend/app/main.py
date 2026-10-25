@@ -105,7 +105,8 @@ def health():
     except FileNotFoundError as e:
         whisper_ref = f"missing: {e}"
     return {
-        "device_id": settings.device_id,
+        "device_id": store.name,               # the human name (DEVICE_ID)
+        "actor": store.device_id,              # the id this ledger file writes entries under (identity.py)
         "model_mode": "demo" if settings.demo else "real",
         "llm_model": settings.llm_model,
         "whisper_model": settings.whisper_model,
