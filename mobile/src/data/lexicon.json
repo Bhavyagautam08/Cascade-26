@@ -1,0 +1,232 @@
+{
+  "items": {
+    "tamatar": "tomato",
+    "pyaz": "onion",
+    "kanda": "onion",
+    "aloo": "potato",
+    "poha": "poha",
+    "mungfali": "peanut",
+    "tel": "oil",
+    "mirchi": "chilli",
+    "dhaniya": "coriander",
+    "chai": "tea",
+    "doodh": "milk",
+    "gas": "gas",
+    "bhada": "rent",
+    "kiraya": "rent",
+    "pyaaz": "onion",
+    "pyaj": "onion",
+    "onion": "onion",
+    "tomato": "tomato",
+    "bhindi": "okra",
+    "lauki": "bottle gourd",
+    "gobhi": "cauliflower",
+    "palak": "spinach",
+    "adrak": "ginger",
+    "lehsun": "garlic",
+    "nimbu": "lemon",
+    "anda": "eggs",
+    "ande": "eggs",
+    "egg": "eggs",
+    "chawal": "rice",
+    "rice": "rice",
+    "cheeni": "sugar",
+    "shakkar": "sugar",
+    "sugar": "sugar",
+    "namak": "salt",
+    "atta": "flour",
+    "maida": "refined flour",
+    "besan": "gram flour",
+    "dahi": "curd",
+    "paneer": "paneer",
+    "makhan": "butter",
+    "ghee": "ghee",
+    "mawa": "mawa",
+    "khoya": "mawa",
+    "kesar": "saffron",
+    "elaichi": "cardamom",
+    "haldi": "turmeric",
+    "jeera": "cumin",
+    "achaar": "pickle",
+    "achar": "pickle",
+    "badam": "almonds",
+    "kaju": "cashew",
+    "pista": "pistachio",
+    "milk": "milk",
+    "oil": "oil",
+    "sooji": "semolina",
+    "dal": "dal",
+    "shimla mirch": "capsicum",
+    "capsicum": "capsicum"
+  },
+  "units": {
+    "kilo": {
+      "unit": "kg",
+      "factor": 1.0
+    },
+    "kg": {
+      "unit": "kg",
+      "factor": 1.0
+    },
+    "paav": {
+      "unit": "kg",
+      "factor": 0.25
+    },
+    "aadha kilo": {
+      "unit": "kg",
+      "factor": 0.5
+    },
+    "gram": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "litre": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "plate": {
+      "unit": "plate",
+      "factor": 1.0
+    },
+    "cup": {
+      "unit": "plate",
+      "factor": 1.0
+    },
+    "packet": {
+      "unit": "packet",
+      "factor": 1.0
+    },
+    "kgs": {
+      "unit": "kg",
+      "factor": 1.0
+    },
+    "g": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "gm": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "gms": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "grams": {
+      "unit": "kg",
+      "factor": 0.001
+    },
+    "l": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "ltr": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "liter": {
+      "unit": "l",
+      "factor": 1.0
+    },
+    "ml": {
+      "unit": "l",
+      "factor": 0.001
+    },
+    "millilitre": {
+      "unit": "l",
+      "factor": 0.001
+    },
+    "dozen": {
+      "unit": "dozen",
+      "factor": 1.0
+    },
+    "darjan": {
+      "unit": "dozen",
+      "factor": 1.0
+    },
+    "piece": {
+      "unit": "piece",
+      "factor": 1.0
+    },
+    "bottle": {
+      "unit": "bottle",
+      "factor": 1.0
+    }
+  },
+  "aliases": {
+    "sharma ji": "sharma",
+    "sharma uncle": "sharma",
+    "chhotu": "chhotu",
+    "pandey ji": "pandey"
+  },
+  "verbs": {
+    "liya": "purchase",
+    "laya": "purchase",
+    "kharida": "purchase",
+    "becha": "sale",
+    "de": "sale",
+    "diya": "sale",
+    "jama": "credit_paid",
+    "chukaya": "credit_paid",
+    "udhaar": "credit_given",
+    "baaki": "credit_given",
+    "likh": "credit_given",
+    "bacha": "stock_count",
+    "bache": "stock_count",
+    "bachi": "stock_count",
+    "gina": "stock_count",
+    "kharcha": "expense",
+    "kharch": "expense",
+    "bhara": "expense",
+    "chahiye": "order",
+    "chahie": "order",
+    "chaiye": "order",
+    "bhej do": "order",
+    "mangwa": "order"
+  },
+  "numbers": {
+    "ek": 1,
+    "do": 2,
+    "teen": 3,
+    "char": 4,
+    "chaar": 4,
+    "paanch": 5,
+    "chhe": 6,
+    "saat": 7,
+    "aath": 8,
+    "nau": 9,
+    "das": 10,
+    "bees": 20,
+    "pachaas": 50,
+    "sau": 100,
+    "hazaar": 1000,
+    "dus": 10,
+    "pandrah": 15,
+    "pachees": 25,
+    "tees": 30,
+    "chalees": 40,
+    "aadha": 0.5,
+    "dedh": 1.5,
+    "dhai": 2.5,
+    "saath": 60,
+    "sattar": 70,
+    "assi": 80,
+    "nabbe": 90,
+    "chaalees": 40,
+    "pachas": 50,
+    "soo": 100,
+    "dedh sau": 150,
+    "dhai sau": 250,
+    "saadhe teen sau": 350
+  },
+  "prices": {
+    "poha": 20,
+    "tea": 10
+  },
+  "perishable": [
+    "tomato",
+    "coriander",
+    "milk",
+    "chilli"
+  ]
+}
