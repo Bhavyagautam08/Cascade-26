@@ -1,0 +1,15 @@
+{
+  "verified_by": null,
+  "notes": "DRAFT read by Claude from the photo - a human must check every line, fix it, then put their name in verified_by",
+  "supplier": null,
+  "total_rupees": null,
+  "lines": [
+    {"item": "baking soda powder", "qty": 1, "unit": "kg", "amount_rupees": null},
+    {"item": "refined sugar", "qty": 2.5, "unit": "kg", "amount_rupees": null},
+    {"item": "vinegar", "qty": 700, "unit": "ml", "amount_rupees": null},
+    {"item": "eggs", "qty": 1, "unit": "dozen", "amount_rupees": null},
+    {"item": "cocoa powder", "qty": 250, "unit": "g", "amount_rupees": null},
+    {"item": "milkmaid", "qty": 250, "unit": "ml", "amount_rupees": null},
+    {"item": "hershey", "qty": 250, "unit": "ml", "amount_rupees": null}
+  ]
+}

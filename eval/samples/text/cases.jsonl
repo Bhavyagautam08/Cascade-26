@@ -1,0 +1,6 @@
+{"id": "t001", "text": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.", "events": [{"kind": "purchase", "item": "tomato", "qty": 3, "unit": "kg", "amount_rupees": 180}, {"kind": "credit_paid", "party": "sharma", "amount_rupees": 40}, {"kind": "sale", "item": "poha", "qty": 7, "unit": "plate"}]}
+{"id": "t002", "text": "aaj bahut garmi hai bhai", "events": []}
+{"id": "t003", "text": "pandey ji ka 60 udhaar likh do", "events": [{"kind": "credit_given", "party": "pandey", "amount_rupees": 60}]}
+{"id": "t004", "text": "2 kilo pyaz laya 80 aur 1 kilo aloo 30", "events": [{"kind": "purchase", "item": "onion", "qty": 2, "unit": "kg", "amount_rupees": 80}, {"kind": "purchase", "item": "potato", "qty": 1, "unit": "kg", "amount_rupees": 30}]}
+{"id": "t005", "text": "gas cylinder ka 950 kharcha hua", "events": [{"kind": "expense", "item": "gas", "amount_rupees": 950}]}
+{"id": "t006", "text": "shaam ko 2 kilo poha bacha hai", "events": [{"kind": "stock_count", "item": "poha", "qty": 2, "unit": "kg"}]}
