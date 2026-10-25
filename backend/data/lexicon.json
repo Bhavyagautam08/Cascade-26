@@ -1,0 +1,33 @@
+{
+  "items": {
+    "tamatar": "tomato",
+    "pyaz": "onion",
+    "aloo": "potato",
+    "poha": "poha",
+    "mungfali": "peanut",
+    "tel": "oil",
+    "mirchi": "chilli",
+    "dhaniya": "coriander"
+  },
+  "units": {
+    "kilo": {"unit": "kg", "factor": 1.0},
+    "kg": {"unit": "kg", "factor": 1.0},
+    "paav": {"unit": "kg", "factor": 0.25},
+    "aadha kilo": {"unit": "kg", "factor": 0.5},
+    "plate": {"unit": "plate", "factor": 1.0},
+    "packet": {"unit": "packet", "factor": 1.0}
+  },
+  "aliases": {
+    "sharma ji": "sharma",
+    "sharma uncle": "sharma",
+    "chhotu": "chhotu"
+  },
+  "verbs": {
+    "liya": "purchase",
+    "becha": "sale",
+    "de": "sale",
+    "jama": "credit_paid",
+    "udhaar": "credit_given",
+    "baaki": "credit_given"
+  }
+}
