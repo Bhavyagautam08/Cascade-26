@@ -8,7 +8,7 @@ Three family devices sync peer-to-peer without a server, and survive broken cloc
 
 ```
 [Perception]   mic (always on) / slip photo / SMS / tally  ->  candidate events + confidence
-               Silero VAD -> faster-whisper (large-v3-turbo) -> local LLM via Ollama (JSON schema)
+               Silero VAD -> faster-whisper (small) -> local LLM via Ollama (JSON schema)
 [Ledger]       append-only event log -> evidence fusion -> double-entry postings
                -> recipe inference / loss attribution / credit reconciliation -> Monte Carlo ranges
 [Sync]         grow-only event set (CRDT) + vector clocks; wall clocks are stored but never trusted
@@ -22,9 +22,9 @@ Nothing calls the internet at runtime. Models are downloaded once during setup (
 
 | Role | Model |
 |---|---|
-| Speech-to-text | faster-whisper `large-v3-turbo` (int8_float16, CUDA); CPU fallback `small` |
+| Speech-to-text | faster-whisper `small` only (int8_float16 on CUDA; same model on CPU if CUDA fails) |
 | VAD | Silero (bundled in faster-whisper) |
-| Text → events + slip reading | Ollama `qwen3-vl:4b` (bake-off rival `gemma3:4b`) |
+| Text → events + slip reading | Ollama `qwen3-vl:4b-instruct` (bake-off rival `gemma3:4b`) |
 | No-model fallback | lexicon-driven rule parser |
 
 ## Repo layout
@@ -42,11 +42,10 @@ Nothing calls the internet at runtime. Models are downloaded once during setup (
 ## Setup (Windows)
 
 Full guide with download links: **[docs/SETUP.md](docs/SETUP.md)**. In short: install Git, Node.js, uv and
-Ollama (standard installers, no special model folder), download `qwen3-vl:4b` in Ollama, then:
+Ollama (standard installers, no special model folder), download `qwen3-vl:4b-instruct` in Ollama, then:
 
 ```powershell
-cd backend;  uv sync --python 3.12
-cd frontend; npm install
+powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1   # deps + Whisper small, into your user profile
 copy .env.example backend\.env          # set DEVICE_ID, MODEL_MODE, SYNC_KEY, PEERS
 cd backend;  uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 cd frontend; npm run dev                 # http://localhost:5173
@@ -60,4 +59,4 @@ No models yet? Set `MODEL_MODE=demo` in `backend\.env`: the full UI and ledger r
 ## Offline check
 
 Disconnect Wi-Fi, then start the backend and UI. Everything must still work. `GET /health` reports
-whether Ollama and the Whisper model are reachable locally.
+whether Ollama is reachable (`llm_problem`) and which Whisper weights loaded (`asr.source`, `asr.error`).

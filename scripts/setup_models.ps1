@@ -1,19 +1,24 @@
-# Optional helper for a fresh clone on Windows: Python deps, UI deps, Whisper models, and a check of
-# Ollama. It never installs Ollama, never pulls Ollama models and never changes environment variables:
-# Ollama is installed normally and keeps its models in its own default folder (see docs/SETUP.md).
+# Optional helper for a fresh clone on Windows: Python deps, UI deps, the Whisper "small" model, and a
+# check of Ollama. It never installs Ollama or pulls Ollama models (see docs/SETUP.md).
 # Safe to re-run: every step skips what already exists, and retries on flaky networks.
+#
+# Nothing heavy goes into the project folder:
+#   Python environment -> %LOCALAPPDATA%\cascade\backend-venv   (user variable UV_PROJECT_ENVIRONMENT)
+#   Python packages    -> uv's own cache in %LOCALAPPDATA%\uv
+#   Whisper small      -> the Hugging Face cache in %USERPROFILE%\.cache\huggingface
+#   Node packages      -> frontend\node_modules (Node only finds packages there; npm's cache stays in %LOCALAPPDATA%)
 #
 #   powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1
 #   powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1 -SkipWhisper    # deps only
 #
-# Log: backend\models\setup.log
+# Log: %LOCALAPPDATA%\cascade\setup.log
 param([switch]$SkipWhisper)
 
 $ErrorActionPreference = "Continue"
 $repo = Split-Path $PSScriptRoot -Parent
-$models = Join-Path $repo "backend\models"          # Whisper only; found automatically by the backend
-New-Item -ItemType Directory -Force $models | Out-Null
-$log = Join-Path $models "setup.log"
+$home_dir = Join-Path $env:LOCALAPPDATA "cascade"
+New-Item -ItemType Directory -Force $home_dir | Out-Null
+$log = Join-Path $home_dir "setup.log"
 
 function Log($msg) {
     $line = "[{0}] {1}" -f (Get-Date -Format "HH:mm:ss"), $msg
@@ -41,7 +46,18 @@ if (-not $uv) {
     exit 1
 }
 
-# --- 2. Python deps (backend\.venv, Python 3.12) -----------------------------------------
+# --- 2. Python environment outside the project ----------------------------------------------
+# Stored with %LOCALAPPDATA% unexpanded, so the setting holds no fixed path.
+$envKey = Get-Item HKCU:\Environment
+if (-not $envKey.GetValue("UV_PROJECT_ENVIRONMENT")) {
+    Set-ItemProperty HKCU:\Environment -Name UV_PROJECT_ENVIRONMENT -Value '%LOCALAPPDATA%\cascade\backend-venv' -Type ExpandString
+    [Environment]::SetEnvironmentVariable("CASCADE_ENV_REFRESH", "1", "User")   # tell Windows the environment changed
+    [Environment]::SetEnvironmentVariable("CASCADE_ENV_REFRESH", $null, "User")
+    Log "set user variable UV_PROJECT_ENVIRONMENT=%LOCALAPPDATA%\cascade\backend-venv (open a new terminal to use it)"
+}
+$env:UV_PROJECT_ENVIRONMENT = [Environment]::ExpandEnvironmentVariables($envKey.GetValue("UV_PROJECT_ENVIRONMENT", '%LOCALAPPDATA%\cascade\backend-venv', 'DoNotExpandEnvironmentNames'))
+Log "Python environment: $env:UV_PROJECT_ENVIRONMENT"
+
 Push-Location (Join-Path $repo "backend")
 Retry "uv sync (backend deps)" { & $uv sync --python 3.12 2>&1 | Select-Object -Last 2 | Out-File -Append $log } | Out-Null
 Pop-Location
@@ -53,22 +69,18 @@ if (Get-Command npm -ErrorAction SilentlyContinue) {
     Pop-Location
 } else { Log "MISSING: Node.js - install from https://nodejs.org/en/download"; $script:missing += "Node.js" }
 
-# --- 4. Whisper models into backend\models\whisper-<name> (CTranslate2 format) ----------
+# --- 4. Whisper small into the user's Hugging Face cache ----------------------------------
+# Same repo and files faster-whisper itself fetches for "small", so the app finds it offline later.
 if (-not $SkipWhisper) {
-    foreach ($m in @(@{ name = "large-v3-turbo"; repo = "mobiuslabsgmbh/faster-whisper-large-v3-turbo" },
-                     @{ name = "small"; repo = "Systran/faster-whisper-small" })) {
-        $dir = Join-Path $models "whisper-$($m.name)"
-        if (Test-Path (Join-Path $dir "model.bin")) { Log "whisper $($m.name) already present"; continue }
-        Push-Location (Join-Path $repo "backend")
-        Retry "whisper $($m.name)" {
-            & $uv run python -c "from huggingface_hub import snapshot_download as d; d('$($m.repo)', local_dir=r'$dir')" 2>&1 | Select-Object -Last 1 | Out-File -Append $log
-        } | Out-Null
-        Pop-Location
-    }
+    Push-Location (Join-Path $repo "backend")
+    Retry "whisper small" {
+        & $uv run python -c "from huggingface_hub import snapshot_download as d; print(d('Systran/faster-whisper-small', allow_patterns=['config.json','preprocessor_config.json','model.bin','tokenizer.json','vocabulary.*']))" 2>&1 | Select-Object -Last 1 | Out-File -Append $log
+    } | Out-Null
+    Pop-Location
 }
 
 # --- 5. Ollama: check only (install it and download the model yourself, see docs/SETUP.md) ----
-$llm = "qwen3-vl:4b"
+$llm = "qwen3-vl:4b-instruct"
 $envFile = Join-Path $repo "backend\.env"
 if (Test-Path $envFile) {
     $line = Select-String -Path $envFile -Pattern '^\s*LLM_MODEL\s*=\s*(.+)$' | Select-Object -First 1

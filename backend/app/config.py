@@ -17,14 +17,15 @@ class Settings(BaseSettings):
     model_mode: str = "real"
 
     ollama_host: str = "http://127.0.0.1:11434"
-    llm_model: str = "qwen3-vl:4b"
+    # Must be a non-thinking model: the plain "qwen3-vl:4b" tag is the Thinking variant and returns empty JSON
+    llm_model: str = "qwen3-vl:4b-instruct"
 
-    # Whisper: a model name or a folder holding model.bin. For a name, backend/models/whisper-<name> is used
-    # when present (no path setting needed); otherwise faster-whisper fetches it once from Hugging Face.
-    whisper_model: str = "large-v3-turbo"
+    # Whisper "small" is the only speech model. A name is looked up in the user's Hugging Face cache
+    # (%USERPROFILE%\.cache\huggingface) and downloaded there once if missing; a folder holding
+    # model.bin also works. If CUDA fails, the same model runs on the CPU (reported in /health).
+    whisper_model: str = "small"
     whisper_device: str = "cuda"
     whisper_compute_type: str = "int8_float16"
-    whisper_fallback_model: str = "small"   # CPU fallback if CUDA is unavailable
 
     whisper_preload: bool = True           # load + warm Whisper at startup (first call costs ~20 s)
     llm_max_confidence: float = 0.85       # the LLM's self-reported confidence is uncalibrated: cap it
@@ -48,14 +49,17 @@ class Settings(BaseSettings):
         return None if v == "" else v   # "MIC_DEVICE_INDEX=" in .env means the system default mic
 
     def whisper_ref(self, value: str) -> str:
-        """Model name or folder -> what faster-whisper should load. Relative folders resolve against backend/."""
-        if "/" in value or "\\" in value:
-            folder = self.resolve(value)
+        """Model name or folder -> what faster-whisper should load.
+
+        A plain name ("small") is resolved by faster-whisper through the user's Hugging Face cache.
+        A folder must hold model.bin; relative folders resolve against backend/.
+        """
+        folder = self.resolve(value)
+        if folder.is_dir():
             if not (folder / "model.bin").exists():
                 raise FileNotFoundError(f"Whisper model folder {folder} has no model.bin (see docs/SETUP.md)")
             return str(folder)
-        local = BACKEND_DIR / "models" / f"whisper-{value}"
-        return str(local) if (local / "model.bin").exists() else value
+        return value   # "small", or a Hugging Face repo id like "Systran/faster-whisper-small"
 
     def resolve(self, rel: str) -> Path:
         p = Path(rel)

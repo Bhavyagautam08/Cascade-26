@@ -28,41 +28,46 @@ Notes:
 
 ## 2. Download the models
 
-### Language model (Ollama): `qwen3-vl:4b`, about 3.3 GB
+### Language model (Ollama): `qwen3-vl:4b-instruct`, about 3.1 GB
 
 Model page: https://ollama.com/library/qwen3-vl
 
 Ollama downloads models itself; the website has no download button. Open the **Ollama app**, pick
-`qwen3-vl:4b` in its model selector and send any message, and the app downloads it. If your Ollama
-version has no model selector, the only alternative is the one command `ollama pull qwen3-vl:4b`.
+`qwen3-vl:4b-instruct` in its model selector and send any message, and the app downloads it. If your Ollama
+version has no model selector, the only alternative is the one command `ollama pull qwen3-vl:4b-instruct`.
 
 Using a different model you already have? Put its name in `LLM_MODEL` in `backend\.env` (step 4).
 
-### Speech-to-text (Whisper)
+### Speech-to-text: Whisper `small` (~0.5 GB), the only speech model
 
-Download every file on each page into the folder shown (create the folders):
+Model page: https://huggingface.co/Systran/faster-whisper-small
 
-| Model | Files to download | Put them in |
-|---|---|---|
-| large-v3-turbo (GPU, main) ~1.6 GB | https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo/tree/main | `backend\models\whisper-large-v3-turbo\` |
-| small (CPU fallback) ~0.5 GB | https://huggingface.co/Systran/faster-whisper-small/tree/main | `backend\models\whisper-small\` |
-
-The backend finds these folders by itself; no path setting needed. `backend\models\` is git-ignored.
-Skip this step and Whisper downloads them once on first use (needs internet that one time).
+It is stored in the standard Hugging Face cache in your user profile
+(`%USERPROFILE%\.cache\huggingface`), never in the project. `scripts\setup_models.ps1` downloads it
+there; otherwise the backend downloads it there on first start (needs internet that one time) and
+uses the cached copy offline from then on.
 
 ## 3. Get the code and install the packages
 
 Download the project from https://github.com/Bhavyagautam08/Cascade-26 (green **Code** button →
 **Download ZIP**, or clone it with Git). Then, in a terminal inside the project folder:
 
+Easiest: run the helper once. It installs everything below into your user profile, not the project:
+
 ```powershell
-cd backend;  uv sync --python 3.12        # backend packages (~2.4 GB incl. CUDA libraries)
-cd ..\frontend; npm install               # dashboard packages
+powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1
 ```
 
-These two commands download the project's packages; they have no download-page alternative.
-(`scripts\setup_models.ps1` does steps 2–3 for you and checks Ollama, if you prefer one script.
-It never installs Ollama or downloads Ollama models.)
+| What | Where it goes |
+|---|---|
+| Python environment | `%LOCALAPPDATA%\cascade\backend-venv` (the script sets the user variable `UV_PROJECT_ENVIRONMENT` to this, written with `%LOCALAPPDATA%`) |
+| Python packages (~2.4 GB incl. CUDA libraries) | uv's cache, `%LOCALAPPDATA%\uv` |
+| Whisper `small` | `%USERPROFILE%\.cache\huggingface` |
+| Dashboard packages | `frontend\node_modules` (Node only looks there; npm's download cache is in `%LOCALAPPDATA%\npm-cache`) |
+
+By hand instead: set the user variable `UV_PROJECT_ENVIRONMENT` to `%LOCALAPPDATA%\cascade\backend-venv`,
+open a new terminal, then `cd backend; uv sync --python 3.12` and `cd ..\frontend; npm install`.
+Without that variable uv puts the environment in `backend\.venv` (git-ignored; it still works).
 
 ## 4. Configure this device
 
@@ -72,7 +77,7 @@ Copy `.env.example` to `backend\.env`. The defaults work; change only what appli
 |---|---|
 | `DEVICE_ID` | unique per device: `phone-1`, `phone-2`, `phone-3` |
 | `MODEL_MODE` | `real` (models installed) or `demo` (labelled stand-ins, no models needed) |
-| `LLM_MODEL` | `qwen3-vl:4b`, or another Ollama model you have |
+| `LLM_MODEL` | `qwen3-vl:4b-instruct`, or another Ollama model you have |
 | `MIC_ENABLED` | `true` on the vendor's main device |
 | `SYNC_KEY` | the same secret on every family device (empty = anyone on the Wi-Fi can sync) |
 | `PEERS` | the other devices, e.g. `http://192.168.1.12:8000,http://192.168.1.13:8000` |
@@ -94,8 +99,8 @@ Open http://localhost:8000/health in a browser:
 | Field | Good | If not |
 |---|---|---|
 | `llm_ready` | `true` | `llm_problem` says exactly what's missing: Ollama not running, or the model not downloaded |
-| `whisper_source` | your `backend\models\whisper-…` folder | a plain name means it will download on first use |
-| `asr.fallback` | `false` (after the first utterance) | `true` = GPU speech failed, using CPU `small`; see `asr.error` |
+| `asr.source` | a folder under `%USERPROFILE%\.cache\huggingface` | empty until Whisper has loaded; see `asr.error` |
+| `asr.fallback` | `false` | `true` = the GPU failed, so `small` runs on the CPU (slower); see `asr.error` |
 | `mic_listening` | `true` when `MIC_ENABLED=true` | `mic.last_error` says why |
 
 Tests: `cd backend; uv run pytest -q` → all pass.
@@ -111,7 +116,7 @@ after that about 1 s per sentence.
 |---|---|---|
 | `llm_problem`: Ollama is not running | Ollama closed | start Ollama from the Start menu |
 | `llm_problem`: Ollama has no model … | model not downloaded | step 2, or set `LLM_MODEL` to a model you have |
-| LLM returns empty output (`Invalid JSON … input_value=''`) | some Ollama builds of `qwen3-vl:4b` are "thinking" models | the code sends `think=False`; if it persists, try another vision model in `LLM_MODEL` |
+| LLM returns empty output (`Invalid JSON … input_value=''`), each call takes a minute | `LLM_MODEL` is a "thinking" model: the plain `qwen3-vl:4b` tag is the Thinking variant, ignores `think=False` and reasons until the output limit | use `qwen3-vl:4b-instruct` (`ollama show <model>` must not list renderer `qwen3-vl-thinking`) |
 | `An Application Control policy has blocked this file` | Windows Smart App Control blocks some unsigned files | handled in code (Whisper works without PyAV; uploaded clips must then be WAV). Don't switch Smart App Control off: it can't be turned back on without reinstalling Windows |
 | `Library cublas64_12.dll is not found` | CUDA libraries not on the search path | handled in code; if it persists, re-run `uv sync` |
 | `ollama ps` shows a CPU/GPU split, very slow | not enough free graphics memory | close other GPU apps; an 8 GB GPU fits Whisper + the 4B model |

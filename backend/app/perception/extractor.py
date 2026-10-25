@@ -37,8 +37,11 @@ class Extractor:
                 {"role": "user", "content": f"source={source.value}\ntext: {text}"},
             ],
             format=Extraction.model_json_schema(),
-            options={"temperature": 0},
-            think=False,   # qwen3-vl:4b is a thinking model; reasoning would leave the JSON empty
+            # num_predict bounds a runaway answer; an answer cut off by it fails schema validation (502)
+            options={"temperature": 0, "num_predict": 1024},
+            # Needs a non-thinking model (qwen3-vl:4b-instruct). Thinking variants such as qwen3-vl:4b
+            # ignore this flag, reason until num_predict runs out and return empty content.
+            think=False,
         )
         out = Extraction.model_validate_json(resp.message.content)
         for ev in out.events:

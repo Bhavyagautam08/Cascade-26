@@ -1,4 +1,7 @@
-"""Speech-to-text with faster-whisper, fully local. Model weights come from HF_HOME (E:\\ai\\hf)."""
+"""Speech-to-text with faster-whisper "small", fully local.
+
+Weights live in the user's Hugging Face cache (%USERPROFILE%\\.cache\\huggingface), never in the project.
+"""
 from dataclasses import dataclass
 from io import BytesIO
 
@@ -84,11 +87,27 @@ def _decode_wav(data: bytes) -> np.ndarray:
 _BLOCKLIST = ("thanks for watching", "subscribe", "thank you for watching")
 
 
+def _model_folder(model: str) -> str:
+    """Folder with the model's weights. Names resolve in the user's Hugging Face cache; a missing
+    model is downloaded into that cache once (the only step that needs internet)."""
+    from pathlib import Path
+
+    if Path(model).is_dir():
+        return model
+    from faster_whisper.utils import download_model
+
+    try:
+        return download_model(model, local_files_only=True)
+    except Exception:  # not cached yet -> fetch once into the same cache
+        return download_model(model)
+
+
 class ASR:
     def __init__(self, model: str, device: str, compute_type: str):
         WhisperModel = _whisper_model_class()  # imported lazily: heavy, needs CUDA libs
 
-        self.model = WhisperModel(model, device=device, compute_type=compute_type)
+        self.source = _model_folder(model)
+        self.model = WhisperModel(self.source, device=device, compute_type=compute_type)
         self.name = f"{model} ({device})"
 
     def transcribe(self, audio: np.ndarray, hotwords: str | None = None) -> Transcript | None:

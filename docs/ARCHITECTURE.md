@@ -74,17 +74,17 @@ rule parser and manual entry, and it still syncs.
 │  INPUTS                     PERCEPTION                                   LEDGER                      │
 │                                                                                                     │
 │  Mic (always on) ──► MicListener ──► faster-whisper ──┐                                             │
-│  16 kHz mono        energy cut       large-v3-turbo   │ text                                        │
+│  16 kHz mono        energy cut       small            │ text                                        │
 │                     at pauses        + Silero VAD     │                                             │
 │                                      + lexicon hotwords│                                            │
 │                                                       ▼                                             │
 │  SMS / tally / typed ───────────────────────────► Extractor ──► CandidateEvent[] ──► postings_for() │
-│                                                   qwen3-vl:4b     (kind, item, qty,      │          │
+│                                                   qwen3-vl:4b-instruct     (kind, item, qty,      │          │
 │                                                   JSON schema     unit, amount, party,   ▼          │
 │                                                   ── fallback ──► confidence)       EventStore      │
 │                                                   rules.parse()                     (SQLite,        │
 │                                                   (lexicon-driven)                   append-only)   │
-│  Slip photo ──► SlipReader (qwen3-vl:4b) ──► lines + confidence ──► vendor confirms ──┘   │         │
+│  Slip photo ──► SlipReader (qwen3-vl:4b-instruct) ──► lines + confidence ──► vendor confirms ──┘   │         │
 │                                                                                           ▼         │
 │                                                         fuse(): duplicates once, disputes→suspense  │
 │                                                                           │                         │
@@ -114,26 +114,25 @@ rule parser and manual entry, and it still syncs.
 
 | Role | Model (exact ID) | Source | Format / runtime | Download | VRAM (est.) | Settings | Fallback |
 |---|---|---|---|---|---|---|---|
-| **Speech-to-text (primary)** | `large-v3-turbo` → HF `mobiuslabsgmbh/faster-whisper-large-v3-turbo` | Hugging Face | CTranslate2 / faster-whisper | ~1.6 GB | ~1.5–2 GB | `device=cuda`, `compute_type=int8_float16`, `beam_size=5`, `vad_filter=True`, `condition_on_previous_text=False`, `hotwords=<lexicon>` | CPU model below |
-| **Speech-to-text (CPU fallback)** | `small` → HF `Systran/faster-whisper-small` | Hugging Face | CTranslate2 / faster-whisper | ~0.5 GB | 0 (CPU) | `device=cpu`, `compute_type=int8` | typed input |
+| **Speech-to-text (only model)** | `small` → HF `Systran/faster-whisper-small`, cached in `%USERPROFILE%\.cache\huggingface` | Hugging Face | CTranslate2 / faster-whisper | ~0.5 GB | ~1 GB (est.) | `device=cuda`, `compute_type=int8_float16`, `beam_size=5`, `vad_filter=True`, `condition_on_previous_text=False`, `hotwords=<lexicon>` | same model on CPU (`int8`), then typed input |
 | **Voice activity detection** | Silero VAD (bundled inside faster-whisper) | ships with `faster-whisper` | ONNX on CPU | 0 (bundled) | 0 | via `vad_filter=True` | energy gate in `mic.py` |
-| **Text → ledger events** | `qwen3-vl:4b` | Ollama library | GGUF Q4 / Ollama | ~3.3 GB | ~4–5 GB | `temperature=0`, `format=<pydantic JSON schema>` | `rules.parse()` (no model) |
-| **Slip reading (vision)** | `qwen3-vl:4b` (same model, loaded once) | Ollama library | GGUF Q4 / Ollama | shared | shared | `temperature=0`, `format=Slip schema` | manual entry of lines |
+| **Text → ledger events** | `qwen3-vl:4b-instruct` | Ollama library | GGUF Q4 / Ollama | ~3.3 GB | ~4–5 GB | `temperature=0`, `format=<pydantic JSON schema>` | `rules.parse()` (no model) |
+| **Slip reading (vision)** | `qwen3-vl:4b-instruct` (same model, loaded once) | Ollama library | GGUF Q4 / Ollama | shared | shared | `temperature=0`, `format=Slip schema` | manual entry of lines |
 | **Bake-off alternative (optional)** | `gemma3:4b` | Ollama library | GGUF Q4 / Ollama | ~3.3 GB | ~4–5 GB | same as above | — |
-| **Hinglish ASR alternative (only if turbo fails bake-off)** | `Trelis/tara` (Whisper large-v3 fine-tune, Apache-2.0) | Hugging Face | Transformers (needs PyTorch) or CTranslate2 conversion | ~3–4 GB | ~3.5–4 GB fp16 | `<\|mixedcode\|>` mode | turbo |
 
-**Why these:** one 4B vision-language model does both text extraction and slip reading, so only one
-LLM sits in VRAM. Turbo + qwen3-vl:4b ≈ 6–7 GB, which fits an 8 GB laptop GPU; 7–8B LLMs do not fit
-next to Whisper. Gemma 3n would do audio+image in one model, but Ollama exposes it as text-only, so it
+**Why these:** Whisper `small` is the team's choice for speech: small download, fast on GPU and usable
+on CPU. Larger Whisper models are not used. One 4B vision-language model does both text extraction and
+slip reading, so only one LLM sits in VRAM: `small` + qwen3-vl:4b-instruct ≈ 5–6 GB (est.), within an 8 GB
+laptop GPU. Gemma 3n would do audio+image in one model, but Ollama exposes it as text-only, so it
 is not used. Sizes/VRAM are estimates from model pages and community guides; verify on the target laptop.
 
 ### Hardware budget (per device that runs models)
 
 | Resource | Need | Notes |
 |---|---|---|
-| GPU | NVIDIA, ≥ 8 GB VRAM (tested target: RTX 4060 Laptop 8 GB) | Whisper ~2 GB + qwen3-vl:4b ~4–5 GB |
+| GPU | NVIDIA, 8 GB VRAM targeted (RTX 4060 Laptop; not yet measured) | Whisper small ~1 GB + qwen3-vl:4b-instruct ~4–5 GB (est.) |
 | RAM | 16 GB | Keep browser tabs low; avoid models that spill out of VRAM |
-| Disk | ~5.5 GB for models (Ollama's own folder + `backend/models/`) + ~3 GB for Python/Node deps | Ollama manages its own model folder |
+| Disk | ~4 GB for models (Ollama's own folder + Hugging Face cache) + ~3 GB for Python/Node deps, all in the user profile | Nothing heavy in the project folder except `frontend/node_modules` |
 | OS | Windows 10/11 x64 | Scripts are PowerShell |
 
 Devices **without** a GPU still run everything except fast speech/vision (CPU Whisper `small` works, slower).
@@ -310,9 +309,9 @@ once Whisper and Ollama are installed. `HOSTILE_CLOCK=1970|jump` simulates a bro
 | UI | No | Vite dev server on localhost, no CDN assets | `npm install` | Offline after setup | CDN link sneaks in → offline test |
 | Backend API | No | FastAPI on localhost | `uv sync` | Offline after setup | — |
 | Mic capture + VAD | No | sounddevice + Silero (bundled) | pip deps | Offline after setup | mic levels → calibrate threshold |
-| Speech-to-text | No | faster-whisper turbo on GPU | weights in `HF_HOME` | Offline after setup | CUDA libs → CPU `small` fallback |
-| Text → events | No | qwen3-vl:4b via Ollama (localhost:11434) | `ollama pull` | Offline after setup | model down → rule parser |
-| Slip reading | No | qwen3-vl:4b via Ollama | shared | Offline after setup | bad read → vendor confirm screen |
+| Speech-to-text | No | faster-whisper `small` on GPU | weights in the user's Hugging Face cache | Offline after setup | CUDA libs → same model on CPU |
+| Text → events | No | qwen3-vl:4b-instruct via Ollama (localhost:11434) | `ollama pull` | Offline after setup | model down → rule parser |
+| Slip reading | No | qwen3-vl:4b-instruct via Ollama | shared | Offline after setup | bad read → vendor confirm screen |
 | Ledger, fusion, inference | No | Python/NumPy/SciPy | pip deps | Fully offline | — |
 | Storage | No | SQLite file per device | — | Fully offline | — |
 | Sync | No (LAN only) | HTTP between devices on a local hotspot | — | Fully offline | real BLE → [OPEN] |
@@ -325,7 +324,7 @@ once Whisper and Ollama are installed. `HOSTILE_CLOCK=1970|jump` simulates a bro
 | Failure | Detection | Fallback |
 |---|---|---|
 | Ollama not running / model missing | `/health.llm_ready=false`, exception in extractor | `rules.parse()` (automatic in `engine=auto`) |
-| CUDA/cuDNN broken | `ASR()` raises on GPU | Whisper `small` on CPU (int8) |
+| CUDA/cuDNN broken | `ASR()` raises on GPU | same Whisper `small` on CPU (int8), `/health.asr.fallback=true` |
 | Whisper hallucinates on noise | empty/blocked text, VAD filter | utterance dropped |
 | LLM invents amounts | prompt + schema + Pydantic validation; rules cross-check | amount null → low confidence, no posting |
 | Slip unreadable | per-line confidence | UI asks vendor to confirm/edit |
@@ -349,7 +348,7 @@ once Whisper and Ollama are installed. `HOSTILE_CLOCK=1970|jump` simulates a bro
 
 | Laptop | Role | Runs models? |
 |---|---|---|
-| L1 (best GPU) | `phone-1` — the vendor's main device; always-on mic + slip camera | Yes (turbo + qwen3-vl:4b) |
+| L1 (best GPU) | `phone-1` — the vendor's main device; always-on mic + slip camera | Yes (Whisper small + qwen3-vl:4b-instruct) |
 | L2 | `phone-2` — family member | Yes if downloaded, else rules |
 | L3 | `phone-3` — family member; **hostile clock demo** (set to 1970) | Optional |
 | L4 | Development / spare / presenting slides | Optional |
@@ -366,9 +365,12 @@ Step-by-step with download links: **[`SETUP.md`](SETUP.md)**. Principles:
   `OLLAMA_MODELS` or any model path; it only calls Ollama's local API (`OLLAMA_HOST`, default
   `http://127.0.0.1:11434`) and reports clearly (`/health.llm_problem`) when Ollama isn't running or the
   model isn't downloaded. It never installs Ollama or downloads models by itself.
-- Whisper models live in `backend/models/whisper-<name>/` (git-ignored) and are found automatically;
-  without them faster-whisper downloads the model once on first use.
-- `scripts/setup_models.ps1` is an optional helper: Python + UI packages, Whisper models, and a check
+- Whisper `small` lives in the user's Hugging Face cache (`%USERPROFILE%\.cache\huggingface`); if it
+  isn't there, the backend downloads it there once on first use.
+- The Python environment lives in `%LOCALAPPDATA%\cascade\backend-venv` (user variable
+  `UV_PROJECT_ENVIRONMENT`, stored with `%LOCALAPPDATA%`); packages sit in uv's cache. Only
+  `frontend/node_modules` stays in the project, because Node requires it there.
+- `scripts/setup_models.ps1` is an optional helper: Python + UI packages, Whisper small, and a check
   (not an install) of Ollama.
 
 ---
@@ -410,8 +412,8 @@ Stage-by-stage plan with status: see [`PLAN.md`](PLAN.md).
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Hinglish ASR accuracy in a noisy hall | Voice demo weak | Bake-off; lexicon hotwords; typed/SMS path; pre-recorded clips |
-| Windows CUDA/cuDNN setup | No GPU ASR | pip-installed CUDA libs; CPU `small` fallback |
-| Slow / flaky venue network | Setup blocked | Script resumes; copy `backend/models/` between laptops by USB; Ollama models re-download per laptop |
+| Windows CUDA/cuDNN setup | No GPU ASR | pip-installed CUDA libs; same `small` model on CPU |
+| Slow / flaky venue network | Setup blocked | Script resumes; copy `%USERPROFILE%\.cache\huggingface` between laptops by USB; Ollama models re-download per laptop |
 | 8 GB VRAM pressure | Model swapping, slow | One 4B VLM for both jobs; no 7B+ models |
 | Real Bluetooth demanded | Requirement gap | Transport abstraction; LAN demo; ask organisers early |
 | Judges probe the maths | Credibility | Every number has a plain-language reason; tests prove properties |

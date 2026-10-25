@@ -35,7 +35,7 @@ log = logging.getLogger("pipeline")
 store = EventStore(settings.resolve(settings.db_path), settings.device_id, wall_clock(settings.hostile_clock))
 lexicon = Lexicon(settings.resolve(settings.lexicon_path))
 recent_transcripts: deque[dict] = deque(maxlen=20)   # last few heard utterances, text only, no audio
-asr_status: dict = {"loaded": None, "fallback": False, "error": None, "warm": False}
+asr_status: dict = {"loaded": None, "source": None, "fallback": False, "error": None, "warm": False}
 
 
 class ModelUnavailable(RuntimeError):
@@ -122,11 +122,13 @@ def asr():
         try:
             model = ASR(settings.whisper_ref(settings.whisper_model), settings.whisper_device,
                         settings.whisper_compute_type)
-        except Exception as e:  # no GPU / CUDA libs missing -> CPU fallback model, and say so
-            log.warning("GPU whisper failed (%s); falling back to %s on CPU", e, settings.whisper_fallback_model)
-            asr_status.update(fallback=True, error=f"GPU model failed: {type(e).__name__}: {e}")
-            model = ASR(settings.whisper_ref(settings.whisper_fallback_model), "cpu", "int8")
+        except Exception as e:  # no GPU / CUDA libs missing -> same model on the CPU, and say so
+            log.warning("Whisper %s on %s failed (%s); running it on the CPU", settings.whisper_model,
+                        settings.whisper_device, e)
+            asr_status.update(fallback=True, error=f"{settings.whisper_device} failed: {type(e).__name__}: {e}")
+            model = ASR(settings.whisper_ref(settings.whisper_model), "cpu", "int8")
     asr_status["loaded"] = model.name
+    asr_status["source"] = getattr(model, "source", None)
     return model
 
 

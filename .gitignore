@@ -23,5 +23,5 @@ Thumbs.db
 .idea/
 *.tsbuildinfo
 
-# Whisper models downloaded by scripts/setup_models.ps1 or by hand (docs/SETUP.md)
+# Models live in the user's caches, not here; this only guards against an old local copy being committed
 backend/models/

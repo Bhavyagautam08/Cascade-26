@@ -1,6 +1,6 @@
 """Read a crumpled / stained wholesale slip with a local vision model via Ollama.
 
-TODO(stage 3): tune prompt in the bake-off (qwen3-vl:4b vs gemma3:4b); return per-line confidence so
+TODO(stage 3): tune prompt in the bake-off (qwen3-vl:4b-instruct vs gemma3:4b); return per-line confidence so
 the UI can ask the vendor to confirm doubtful lines.
 """
 from pydantic import BaseModel
@@ -36,7 +36,7 @@ class SlipReader:
             model=self.model,
             messages=[{"role": "user", "content": PROMPT, "images": [image_bytes]}],
             format=Slip.model_json_schema(),
-            options={"temperature": 0},
-            think=False,   # qwen3-vl:4b is a thinking model; reasoning would leave the JSON empty
+            options={"temperature": 0, "num_predict": 2048},   # a long slip has many lines
+            think=False,   # needs a non-thinking model (qwen3-vl:4b-instruct); see extractor.py
         )
         return Slip.model_validate_json(resp.message.content)

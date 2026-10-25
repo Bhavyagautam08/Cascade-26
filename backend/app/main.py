@@ -100,8 +100,8 @@ def health():
         "model_mode": "demo" if settings.demo else "real",
         "llm_model": settings.llm_model,
         "whisper_model": settings.whisper_model,
-        "whisper_source": whisper_ref,          # local folder in use, a name (fetched once), or what is missing
-        "asr": dict(asr_status),               # what actually loaded (fallback=true means CPU small)
+        "whisper_source": whisper_ref,          # a folder, a name resolved in the user's HF cache, or what is missing
+        "asr": dict(asr_status),               # what actually loaded; source = weights folder; fallback=true means CPU
         "ollama_models": ollama,
         "ollama_error": ollama_error,
         "llm_ready": bool(ollama) and settings.llm_model in ollama,
