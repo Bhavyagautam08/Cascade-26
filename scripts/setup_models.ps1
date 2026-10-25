@@ -33,12 +33,18 @@ Log "=== setup started (root=$Root) ==="
 $ollamaExe = Join-Path $env:LOCALAPPDATA "Programs\Ollama\ollama.exe"
 if (-not (Test-Path $ollamaExe)) {
     $setup = Join-Path $installers "OllamaSetup.exe"
-    Log "Downloading Ollama installer (resumable)..."
-    curl.exe -L --retry 10 --retry-delay 5 -C - -o $setup "https://ollama.com/download/OllamaSetup.exe" 2>> $log
+    # Flaky networks drop the connection; keep resuming (-C -) until curl reports success.
+    for ($i = 1; $i -le 300; $i++) {
+        $mb = if (Test-Path $setup) { [math]::Round((Get-Item $setup).Length / 1MB, 1) } else { 0 }
+        Log "Downloading Ollama installer (attempt $i, have $mb MB)..."
+        curl.exe -L -sS --retry 5 --retry-all-errors --speed-limit 1024 --speed-time 60 -C - -o $setup "https://ollama.com/download/OllamaSetup.exe" 2>> $log
+        if ($LASTEXITCODE -eq 0) { break }
+        Start-Sleep -Seconds 5
+    }
     Log "Installing Ollama silently..."
     Start-Process -FilePath $setup -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
 }
-if (Test-Path $ollamaExe) { Log "Ollama OK: $ollamaExe" } else { Log "ERROR: Ollama not installed"; }
+if (Test-Path $ollamaExe) { Log "Ollama OK: $ollamaExe" } else { Log "ERROR: Ollama not installed, stopping"; exit 1 }
 
 # Restart the server so it picks up OLLAMA_MODELS=E:\ai\ollama
 Get-Process ollama*, "ollama app" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -58,17 +64,23 @@ Log "uv: $uv"
 $models = @("qwen3-vl:4b")
 if (-not $SkipBakeoffModels) { $models += "gemma3:4b" }
 foreach ($m in $models) {
-    Log "Pulling $m ..."
-    & $ollamaExe pull $m *>> $log
-    if ($LASTEXITCODE -eq 0) { Log "DONE $m" } else { Log "ERROR pulling $m (re-run script to resume)" }
+    for ($i = 1; $i -le 100; $i++) {
+        Log "Pulling $m (attempt $i)..."
+        & $ollamaExe pull $m 2>&1 | Select-Object -Last 1 | Out-File -Append $log
+        if ($LASTEXITCODE -eq 0) { Log "DONE $m"; break }
+        Start-Sleep -Seconds 5
+    }
 }
 
 # --- 4. Whisper large-v3-turbo (CTranslate2 format for faster-whisper) ------
 if ($uv) {
     foreach ($repo in @("mobiuslabsgmbh/faster-whisper-large-v3-turbo")) {
-        Log "Downloading $repo ..."
-        & $uv tool run --from huggingface_hub hf download $repo *>> $log
-        if ($LASTEXITCODE -eq 0) { Log "DONE $repo" } else { Log "ERROR downloading $repo (re-run to resume)" }
+        for ($i = 1; $i -le 100; $i++) {
+            Log "Downloading $repo (attempt $i)..."
+            & $uv tool run --from huggingface_hub hf download $repo 2>&1 | Select-Object -Last 1 | Out-File -Append $log
+            if ($LASTEXITCODE -eq 0) { Log "DONE $repo"; break }
+            Start-Sleep -Seconds 5
+        }
     }
 } else {
     Log "ERROR: uv missing, skipped Whisper download"

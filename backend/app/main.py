@@ -7,9 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app.config import settings
+from app.ledger import inference
 from app.ledger.doubleentry import balances, postings_for, trial_balance_ok
-from app.ledger.events import Event, Source
+from app.ledger.events import CandidateEvent, Event, Source
+from app.ledger.fusion import fuse
 from app.ledger.store import EventStore, causal_order
+from app.perception import rules
 from app.perception.lexicon import Lexicon
 from app.sync.transport import LanTransport
 
@@ -52,32 +55,79 @@ def list_events():
 
 @app.get("/ledger/balances")
 def ledger_balances():
-    evs = store.all()
-    return {"balances_paise": balances(evs), "balanced": trial_balance_ok(evs)}
+    """Balances over the fused view: duplicates counted once, disputes parked in suspense."""
+    eff = fuse(store.all()).effective
+    return {"balances_paise": balances(eff), "balanced": trial_balance_ok(eff)}
+
+
+@app.get("/ledger/summary")
+def ledger_summary():
+    report = fuse(store.all())
+    return {
+        "balanced": trial_balance_ok(report.effective),
+        "balances_paise": balances(report.effective),
+        "profit": inference.profit_range(report.effective),
+        "duplicates": report.duplicates,
+        "conflicts": report.conflicts,
+    }
+
+
+# --- inference ---------------------------------------------------------------
+class RecipeIn(BaseModel):
+    burn: list[list[float]]       # days x ingredients
+    plates: list[list[float]]     # days x dishes
+
+
+class LossIn(BaseModel):
+    unexplained_kg: float
+    covariates: dict = {}
+
+
+@app.post("/inference/recipe")
+def infer_recipe(body: RecipeIn):
+    return inference.recipe_per_plate(body.burn, body.plates)
+
+
+@app.post("/inference/loss")
+def infer_loss(body: LossIn):
+    return inference.attribute_loss(body.unexplained_kg, body.covariates)
 
 
 # --- ingestion ---------------------------------------------------------------
 class TextIn(BaseModel):
     text: str
     source: Source = Source.manual
+    engine: str = "auto"          # auto | llm | rules
 
 
-@app.post("/ingest/text")
-def ingest_text(body: TextIn):
-    """Typed text, SMS, or a transcript -> candidate events -> ledger."""
-    try:
-        ex = extractor().from_text(body.text, body.source)
-    except Exception as e:  # model not ready / not running
-        raise HTTPException(503, f"extractor unavailable: {e}") from e
+def _record(cands: list[CandidateEvent]) -> list[dict]:
     created = []
-    for c in ex.events:
+    for c in cands:
         ev = store.append_local(
             kind=c.kind, source=c.source, postings=postings_for(c),
             payload=c.model_dump(exclude={"kind", "source", "raw", "confidence"}),
             confidence=c.confidence, raw=c.raw,
         )
         created.append(ev.model_dump(mode="json"))
-    return {"is_transaction": ex.is_transaction, "events": created}
+    return created
+
+
+@app.post("/ingest/text")
+def ingest_text(body: TextIn):
+    """Typed text, SMS, or a transcript -> candidate events -> ledger.
+
+    auto: try the local LLM, fall back to the rule parser if the model isn't available.
+    """
+    if body.engine in ("auto", "llm"):
+        try:
+            ex = extractor().from_text(body.text, body.source)
+            return {"engine": "llm", "is_transaction": ex.is_transaction, "events": _record(ex.events)}
+        except Exception as e:  # model not downloaded / Ollama not running
+            if body.engine == "llm":
+                raise HTTPException(503, f"extractor unavailable: {e}") from e
+    lexicon.reload_if_changed()
+    cands = rules.parse(body.text, lexicon.data, body.source)
+    return {"engine": "rules", "is_transaction": bool(cands), "events": _record(cands)}
 
 
 @app.post("/ingest/slip")
