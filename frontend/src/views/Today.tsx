@@ -8,6 +8,17 @@ import { useWastage } from "./Stock";
 
 export default function Today(d: Data) {
   const { summary, events, go } = d;
+
+  async function startNewDay() {
+    if (!window.confirm("Start a new day?\n\nAll entries so far are moved to a saved backup file (not deleted), and the books start empty.\nDo the same on the family's other phones, or syncing will bring the old entries back.")) return;
+    try {
+      const r = await api.newDay();
+      window.alert(r.archived_events ? `New day started. ${r.archived_events} old entries were saved in ${r.backup_file}.` : "New day started.");
+      d.refresh();
+    } catch (e) {
+      window.alert(`Could not start a new day: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
   const unsure = doubtful(events, summary);
   const conflicts = summary?.conflicts ?? [];
 
@@ -28,9 +39,14 @@ export default function Today(d: Data) {
         title="Today"
         line={line}
         actions={
-          <a className="btn primary" href="#/record">
-            <Icon.record /> Record a trade
-          </a>
+          <>
+            <button className="btn" onClick={startNewDay} title="Keep today's book as a saved file and start an empty one">
+              Start a new day
+            </button>
+            <a className="btn primary" href="#/record">
+              <Icon.record /> Record a trade
+            </a>
+          </>
         }
       />
       <div className="grid">

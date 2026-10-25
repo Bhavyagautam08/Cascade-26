@@ -24,7 +24,11 @@ class EventStore:
         # One connection shared by API threads and the mic thread; the lock keeps
         # frontier-read + insert atomic so two local events can never get the same seq.
         self._lock = threading.RLock()
-        self.db = sqlite3.connect(path, check_same_thread=False)
+        self.path = path
+        self._open()
+
+    def _open(self) -> None:
+        self.db = sqlite3.connect(self.path, check_same_thread=False)
         self.db.execute(
             """CREATE TABLE IF NOT EXISTS events (
                 id TEXT PRIMARY KEY,
@@ -35,6 +39,23 @@ class EventStore:
             )"""
         )
         self.db.commit()
+
+    def archive(self, label: str) -> Path | None:
+        """Start a new book: the current file is renamed to <name>-<label>.db (kept, never deleted) and an
+        empty one takes its place. Same object, so every holder of this store sees the new day."""
+        with self._lock:
+            empty = self.db.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 0
+            self.db.close()
+            backup = None
+            if not empty:
+                backup = self.path.with_name(f"{self.path.stem}-{label}{self.path.suffix}")
+                n = 1
+                while backup.exists():
+                    backup = self.path.with_name(f"{self.path.stem}-{label}-{n}{self.path.suffix}")
+                    n += 1
+                self.path.rename(backup)
+            self._open()
+            return backup
 
     # --- reading -------------------------------------------------------------
     def all(self) -> list[Event]:

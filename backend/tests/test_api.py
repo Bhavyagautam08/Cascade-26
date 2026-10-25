@@ -129,3 +129,15 @@ def test_too_unclear_speech_is_shown_not_booked():
     r = client.post("/mic/simulate", json={"text": "bhaj kilo kanda", "confidence": 0.08}).json()
     assert r["events"] == [] and r["held"]
     assert client.get("/mic/recent").json()[-1]["held"]
+
+
+def test_new_day_archives_the_book_and_starts_empty():
+    from pathlib import Path
+    from app.pipeline import store
+    client.post("/ingest/text", json={"text": "3 kilo aloo liya 90 mein", "engine": "rules"})
+    assert client.post("/day/new", json={}).status_code == 422          # needs explicit confirmation
+    r = client.post("/day/new", json={"confirm": True}).json()
+    assert r["events"] == 0 and r["archived_events"] > 0
+    assert (Path(store.path).parent / r["backup_file"]).exists()        # old book kept, not deleted
+    assert client.get("/events").json() == [] and client.get("/mic/recent").json() == []
+    assert len(client.post("/ingest/text", json={"text": "2 kilo pyaz liya 60 mein", "engine": "rules"}).json()["events"]) == 1

@@ -178,6 +178,7 @@ export const api = {
   inventoryText: (text: string) => post<InvDraft>("/inventory/text", { text }),
   inventoryConfirm: (recording_id: string, transcript: string, items: InvItem[], replace: boolean, typed: boolean) =>
     confirmInventory({ recording_id, transcript, items, replace, typed }),
+  newDay: () => post<{ archived_events: number; backup_file: string | null; events: number }>("/day/new", { confirm: true }),
   inventoryToday: () => call<{ day: string; events: LedgerEvent[] }>("/inventory/today"),
   ingestAudio: (file: File) => {
     const fd = new FormData();

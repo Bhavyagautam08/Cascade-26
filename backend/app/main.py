@@ -429,6 +429,25 @@ def inventory_today():
             "events": [e.model_dump(mode="json") for e in causal_order(inv.todays_inventory(store.all()))]}
 
 
+class NewDay(BaseModel):
+    confirm: bool = False
+
+
+@app.post("/day/new")
+def new_day(body: NewDay):
+    """Start a fresh book for the day. The old one is kept as a dated file next to it, never deleted.
+    Note: syncing with a family phone that still holds the old entries brings them back - start the new
+    day on every phone."""
+    if not body.confirm:
+        raise HTTPException(422, "send confirm=true to start a new day")
+    from app import pipeline
+    old = len(store.all())
+    backup = store.archive(time.strftime("%Y%m%d-%H%M%S"))
+    pipeline.recent_transcripts.clear()
+    pipeline._recent_voice.clear()
+    return {"archived_events": old, "backup_file": backup.name if backup else None, "events": len(store.all())}
+
+
 # --- lexicon (Lexicon Drop) --------------------------------------------------
 class LexiconEntry(BaseModel):
     section: str          # items | units | aliases | verbs | numbers | prices | perishable
