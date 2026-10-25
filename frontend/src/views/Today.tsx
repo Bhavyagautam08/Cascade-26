@@ -1,25 +1,27 @@
 import { useEffect, useState } from "react";
 import { api, inr, rupees, Summary, Transcript } from "../api";
 import type { Data } from "../App";
-import { amountText, cap, doubtful, pct, standing, what } from "../derive";
+import { amountText, cap, dayLabel, doubtful, onDay, pct, standing, what } from "../derive";
 import { Icon } from "../icons";
 import { Conf, Empty, KindTag, Panel, Skeleton, ViewHead } from "../ui";
-import { useWastage } from "./Stock";
+import { useLedgerStock, worstWaste } from "./Stock";
 
 export default function Today(d: Data) {
-  const { summary, events, go } = d;
+  const { summary, events } = d;
+  const [newDayError, setNewDayError] = useState<string | null>(null);
+  const today = onDay(events, summary?.day.index).filter((e) => e.kind !== "day_start");
 
   async function startNewDay() {
-    if (!window.confirm("Start a new day?\n\nAll entries so far are moved to a saved backup file (not deleted), and the books start empty.\nDo the same on the family's other phones, or syncing will bring the old entries back.")) return;
+    if (!window.confirm("Start a new day?\n\nToday's view starts empty. Nothing is deleted: earlier days stay in the ledger, and udhaar and the books carry over.\nThe family's other phones join the new day when they next sync.")) return;
     try {
-      const r = await api.newDay();
-      window.alert(r.archived_events ? `New day started. ${r.archived_events} old entries were saved in ${r.backup_file}.` : "New day started.");
+      await api.newDay();
+      setNewDayError(null);
       d.refresh();
     } catch (e) {
-      window.alert(`Could not start a new day: ${e instanceof Error ? e.message : String(e)}`);
+      setNewDayError(`Could not start a new day: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
-  const unsure = doubtful(events, summary);
+  const unsure = doubtful(today, summary);
   const conflicts = summary?.conflicts ?? [];
 
   // The one finding, read first: what needs the vendor, else what the worker did.
@@ -30,17 +32,17 @@ export default function Today(d: Data) {
       conflicts[0].kind === "credit_paid" ? "payment" : "udhaar"
     } is disputed between two phones. It waits in suspense until you settle it.`;
   else if (unsure.length) line = `${unsure.length} ${unsure.length === 1 ? "entry was" : "entries were"} hard to hear. Check ${unsure.length === 1 ? "it" : "them"} before the day closes.`;
-  else if (!events.length) line = "Nothing booked yet. Say a trade near the phone, or type it in.";
-  else line = `Nothing needs you. The worker has booked ${events.length} ${events.length === 1 ? "entry" : "entries"} and the books balance.`;
+  else if (!today.length) line = "Nothing booked today yet. Say a trade near the phone, or type it in.";
+  else line = `Nothing needs you. The worker has booked ${today.length} ${today.length === 1 ? "entry" : "entries"} today and the books balance.`;
 
   return (
     <>
       <ViewHead
-        title="Today"
-        line={line}
+        title={`Today · ${dayLabel(summary?.day)}`}
+        line={<>{line}{newDayError && <span className="warn"> {newDayError}</span>}</>}
         actions={
           <>
-            <button className="btn" onClick={startNewDay} title="Keep today's book as a saved file and start an empty one">
+            <button className="btn" onClick={startNewDay} title="Today's view starts empty; earlier days stay in the ledger">
               Start a new day
             </button>
             <a className="btn primary" href="#/record">
@@ -56,7 +58,7 @@ export default function Today(d: Data) {
           <Listening d={d} />
         </div>
         <Chain d={d} />
-        <Booked d={d} />
+        <Booked d={d} today={today} />
         <ToCollect d={d} />
       </div>
     </>
@@ -169,23 +171,24 @@ function NeedsYou({ d, unsure }: { d: Data; unsure: Data["events"] }) {
 /** The evaluation chain, one figure per link, each opening the view that computes it. */
 function Chain({ d }: { d: Data }) {
   const { summary, events } = d;
-  const waste = useWastage(events);
+  const stock = useLedgerStock(events);
   const bought = Object.entries(summary?.balances_paise ?? {})
     .filter(([a]) => a.startsWith("inventory:"))
     .reduce((s, [, v]) => s + v, 0);
-  const owed = Object.values(summary?.profit.receivables ?? {}).reduce((s, v) => s + Math.max(v, 0), 0);
+  const owed = Object.values(summary?.receivables ?? {}).reduce((s, v) => s + Math.max(v, 0), 0);
   const suspense = (summary?.conflicts ?? []).reduce((s, c) => s + c.suspense_paise, 0);
   const p = summary?.profit;
+  const worst = stock.data ? worstWaste(stock.data) : null;
   const cells = [
-    { href: "#/stock", label: "Stock bought", value: summary ? rupees(bought) : null, sub: "raw material on the books" },
+    { href: "#/stock", label: "Stock on the books", value: summary ? rupees(bought) : null, sub: "raw material, all days" },
     {
       href: "#/stock",
       label: "Waste nobody sold",
-      value: !d.loaded ? null : waste.result ? waste.result.headline : waste.status,
-      sub: waste.result ? waste.result.sub : "needs a few days of sales",
+      value: stock.error ? "could not compute" : !stock.data ? null : worst ? worst.headline : "not yet",
+      sub: stock.error ?? (worst ? worst.sub : "needs morning and evening counts on a few days"),
     },
     { href: "#/udhaar", label: "Udhaar owed to you", value: summary ? inr(owed) : null, sub: suspense ? `${rupees(suspense)} still disputed` : "no disputes" },
-    { href: "#/books", label: "True profit", value: p ? `${inr(p.p10)} – ${inr(p.p90)}` : null, sub: p ? `most likely ${inr(p.p50)}` : "" },
+    { href: "#/books", label: "Today's true profit", value: p ? `${inr(p.p10)} – ${inr(p.p90)}` : null, sub: p ? `most likely ${inr(p.p50)}` : "" },
   ];
   return (
     <section className="panel span-12 chain" aria-label="From stock to profit">
@@ -201,16 +204,16 @@ function Chain({ d }: { d: Data }) {
 }
 
 /** The worker's output: what was said, and the lines it booked from it. */
-function Booked({ d }: { d: Data }) {
+function Booked({ d, today }: { d: Data; today: Data["events"] }) {
   const { events, summary } = d;
   const { superseded } = standing(events, summary);
-  const recent = [...events].reverse().filter((e) => e.kind !== "adjustment").slice(0, 6);
+  const recent = [...today].reverse().filter((e) => e.kind !== "adjustment").slice(0, 6);
   return (
     <Panel
-      title="What the worker booked"
+      title="What the worker booked today"
       note="Newest first. Each line shows what was said and how it went into the books."
       className="span-8"
-      aside={events.length > 6 ? <a className="link" href="#/entries">All {events.length} entries</a> : undefined}
+      aside={today.length > 6 ? <a className="link" href="#/entries">All {today.length} of today</a> : undefined}
     >
       {!d.loaded ? (
         <div className="stack-8"><Skeleton /><Skeleton w="70%" /><Skeleton w="80%" /></div>
@@ -283,7 +286,7 @@ function Listening({ d }: { d: Data }) {
 }
 
 function ToCollect({ d }: { d: Data }) {
-  const owed = Object.entries(d.summary?.profit.receivables ?? {})
+  const owed = Object.entries(d.summary?.receivables ?? {})
     .filter(([, v]) => v > 0)
     .sort((a, b) => b[1] - a[1]);
   return (

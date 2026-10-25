@@ -1,0 +1,31 @@
+{
+  "description": "SIMULATED history of a poha-and-chai stall, for demos only. Everything below is an input to the simulation; the app is expected to recover the planted recipe and waste from the ledger it produces.",
+  "device_id": "phone-1",
+  "days": 5,
+  "seed": 7,
+  "dishes": {
+    "poha": {"price": 20, "plates_per_day": [40, 95]},
+    "tea": {"price": 10, "plates_per_day": [60, 130]}
+  },
+  "recipe_per_plate": {
+    "poha": {"poha": 0.08, "onion": 0.025, "oil": 0.01},
+    "tea": {"milk": 0.1}
+  },
+  "ingredients": {
+    "poha":  {"unit": "kg", "price_per_unit": 40,  "waste_per_day": 0.15, "overnight_loss": 0.0,  "restock_below": 9,  "restock_to": 14},
+    "onion": {"unit": "kg", "price_per_unit": 30,  "waste_per_day": 0.1,  "overnight_loss": 0.05, "restock_below": 3,  "restock_to": 6},
+    "oil":   {"unit": "l",  "price_per_unit": 140, "waste_per_day": 0.02, "overnight_loss": 0.0,  "restock_below": 1.5, "restock_to": 3},
+    "milk":  {"unit": "l",  "price_per_unit": 56,  "waste_per_day": 0.3,  "overnight_loss": 0.4,  "restock_below": 15, "restock_to": 20}
+  },
+  "opening": {"poha": 10, "onion": 4, "oil": 2, "milk": 18},
+  "udhaar": [
+    {"day": 1, "party": "sharma", "given": 60},
+    {"day": 2, "party": "sharma", "paid": 60},
+    {"day": 3, "party": "pandey", "given": 45},
+    {"day": 4, "party": "chhotu", "given": 30}
+  ],
+  "expenses": [
+    {"day": 1, "item": "gas", "amount": 950},
+    {"day": 4, "item": "rent", "amount": 300}
+  ]
+}

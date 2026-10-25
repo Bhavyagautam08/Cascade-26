@@ -1,0 +1,180 @@
+{
+  "health": {
+    "device_id": "phone-1",
+    "model_mode": "real",
+    "llm_model": "qwen3-vl:4b-instruct",
+    "whisper_model": "small",
+    "whisper_source": "small",
+    "asr": {
+      "loaded": "small (cuda, en)",
+      "source": "C:\\Users\\LENOVO\\.cache\\huggingface\\hub\\models--Systran--faster-whisper-small\\snapshots\\536b0662742c02347bc0e980a01041f333bce120",
+      "fallback": false,
+      "error": null,
+      "warm": true
+    },
+    "ollama_models": [
+      "qwen3-vl:4b-instruct"
+    ],
+    "ollama_error": null,
+    "llm_ready": true,
+    "llm_problem": null,
+    "mic_listening": false,
+    "mic_enabled_at_start": false,
+    "mic": null,
+    "hostile_clock": "off",
+    "peers": [],
+    "sync_auth": false,
+    "events": 0
+  },
+  "text": [
+    {
+      "sample": "t001",
+      "text": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 3.6,
+      "score": {
+        "events": 3,
+        "correct": 3,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "purchase:tomato Rs180",
+          "got": "purchase:tomato qty=3.0kg Rs180.0",
+          "ok": true
+        },
+        {
+          "expected": "credit_paid:sharma Rs40",
+          "got": "credit_paid:sharma qty=None Rs40.0",
+          "ok": true
+        },
+        {
+          "expected": "sale:poha",
+          "got": "sale:poha qty=7.0plate RsNone",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t002",
+      "text": "aaj bahut garmi hai bhai",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 0.2,
+      "score": {
+        "events": 0,
+        "correct": 0,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": []
+    },
+    {
+      "sample": "t003",
+      "text": "pandey ji ka 60 udhaar likh do",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 1.0,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "credit_given:pandey Rs60",
+          "got": "credit_given:pandey qty=None Rs60.0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t004",
+      "text": "2 kilo pyaz laya 80 aur 1 kilo aloo 30",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 2.0,
+      "score": {
+        "events": 2,
+        "correct": 2,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "purchase:onion Rs80",
+          "got": "purchase:onion qty=2.0kg Rs80.0",
+          "ok": true
+        },
+        {
+          "expected": "purchase:potato Rs30",
+          "got": "purchase:potato qty=1.0kg Rs30.0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t005",
+      "text": "gas cylinder ka 950 kharcha hua",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 1.0,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "expense:gas Rs950",
+          "got": "expense:gas qty=None Rs950.0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "t006",
+      "text": "shaam ko 2 kilo poha bacha hai",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 1.0,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "stock_count:poha",
+          "got": "stock_count:poha qty=2.0kg RsNone",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sample": "random",
+      "text": "9 kilo tamatar liya 130 mein",
+      "engine": "qwen3-vl:4b-instruct",
+      "fallback": null,
+      "secs": 1.0,
+      "score": {
+        "events": 1,
+        "correct": 1,
+        "extra": 0,
+        "exact": true
+      },
+      "rows": [
+        {
+          "expected": "purchase:tomato Rs130",
+          "got": "purchase:tomato qty=9.0kg Rs130.0",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

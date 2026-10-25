@@ -40,7 +40,10 @@ export type LedgerEvent = {
   postings: Posting[];
   wall_time: number | null;
   supersedes: string[];
+  day: number; // business day (from "Start a new day" markers, never from a phone clock)
 };
+
+export type Day = { index: number; date: string | null; started_by: string[]; clock_suspect: boolean; events: number };
 
 export type Health = {
   device_id: string;
@@ -64,14 +67,17 @@ export type Conflict = {
 };
 
 export type Summary = {
+  day: Day & { current: boolean }; // the day this profit is for
   balanced: boolean;
-  balances_paise: Record<string, number>;
+  balances_paise: Record<string, number>; // cumulative: the books carry across days
+  receivables: Record<string, number>; // cumulative udhaar owed per customer (certain part)
   profit: {
     p10: number;
     p50: number;
     p90: number;
     components: { revenue: number; cogs: number; expenses: number; expected_bad_debt: number };
-    receivables: Record<string, number>;
+    receivables: Record<string, number>; // udhaar given that day only
+    cogs_method: Record<string, string>;
   };
   duplicates: string[][];
   conflicts: Conflict[];
@@ -107,7 +113,7 @@ export type MicStatus = {
 };
 export type MicDevice = { name: string; default: boolean };
 
-export type InvStatus = "opening" | "purchased" | "unclear";
+export type InvStatus = "opening" | "purchased" | "unclear" | "closing";
 export type InvItem = {
   item: string;
   said: string | null;
@@ -158,6 +164,34 @@ export type LossSplit = {
 };
 export type Lexicon = Record<string, Record<string, unknown> | string[]>;
 
+/** /inference/ledger: what each ingredient lost between consecutive stock counts (backend computes it). */
+export type StockRow = {
+  from_day: number;
+  to_day: number;
+  start_qty: number;
+  start_kind: "opening_stock" | "stock_count";
+  end_qty: number;
+  bought: number;
+  plates: Record<string, number>;
+  burn: number | null;
+  kind: "trading" | "overnight" | "excluded";
+  note: string | null;
+};
+export type IngredientStock = {
+  unit: string | null;
+  rows: StockRow[];
+  overnight: { from_day: number; to_day: number; change: number }[];
+  periods: number;
+  burn: number[];
+  status: string;
+  usage_per_dish?: Record<string, number>;
+  baseline_waste_per_period?: number;
+  unexplained?: number;
+  loss?: LossSplit;
+};
+export type LedgerStock = { dishes: string[]; ingredients: Record<string, IngredientStock> };
+export type InvMode = "opening" | "closing";
+
 export const api = {
   health: () => call<Health>("/health"),
   events: () => call<LedgerEvent[]>("/events"),
@@ -170,16 +204,18 @@ export const api = {
   micDevices: () => call<{ devices: MicDevice[]; current: string | null; wanted: string | null; rescanned: boolean }>("/mic/devices"),
   micStart: (device: string | null) => post<MicStatus>("/mic/start", { device }),
   micStop: () => post<MicStatus>("/mic/stop", {}),
-  inventoryVoice: (audio: Blob) => {
+  inventoryVoice: (audio: Blob, mode: InvMode) => {
     const fd = new FormData();
-    fd.append("file", audio, "morning.webm");
-    return call<InvDraft>("/inventory/voice", { method: "POST", body: fd });
+    fd.append("file", audio, `${mode}.webm`);
+    return call<InvDraft>(`/inventory/voice?mode=${mode}`, { method: "POST", body: fd });
   },
-  inventoryText: (text: string) => post<InvDraft>("/inventory/text", { text }),
-  inventoryConfirm: (recording_id: string, transcript: string, items: InvItem[], replace: boolean, typed: boolean) =>
-    confirmInventory({ recording_id, transcript, items, replace, typed }),
-  newDay: () => post<{ archived_events: number; backup_file: string | null; events: number }>("/day/new", { confirm: true }),
-  inventoryToday: () => call<{ day: string; events: LedgerEvent[] }>("/inventory/today"),
+  inventoryText: (text: string, mode: InvMode) => post<InvDraft>("/inventory/text", { text, mode }),
+  inventoryConfirm: (recording_id: string, transcript: string, items: InvItem[], replace: boolean, typed: boolean, mode: InvMode) =>
+    confirmInventory({ recording_id, transcript, items, replace, typed, mode }),
+  newDay: () => post<{ day: Day }>("/day/new", { confirm: true }),
+  days: () => call<{ current: number; days: Day[] }>("/days"),
+  ledgerStock: () => call<LedgerStock>("/inference/ledger"),
+  inventoryToday: () => call<{ day: number; opening: LedgerEvent[]; closing: LedgerEvent[] }>("/inventory/today"),
   ingestAudio: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);

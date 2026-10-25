@@ -9,7 +9,7 @@ export default function Udhaar(d: Data) {
   const conflicts = summary?.conflicts ?? [];
   // Receivables are the certain part only; a disputed difference waits in suspense.
   const disputed = new Map(conflicts.map((c) => [c.party, c]));
-  const receivable = summary?.profit.receivables ?? {};
+  const receivable = summary?.receivables ?? {}; // cumulative: a debt carries across days
   const parties = [...new Set([...Object.keys(receivable), ...disputed.keys()])]
     .map((p) => ({ party: p, owes: receivable[p] ?? 0 }))
     .sort((a, b) => b.owes - a.owes);

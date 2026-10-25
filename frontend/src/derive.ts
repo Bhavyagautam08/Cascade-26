@@ -10,6 +10,7 @@ export const KIND_LABEL: Record<string, string> = {
   stock_count: "Stock count",
   order: "Ordered (no price yet)",
   opening_stock: "Opening stock",
+  day_start: "New day",
   adjustment: "Correction",
 };
 
@@ -72,58 +73,14 @@ export function doubtful(events: LedgerEvent[], summary: Summary | null, below =
   );
 }
 
-// --- raw material burn, built from the ledger itself -------------------------------------------
-export type BurnTable = {
-  days: string[];
-  dishes: string[];
-  ingredients: { name: string; unit: string }[];
-  plates: number[][]; // days x dishes
-  burn: number[][]; // days x ingredients
-  skipped: number; // trades whose phone clock was broken, so their day is unknown
-};
-
-const STOCK_UNITS = new Set(["kg", "l"]);
-
-/**
- * Plates sold per dish and stock bought per ingredient, per day, from the live ledger.
- * Without daily stock counts, stock bought on a day stands in for stock used that day.
- */
-export function burnFromLedger(events: LedgerEvent[]): BurnTable {
-  const gone = new Set(events.flatMap((e) => e.supersedes));
-  const byDay = new Map<string, { plates: Map<string, number>; burn: Map<string, number> }>();
-  const dishes = new Set<string>();
-  const ingredients = new Map<string, string>();
-  let skipped = 0;
-  for (const e of events) {
-    if (gone.has(e.id) || !e.payload.item || !e.payload.qty) continue;
-    const isDish = e.kind === "sale" && e.payload.unit === "plate";
-    const isStock = e.kind === "purchase" && STOCK_UNITS.has(e.payload.unit ?? "");
-    if (!isDish && !isStock) continue;
-    const { day } = wallClock(e.wall_time);
-    if (!day) {
-      skipped++;
-      continue;
-    }
-    const row = byDay.get(day) ?? { plates: new Map(), burn: new Map() };
-    byDay.set(day, row);
-    const item = e.payload.item;
-    if (isDish) {
-      dishes.add(item);
-      row.plates.set(item, (row.plates.get(item) ?? 0) + e.payload.qty);
-    } else {
-      ingredients.set(item, e.payload.unit!);
-      row.burn.set(item, (row.burn.get(item) ?? 0) + e.payload.qty);
-    }
-  }
-  const days = [...byDay.keys()].sort();
-  const dishList = [...dishes].sort();
-  const ingList = [...ingredients.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([name, unit]) => ({ name, unit }));
-  return {
-    days,
-    dishes: dishList,
-    ingredients: ingList,
-    plates: days.map((d) => dishList.map((x) => byDay.get(d)!.plates.get(x) ?? 0)),
-    burn: days.map((d) => ingList.map((x) => byDay.get(d)!.burn.get(x.name) ?? 0)),
-    skipped,
-  };
+/** "Day 3 · 24 Oct". The date is the phone's own and only shown; a broken clock is marked, never used. */
+export function dayLabel(d: { index: number; date: string | null; clock_suspect?: boolean } | null | undefined) {
+  if (!d) return "…";
+  if (d.index === 0) return "Before the first day";
+  if (!d.date) return `Day ${d.index}`;
+  const shown = d.clock_suspect ? `${d.date} (phone clock looks wrong)` : new Date(d.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return `Day ${d.index} · ${shown}`;
 }
+
+/** The entries of one business day. */
+export const onDay = (events: LedgerEvent[], day: number | undefined) => (day == null ? [] : events.filter((e) => e.day === day));

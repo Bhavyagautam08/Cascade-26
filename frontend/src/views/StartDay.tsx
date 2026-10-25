@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { api, inr, InvDraft, InvItem, InvStatus, LedgerEvent } from "../api";
+import { api, inr, InvDraft, InvItem, InvMode, InvStatus, LedgerEvent } from "../api";
 import type { Data } from "../App";
 import { pct, what } from "../derive";
 import { Icon } from "../icons";
-import { Empty, ErrorLine, KindTag, Panel, useAction, ViewHead } from "../ui";
+import { Empty, ErrorLine, KindTag, Panel, Segmented, useAction, ViewHead } from "../ui";
 
-// Morning inventory: say what stock you have and what it cost; check the table; save.
+// Morning inventory (what you have, what you paid) and evening count (what's left), by voice or typing.
 // The backend never guesses: anything missing or ambiguous comes back as a question on the row,
 // and saving is refused until every question is answered here.
 
@@ -26,16 +26,42 @@ function micError(e: unknown): string {
   return `The microphone could not start (${name ?? String(e)}). Type the items below instead.`;
 }
 
-/** Same rule as the backend: what still needs an answer before saving. */
-function questionFor(i: InvItem): string | null {
+/** Same rule as the backend (inventory._questions): what still needs an answer before saving. */
+function questionFor(i: InvItem, mode: InvMode): string | null {
   const q: string[] = [];
   if (i.qty == null) q.push(`How much ${i.item} is there?`);
-  else if (!i.unit) q.push(`${i.qty} of ${i.item} - kilo, litre, or pieces?`);
-  if (i.status === "unclear") q.push(`Did you buy the ${i.item} this morning, or was it already with you?`);
+  else if (!i.unit && i.qty !== 0) q.push(`${i.qty} of ${i.item} - kilo, litre, or pieces?`);
+  if (mode === "opening" && i.status === "unclear") q.push(`Did you buy the ${i.item} this morning, or was it already with you?`);
   return q.join(" ") || null;
 }
 
-export default function StartDay(d: Data) {
+const MODES: { value: InvMode; label: string }[] = [
+  { value: "opening", label: "Morning: what you have" },
+  { value: "closing", label: "Evening: what's left" },
+];
+const COPY: Record<InvMode, { title: string; line: string; button: string; hint: string; placeholder: string; check: string; savedTitle: string }> = {
+  opening: {
+    title: "Start your day",
+    line: "Say what stock you have and what you paid. Check the list, then save it.",
+    button: "Record your inventory",
+    hint: "Speak naturally, in Hindi or Hinglish. Example: “Mere paas 5 kilo tamatar hain, 200 rupaye ke the. Do kilo aloo aaj liya 80 mein.”",
+    placeholder: "5 kilo tamatar hain 200 ke, do kilo aloo aaj liya 80 mein",
+    check: "Check your stock",
+    savedTitle: "Saved this morning",
+  },
+  closing: {
+    title: "End your day",
+    line: "Say how much of each thing is left. The worker compares it with the morning to see what was used and what was wasted.",
+    button: "Record what's left",
+    hint: "Example: “2 kilo tamatar bacha hai, doodh khatam, aur 1 kilo poha hai.”",
+    placeholder: "2 kilo tamatar bacha hai, doodh khatam, 1 kilo poha",
+    check: "Check what's left",
+    savedTitle: "Saved this evening",
+  },
+};
+
+export default function StartDay(d: Data & { mode?: string }) {
+  const mode: InvMode = d.mode === "closing" ? "closing" : "opening";
   const [rec, setRec] = useState<Rec>({ state: "idle" });
   const [seconds, setSeconds] = useState(0);
   const [draft, setDraft] = useState<InvDraft | null>(null);
@@ -45,14 +71,26 @@ export default function StartDay(d: Data) {
   const [isTyped, setIsTyped] = useState(false);
   const [overwrite, setOverwrite] = useState<{ item: string; qty: number; unit: string }[] | null>(null);
   const [saved, setSaved] = useState<{ duplicate: boolean; count: number } | null>(null);
-  const [today, setToday] = useState<LedgerEvent[] | null>(null);
+  const [today, setToday] = useState<{ opening: LedgerEvent[]; closing: LedgerEvent[] } | null>(null);
+  const [todayError, setTodayError] = useState<string | null>(null);
   const { busy, error, run, setError } = useAction();
   const media = useRef<{ rec: MediaRecorder; stream: MediaStream; chunks: Blob[]; cancelled: boolean } | null>(null);
 
-  const loadToday = () => api.inventoryToday().then((r) => setToday(r.events)).catch(() => setToday([]));
+  const loadToday = () =>
+    api
+      .inventoryToday()
+      .then((r) => (setToday(r), setTodayError(null)))
+      .catch((e) => setTodayError(`Couldn't read today's saved stock: ${e instanceof Error ? e.message : String(e)}`));
   useEffect(() => {
     loadToday();
   }, []);
+  useEffect(() => {
+    // switching morning <-> evening starts a fresh table
+    setDraft(null);
+    setSaved(null);
+    setOverwrite(null);
+    setError(null);
+  }, [mode, setError]);
   useEffect(() => {
     if (rec.state !== "recording") return;
     const t = setInterval(() => setSeconds(Math.floor((Date.now() - rec.started) / 1000)), 250);
@@ -84,7 +122,7 @@ export default function StartDay(d: Data) {
         if (m.cancelled) return setRec({ state: "idle" });
         const blob = new Blob(m.chunks, { type: r.mimeType || "audio/webm" });
         setRec({ state: "reading" });
-        const dr = await run(() => api.inventoryVoice(blob));
+        const dr = await run(() => api.inventoryVoice(blob, mode));
         setRec({ state: "idle" });
         if (dr) show(dr, false);
       };
@@ -103,7 +141,7 @@ export default function StartDay(d: Data) {
   };
 
   async function readTyped() {
-    const dr = await run(() => api.inventoryText(typed));
+    const dr = await run(() => api.inventoryText(typed, mode));
     if (dr) show(dr, true);
   }
 
@@ -113,8 +151,8 @@ export default function StartDay(d: Data) {
         if (j !== i) return x;
         const v = field === "item" || field === "unit" || field === "status" ? value : value === "" ? null : Number(value);
         const next = { ...x, [field]: v } as InvItem;
-        next.unit_cost = next.total_cost != null && next.qty ? Math.round((next.total_cost / next.qty) * 100) / 100 : null;
-        next.question = questionFor(next);
+        next.unit_cost = mode === "opening" && next.total_cost != null && next.qty ? Math.round((next.total_cost / next.qty) * 100) / 100 : null;
+        next.question = questionFor(next, mode);
         return next;
       }),
     );
@@ -123,7 +161,7 @@ export default function StartDay(d: Data) {
 
   async function save(replace: boolean) {
     if (!draft) return;
-    const r = await run(() => api.inventoryConfirm(draft.recording_id, draft.transcript, items, replace, isTyped));
+    const r = await run(() => api.inventoryConfirm(draft.recording_id, draft.transcript, items, replace, isTyped, mode));
     if (!r) return;
     if (r.status === 409) return setOverwrite(r.data.existing);
     if (r.status === 422) {
@@ -140,11 +178,14 @@ export default function StartDay(d: Data) {
 
   const open = items.filter((i) => i.question).length;
   const total = items.reduce((s, i) => s + (i.total_cost ?? 0), 0);
+  const copy = COPY[mode];
+  const morning = mode === "opening";
   return (
     <>
-      <ViewHead title="Start your day" line="Say what stock you have and what you paid. Check the list, then save it." />
-      <div className="grid">
-        <Panel title="Record your inventory" className="span-5" note="Speak naturally, in Hindi or Hinglish. Example: “Mere paas 5 kilo tamatar hain, 200 rupaye ke the. Do kilo aloo aaj liya 80 mein.”">
+      <ViewHead title={copy.title} line={copy.line} />
+      <Segmented label="Morning or evening" value={mode} options={MODES} onChange={(m) => d.go("start", m)} />
+      <div className="grid" style={{ marginTop: "var(--gap)" }}>
+        <Panel title={copy.button} className="span-5" note={copy.hint}>
           <div className="form" style={{ alignItems: "center", textAlign: "center" }}>
             {rec.state === "recording" ? (
               <>
@@ -157,7 +198,7 @@ export default function StartDay(d: Data) {
             ) : (
               <button className="btn primary" style={{ fontSize: "1.15rem", padding: "1.1rem 2rem", borderRadius: 999 }}
                       disabled={busy || rec.state === "reading"} onClick={startRecording}>
-                <Icon.record /> {rec.state === "reading" ? "Listening to it…" : "Record your inventory"}
+                <Icon.record /> {rec.state === "reading" ? "Listening to it…" : copy.button}
               </button>
             )}
             <ErrorLine error={error} />
@@ -166,24 +207,36 @@ export default function StartDay(d: Data) {
             <summary className="hint">No mic, or too loud? Type it instead</summary>
             <div className="form">
               <textarea className="input" rows={3} value={typed} onChange={(e) => setTyped(e.target.value)}
-                        placeholder="5 kilo tamatar hain 200 ke, do kilo aloo aaj liya 80 mein" />
+                        placeholder={copy.placeholder} />
               <button className="btn" disabled={busy || !typed.trim()} onClick={readTyped}>Read it</button>
             </div>
           </details>
         </Panel>
 
-        <Panel title="Today's saved stock" className="span-7" note="What you confirmed this morning. Saving again never replaces it without asking.">
-          {today == null ? null : today.length === 0 ? (
-            <Empty>Nothing saved yet today.</Empty>
-          ) : (
-            <ul className="rows">
-              {today.map((e) => (
-                <li key={e.id}>
-                  <span className="booked-line"><KindTag kind={e.kind} /><span>{what(e)}</span></span>
-                  <span className="row-end">{e.payload.amount_rupees != null ? <b className="money">{inr(e.payload.amount_rupees)}</b> : <span className="muted">no price</span>}</span>
-                </li>
+        <Panel title="Today's counts" className="span-7" note="This business day's morning inventory and evening count. Saving again never replaces them without asking.">
+          <ErrorLine error={todayError} />
+          {today == null ? null : (
+            <>
+              {(["opening", "closing"] as InvMode[]).map((m) => (
+                <div key={m} style={{ marginBottom: "var(--gap)" }}>
+                  <p className="hint"><b>{COPY[m].savedTitle}</b></p>
+                  {today[m].length === 0 ? (
+                    <Empty>Nothing saved yet.</Empty>
+                  ) : (
+                    <ul className="rows">
+                      {today[m].map((e) => (
+                        <li key={e.id}>
+                          <span className="booked-line"><KindTag kind={e.kind} /><span>{what(e)}</span></span>
+                          {m === "opening" && (
+                            <span className="row-end">{e.payload.amount_rupees != null ? <b className="money">{inr(e.payload.amount_rupees)}</b> : <span className="muted">no price</span>}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
-            </ul>
+            </>
           )}
           {saved && (
             <div className="result">
@@ -194,7 +247,7 @@ export default function StartDay(d: Data) {
 
         {draft && (
           <Panel
-            title="Check your stock"
+            title={copy.check}
             className="span-12"
             note={<>Heard: “{draft.transcript}”{draft.heard_confidence != null && <> · {pct(draft.heard_confidence)} clear</>}{draft.already_saved && <b className="warn"> · This recording was saved before.</b>}</>}
             aside={<button className="btn" onClick={() => setEditing((x) => !x)}>{editing ? "Done editing" : "Edit"}</button>}
@@ -205,7 +258,12 @@ export default function StartDay(d: Data) {
               <div className="table-scroll">
                 <table className={`data ${editing ? "editable" : ""}`}>
                   <thead>
-                    <tr><th>Item</th><th className="num">Qty</th><th>Unit</th><th className="num">Paid ₹</th><th className="num">₹ per unit</th><th>Already had / bought today</th>{editing && <th />}</tr>
+                    <tr>
+                      <th>Item</th><th className="num">{morning ? "Qty" : "Left"}</th><th>Unit</th>
+                      {morning && <><th className="num">Paid ₹</th><th className="num">₹ per unit</th><th>Already had / bought today</th></>}
+                      {!morning && <th />}
+                      {editing && <th />}
+                    </tr>
                   </thead>
                   <tbody>
                     {items.map((it, i) => (
@@ -220,23 +278,29 @@ export default function StartDay(d: Data) {
                                 {[...new Set([...(it.unit ? [it.unit] : []), ...UNITS])].map((u) => <option key={u}>{u}</option>)}
                               </select>
                             </td>
-                            <td><input className="input num" aria-label="Paid in rupees" type="number" placeholder="not said" value={it.total_cost ?? ""} onChange={(e) => edit(i, "total_cost", e.target.value)} /></td>
+                            {morning && <td><input className="input num" aria-label="Paid in rupees" type="number" placeholder="not said" value={it.total_cost ?? ""} onChange={(e) => edit(i, "total_cost", e.target.value)} /></td>}
                           </>
                         ) : (
                           <>
                             <td>{it.item}{it.said && <small className="muted" style={{ display: "block" }}>“{it.said}”</small>}</td>
                             <td className="num">{it.qty ?? "?"}</td>
-                            <td>{it.unit ?? "?"}</td>
-                            <td className="num">{it.total_cost != null ? inr(it.total_cost) : <span className="muted">not said</span>}</td>
+                            <td>{it.unit ?? (it.qty === 0 ? "" : "?")}</td>
+                            {morning && <td className="num">{it.total_cost != null ? inr(it.total_cost) : <span className="muted">not said</span>}</td>}
                           </>
                         )}
-                        <td className="num">{it.unit_cost != null ? `${inr(it.unit_cost)}/${it.unit}` : "—"}</td>
-                        <td>
-                          <select className="input" aria-label="Already had or bought today" value={it.status} onChange={(e) => edit(i, "status", e.target.value)}>
-                            {STATUS.map((s) => <option key={s.value} value={s.value} disabled={s.value === "unclear"}>{s.label}</option>)}
-                          </select>
-                          {it.question && <small className="warn" style={{ display: "block" }}>{it.question}</small>}
-                        </td>
+                        {morning ? (
+                          <>
+                            <td className="num">{it.unit_cost != null ? `${inr(it.unit_cost)}/${it.unit}` : "—"}</td>
+                            <td>
+                              <select className="input" aria-label="Already had or bought today" value={it.status} onChange={(e) => edit(i, "status", e.target.value)}>
+                                {STATUS.map((s) => <option key={s.value} value={s.value} disabled={s.value === "unclear"}>{s.label}</option>)}
+                              </select>
+                              {it.question && <small className="warn" style={{ display: "block" }}>{it.question}</small>}
+                            </td>
+                          </>
+                        ) : (
+                          <td>{it.question && <small className="warn">{it.question}</small>}</td>
+                        )}
                         {editing && <td><button className="btn" onClick={() => remove(i)} aria-label={`Remove ${it.item}`}>Remove</button></td>}
                       </tr>
                     ))}
@@ -255,7 +319,7 @@ export default function StartDay(d: Data) {
             )}
             <div className="form-row end">
               <p className="hint">
-                {items.length} items · paid <b className="money">{inr(total)}</b>
+                {items.length} items{morning && <> · paid <b className="money">{inr(total)}</b></>}
                 {open > 0 && <span className="warn"> · {open} {open === 1 ? "question" : "questions"} to answer</span>}
               </p>
               <button className="btn" onClick={() => setDraft(null)}>Discard</button>

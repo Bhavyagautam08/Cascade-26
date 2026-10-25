@@ -22,7 +22,7 @@ export type Data = {
 };
 
 const ROUTES = {
-  start: { label: "Start your day", icon: Icon.record, group: "Shop" },
+  start: { label: "Morning & evening stock", icon: Icon.record, group: "Shop" },
   today: { label: "Today", icon: Icon.today, group: "Shop" },
   record: { label: "Record a trade", icon: Icon.record, group: "Shop" },
   entries: { label: "Entries", icon: Icon.entries, group: "Shop" },
@@ -197,7 +197,7 @@ export default function App() {
             maths and family sync are real.
           </div>
         )}
-        {loc.route === "start" && <StartDay {...data} />}
+        {loc.route === "start" && <StartDay {...data} mode={loc.arg} />}
         {loc.route === "today" && <Today {...data} />}
         {loc.route === "record" && <Record {...data} tab={loc.arg} />}
         {loc.route === "entries" && <Entries {...data} selected={loc.arg} />}
