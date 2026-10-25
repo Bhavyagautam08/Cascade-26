@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { api, Conflict, inr, rupees } from "../api";
+import { inr, rupees } from "../api";
 import type { Data } from "../App";
-import { cap } from "../derive";
-import { Empty, ErrorLine, Panel, Skeleton, useAction, ViewHead } from "../ui";
+import { cap, isUdhaar } from "../derive";
+import { Empty, Panel, Skeleton, ViewHead } from "../ui";
+import { Dispute } from "./Dispute";
 
 export default function Udhaar(d: Data) {
   const { summary } = d;
-  const conflicts = summary?.conflicts ?? [];
+  const conflicts = (summary?.conflicts ?? []).filter((c) => isUdhaar(c.kind) && c.party); // sales disputes: Books
   // Receivables are the certain part only; a disputed difference waits in suspense.
-  const disputed = new Map(conflicts.map((c) => [c.party, c]));
+  const disputed = new Map(conflicts.map((c) => [c.party as string, c]));
   const receivable = summary?.receivables ?? {}; // cumulative: a debt carries across days
   const parties = [...new Set([...Object.keys(receivable), ...disputed.keys()])]
     .map((p) => ({ party: p, owes: receivable[p] ?? 0 }))
@@ -79,42 +79,5 @@ export default function Udhaar(d: Data) {
         </Panel>
       </div>
     </>
-  );
-}
-
-function Dispute({ c, onDone }: { c: Conflict; onDone: () => void }) {
-  const [other, setOther] = useState("");
-  const { busy, error, run } = useAction();
-  const [lo, hi] = c.claims_paise.map((p) => p / 100);
-  const settle = async (amt: number) => {
-    if (await run(() => api.resolve(c.ids, amt))) onDone();
-  };
-  return (
-    <li className="dispute">
-      <div className="row-main">
-        <b>
-          {cap(c.party)} {c.kind === "credit_paid" ? "paid" : "took on udhaar"}: {inr(lo)} or {inr(hi)}?
-        </b>
-        <small>
-          {c.ids.join(" and ")} disagree. {inr(lo)} is booked, {rupees(c.suspense_paise)} waits in suspense.
-        </small>
-      </div>
-      <div className="dispute-actions">
-        <button className="btn" disabled={busy} onClick={() => settle(lo)}>It was {inr(lo)}</button>
-        <button className="btn" disabled={busy} onClick={() => settle(hi)}>It was {inr(hi)}</button>
-        <span className="joined">
-          <input
-            className="input num"
-            inputMode="decimal"
-            aria-label="Another amount in rupees"
-            placeholder="Other ₹"
-            value={other}
-            onChange={(e) => setOther(e.target.value)}
-          />
-          <button className="btn" disabled={busy || !other || isNaN(Number(other))} onClick={() => settle(Number(other))}>Set</button>
-        </span>
-      </div>
-      <ErrorLine error={error} />
-    </li>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { api, LedgerEvent, rupees } from "../api";
 import type { Data } from "../App";
-import { amountText, KIND_LABEL, SOURCE_LABEL, standing, wallClock, what } from "../derive";
+import { amountText, deviceName, KIND_LABEL, SOURCE_LABEL, standing, wallClock, what } from "../derive";
 import { Conf, Empty, ErrorLine, KindTag, Panel, Pill, Segmented, Skeleton, useAction, ViewHead } from "../ui";
 
 type Filter = "all" | "trade" | "udhaar" | "check" | "corrections";
@@ -76,6 +76,7 @@ export default function Entries(d: Data & { selected?: string }) {
                               <code>{e.id}</code>
                               {st.fusedWith.has(e.id) && <Pill title="Seen on more than one channel, counted once">counted once</Pill>}
                               {st.disputed.has(e.id) && <Pill tone="warning">disputed</Pill>}
+                              {st.maybeTwice.has(e.id) && <Pill tone="warning" title="Also on another phone that was out of touch: one trade or two? (Books)">maybe twice</Pill>}
                               {gone && <Pill>{gone}</Pill>}
                             </small>
                           </a>
@@ -127,7 +128,7 @@ function Detail({ e, d }: { e: LedgerEvent; d: Data }) {
     >
       <dl className="facts">
         <div><dt>Amount</dt><dd className="money">{amountText(e)}</dd></div>
-        <div><dt>Came in by</dt><dd>{SOURCE_LABEL[e.source] ?? e.source} on {e.device_id}</dd></div>
+        <div><dt>Came in by</dt><dd>{SOURCE_LABEL[e.source] ?? e.source} on {deviceName(e.device_id)} <small className="muted"><code>{e.device_id}</code></small></dd></div>
         <div><dt>How sure</dt><dd><Conf value={e.confidence} /></dd></div>
         {e.raw && <div><dt>Said or written</dt><dd>“{e.raw}”</dd></div>}
         {gone && by && (

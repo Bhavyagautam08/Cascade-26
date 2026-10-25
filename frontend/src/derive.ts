@@ -1,5 +1,5 @@
 // Read-only views over the event log. Nothing here invents data: every figure comes from ledger events.
-import { inr, LedgerEvent, Summary } from "./api";
+import { Conflict, inr, LedgerEvent, Summary } from "./api";
 
 export const KIND_LABEL: Record<string, string> = {
   purchase: "Bought",
@@ -52,6 +52,17 @@ export function amountText(e: LedgerEvent) {
 }
 
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** "phone-1.k3x9qa" -> "phone-1": the family's name for the device (the suffix tells ledger files apart). */
+export const deviceName = (actor: string) => actor.split(".")[0];
+export const isUdhaar = (kind: string) => kind === "credit_given" || kind === "credit_paid";
+
+/** "Sharma's payment", "Pandey's udhaar", "the poha sale", "a purchase". */
+export function disputeSubject(c: Pick<Conflict, "kind" | "party" | "item">) {
+  if (isUdhaar(c.kind) && c.party) return `${cap(c.party)}'s ${c.kind === "credit_paid" ? "payment" : "udhaar"}`;
+  const noun = { sale: "sale", purchase: "purchase", expense: "expense" }[c.kind] ?? KIND_LABEL[c.kind]?.toLowerCase() ?? c.kind;
+  return c.item ? `the ${c.item} ${noun}` : `a ${noun}`;
+}
 export const fmtQty = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/0$/, ""));
 export const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -62,7 +73,8 @@ export function standing(events: LedgerEvent[], summary: Summary | null) {
   const fusedWith = new Map<string, string[]>();
   summary?.duplicates.forEach((g) => g.forEach((id) => fusedWith.set(id, g)));
   const disputed = new Set(summary?.conflicts.flatMap((c) => c.ids) ?? []);
-  return { superseded, fusedWith, disputed };
+  const maybeTwice = new Set(summary?.possible_duplicates.flatMap((p) => p.ids) ?? []);
+  return { superseded, fusedWith, disputed, maybeTwice };
 }
 
 /** Entries the worker was unsure about and nobody has checked yet. */

@@ -1,7 +1,8 @@
-import { inr, LedgerEvent, rupees } from "../api";
+import { api, inr, LedgerEvent, PossibleDuplicate, rupees } from "../api";
 import type { Data } from "../App";
-import { grossPaise, SOURCE_LABEL, what } from "../derive";
-import { Conf, Empty, KindTag, Panel, Skeleton, ViewHead } from "../ui";
+import { cap, deviceName, disputeSubject, grossPaise, isUdhaar, SOURCE_LABEL, what } from "../derive";
+import { Conf, Empty, ErrorLine, KindTag, Panel, Skeleton, useAction, ViewHead } from "../ui";
+import { Dispute } from "./Dispute";
 
 const ORDER = ["cash", "inventory", "receivable", "suspense", "revenue", "expense"];
 const ACCOUNT_NAME: Record<string, string> = {
@@ -29,6 +30,8 @@ export default function Books(d: Data) {
   const credit = rows.reduce((s, [, v]) => s + Math.max(-v, 0), 0);
   const byId = new Map(events.map((e) => [e.id, e]));
   const groups = (summary?.duplicates ?? []).map((ids) => ids.map((id) => byId.get(id)).filter((e): e is LedgerEvent => !!e));
+  const heardDifferently = (summary?.conflicts ?? []).filter((c) => !(isUdhaar(c.kind) && c.party)); // udhaar: Udhaar view
+  const twice = summary?.possible_duplicates ?? [];
 
   return (
     <>
@@ -43,6 +46,20 @@ export default function Books(d: Data) {
         }
       />
       <div className="grid">
+        {heardDifferently.length > 0 && (
+          <Panel title="Heard differently" className="span-12" note="One trade, two amounts, from two phones within seconds of each other. The lower one is booked until you say which it was.">
+            <ul className="rows disputes">
+              {heardDifferently.map((c) => <Dispute key={c.ids.join()} c={c} onDone={d.refresh} />)}
+            </ul>
+          </Panel>
+        )}
+        {twice.length > 0 && (
+          <Panel title="One trade or two?" className="span-12" note="The same trade on two phones that were out of touch, so the app can't tell. Both count until you decide.">
+            <ul className="rows disputes">
+              {twice.map((p) => <MaybeTwice key={p.ids.join()} p={p} byId={byId} onDone={d.refresh} />)}
+            </ul>
+          </Panel>
+        )}
         <Panel
           title="Trial balance"
           className="span-7"
@@ -76,7 +93,7 @@ export default function Books(d: Data) {
         <Panel
           title="Counted once"
           className="span-5"
-          note="The same trade heard, texted and tallied is one trade. More witnesses make it surer."
+          note="The same trade heard, texted and tallied, or heard by two phones at once, is one trade. If two of these were really separate trades, say so."
         >
           {!summary ? (
             <Skeleton />
@@ -84,33 +101,73 @@ export default function Books(d: Data) {
             <Empty>No trade has come in twice yet. Type one, then send the same one with “An SMS” as its source.</Empty>
           ) : (
             <ul className="rows">
-              {groups.map((g) => {
-                const combined = 1 - g.reduce((miss, e) => miss * (1 - e.confidence), 1);
-                const best = g.reduce((a, b) => (b.confidence > a.confidence ? b : a));
-                return (
-                  <li key={g.map((e) => e.id).join()} className="fused">
-                    <div className="booked-line">
-                      <KindTag kind={best.kind} />
-                      <span>{what(best)}</span>
-                      <b className="money push">{inr(grossPaise(best) / 100)}</b>
-                    </div>
-                    <ul className="witnesses">
-                      {g.map((e) => (
-                        <li key={e.id}>
-                          <a className="link" href={`#/entries/${encodeURIComponent(e.id)}`}>{SOURCE_LABEL[e.source] ?? e.source}</a>
-                          <span className="said">“{e.raw}”</span>
-                          <Conf value={e.confidence} />
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="kv"><span>Together</span><Conf value={combined} /></div>
-                  </li>
-                );
-              })}
+              {groups.map((g) => <CountedOnce key={g.map((e) => e.id).join()} g={g} onDone={d.refresh} />)}
             </ul>
           )}
         </Panel>
       </div>
     </>
+  );
+}
+
+/** One witness per source counts: a second phone's ear is not independent evidence (fusion.py). */
+function CountedOnce({ g, onDone }: { g: LedgerEvent[]; onDone: () => void }) {
+  const { busy, error, run } = useAction();
+  const perSource = new Map(g.map((e) => [e.source, e]));
+  const combined = 1 - [...perSource.values()].reduce((miss, e) => miss * (1 - e.confidence), 1);
+  const best = g.reduce((a, b) => (b.confidence > a.confidence ? b : a));
+  const together = perSource.size > 1 ? combined : best.confidence;
+  return (
+    <li className="fused">
+      <div className="booked-line">
+        <KindTag kind={best.kind} />
+        <span>{what(best)}</span>
+        <b className="money push">{inr(grossPaise(best) / 100)}</b>
+      </div>
+      <ul className="witnesses">
+        {g.map((e) => (
+          <li key={e.id}>
+            <a className="link" href={`#/entries/${encodeURIComponent(e.id)}`}>{SOURCE_LABEL[e.source] ?? e.source}</a>
+            <span className="muted">{deviceName(e.device_id)}</span>
+            <span className="said">“{e.raw}”</span>
+            <Conf value={e.confidence} />
+          </li>
+        ))}
+      </ul>
+      <div className="kv">
+        <span>Together</span>
+        <Conf value={together} />
+      </div>
+      <div className="dispute-actions">
+        <button className="btn" disabled={busy} onClick={async () => (await run(() => api.separate(g.map((e) => e.id)))) && onDone()}>
+          These are different trades
+        </button>
+      </div>
+      <ErrorLine error={error} />
+    </li>
+  );
+}
+
+function MaybeTwice({ p, byId, onDone }: { p: PossibleDuplicate; byId: Map<string, LedgerEvent>; onDone: () => void }) {
+  const { busy, error, run } = useAction();
+  const decide = async (fn: (ids: string[]) => Promise<unknown>) => {
+    if (await run(() => fn(p.ids))) onDone();
+  };
+  return (
+    <li className="dispute">
+      <div className="row-main">
+        <b>
+          {cap(disputeSubject(p))} of {inr(p.amount_paise / 100)}: once or twice?
+        </b>
+        <small>
+          {p.ids.map((id) => `${deviceName(id.split(":")[0])} heard “${byId.get(id)?.raw ?? id}”`).join("; ")}. {p.why}.
+        </small>
+      </div>
+      <div className="dispute-actions">
+        <button className="btn" disabled={busy} onClick={() => decide(api.same)}>One trade, count it once</button>
+        <button className="btn" disabled={busy} onClick={() => decide(api.separate)}>Two trades</button>
+      </div>
+      <ErrorLine error={error} />
+    </li>
   );
 }

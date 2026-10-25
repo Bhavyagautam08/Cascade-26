@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, inr, rupees, Summary, Transcript } from "../api";
 import type { Data } from "../App";
-import { amountText, cap, dayLabel, doubtful, onDay, pct, standing, what } from "../derive";
+import { amountText, cap, dayLabel, deviceName, disputeSubject, doubtful, isUdhaar, onDay, pct, standing, what } from "../derive";
 import { Icon } from "../icons";
 import { Conf, Empty, KindTag, Panel, Skeleton, ViewHead } from "../ui";
 import { useLedgerStock, worstWaste } from "./Stock";
@@ -23,14 +23,17 @@ export default function Today(d: Data) {
   }
   const unsure = doubtful(today, summary);
   const conflicts = summary?.conflicts ?? [];
+  const twice = summary?.possible_duplicates ?? [];
 
   // The one finding, read first: what needs the vendor, else what the worker did.
   let line: string;
   if (!summary) line = "Reading the ledger…";
   else if (conflicts.length)
-    line = `${rupees(conflicts[0].suspense_paise)} of ${cap(conflicts[0].party)}'s ${
-      conflicts[0].kind === "credit_paid" ? "payment" : "udhaar"
-    } is disputed between two phones. It waits in suspense until you settle it.`;
+    line = `${cap(disputeSubject(conflicts[0]))} was heard as ${rupees(conflicts[0].claims_paise[0])} and ${rupees(
+      conflicts[0].claims_paise[1],
+    )}. ${rupees(conflicts[0].booked_paise)} is booked until you settle it.`;
+  else if (twice.length)
+    line = `${twice.length} ${twice.length === 1 ? "trade was" : "trades were"} recorded on two phones that were out of touch. Both count until you say whether ${twice.length === 1 ? "it is" : "they are"} one trade or two.`;
   else if (unsure.length) line = `${unsure.length} ${unsure.length === 1 ? "entry was" : "entries were"} hard to hear. Check ${unsure.length === 1 ? "it" : "them"} before the day closes.`;
   else if (!today.length) line = "Nothing booked today yet. Say a trade near the phone, or type it in.";
   else line = `Nothing needs you. The worker has booked ${today.length} ${today.length === 1 ? "entry" : "entries"} today and the books balance.`;
@@ -124,12 +127,20 @@ function RangePlot({ p10, p50, p90 }: { p10: number; p50: number; p90: number })
 
 function NeedsYou({ d, unsure }: { d: Data; unsure: Data["events"] }) {
   const conflicts = d.summary?.conflicts ?? [];
+  const twice = d.summary?.possible_duplicates ?? [];
   const rows = [
     ...conflicts.map((c) => ({
       key: c.ids.join(),
-      href: "#/udhaar",
-      title: `Settle ${cap(c.party)}'s ${c.kind === "credit_paid" ? "payment" : "udhaar"}`,
+      href: isUdhaar(c.kind) && c.party ? "#/udhaar" : "#/books",
+      title: `Settle ${disputeSubject(c)}`,
       sub: `Phones say ${inr(c.claims_paise[0] / 100)} and ${inr(c.claims_paise[1] / 100)}`,
+      tone: "warning" as const,
+    })),
+    ...twice.map((p) => ({
+      key: p.ids.join(),
+      href: "#/books",
+      title: `One trade or two? ${cap(disputeSubject(p))} of ${inr(p.amount_paise / 100)}`,
+      sub: `Recorded on ${deviceName(p.devices[0])} and ${deviceName(p.devices[1])} while they were out of touch`,
       tone: "warning" as const,
     })),
     ...unsure.map((e) => ({

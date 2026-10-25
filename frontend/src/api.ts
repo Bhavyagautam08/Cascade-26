@@ -46,7 +46,8 @@ export type LedgerEvent = {
 export type Day = { index: number; date: string | null; started_by: string[]; clock_suspect: boolean; events: number };
 
 export type Health = {
-  device_id: string;
+  device_id: string; // the human name (DEVICE_ID)
+  actor: string; // the id this ledger file writes entries under, e.g. "phone-1.k3x9qa"
   model_mode: "demo" | "real";
   llm_model: string;
   whisper_model: string;
@@ -58,13 +59,60 @@ export type Health = {
   events: number;
 };
 
+/** One trade heard with two amounts: the lower one is booked until the vendor settles it. */
 export type Conflict = {
   ids: string[];
-  party: string;
+  party: string | null;
   kind: string;
+  item: string | null;
   claims_paise: [number, number];
-  suspense_paise: number;
+  booked_paise: number;
+  disputed_paise: number;
+  suspense_paise: number; // udhaar only: the gap waits in suspense; 0 for sales and purchases
+  why: string;
 };
+
+/** Identical entries from two phones that were out of touch: both count until the vendor decides. */
+export type PossibleDuplicate = {
+  ids: [string, string];
+  kind: string;
+  item: string | null;
+  party: string | null;
+  qty: number | null;
+  amount_paise: number;
+  devices: [string, string];
+  why: string;
+};
+
+export type SyncPeer = {
+  url: string;
+  name: string | null;
+  actor: string | null;
+  state: "never" | "ok" | "unreachable" | "refused" | "error";
+  last_ok_s_ago: number | null;
+  last_attempt_s_ago: number | null;
+  last_error: string | null;
+  failures_in_a_row: number;
+  last: { pulled?: number; pushed?: number; duplicates?: number };
+  pulled_total: number;
+  pushed_total: number;
+  rejected: { id: string | null; reason: string; at?: string }[];
+  warnings: string[];
+};
+
+export type SyncStatus = {
+  auto: boolean;
+  interval_s: number;
+  running: boolean;
+  rounds: number;
+  name: string;
+  actor: string;
+  previous_actors: string[];
+  rotations: { from: string; to: string; because: string; peer: string; at?: string }[];
+  peers: SyncPeer[];
+};
+
+export type SyncResult = Record<string, { added?: number; pushed?: number; rejected?: unknown[]; error?: string; state?: string }>;
 
 export type Summary = {
   day: Day & { current: boolean }; // the day this profit is for
@@ -81,6 +129,7 @@ export type Summary = {
   };
   duplicates: string[][];
   conflicts: Conflict[];
+  possible_duplicates: PossibleDuplicate[];
   frontier: Record<string, number>;
 };
 
@@ -232,13 +281,16 @@ export const api = {
   confirmSlip: (supplier: string | null, lines: SlipLine[]) =>
     post<{ events: LedgerEvent[] }>("/ingest/slip/confirm", { supplier, lines }),
   resolve: (ids: string[], amount_rupees: number) => post<{ events: LedgerEvent[] }>("/ledger/resolve", { ids, amount_rupees }),
+  same: (ids: string[]) => post<{ events: LedgerEvent[] }>("/ledger/same", { ids }),
+  separate: (ids: string[]) => post<{ events: LedgerEvent[] }>("/ledger/separate", { ids }),
   void: (id: string) => post<{ events: LedgerEvent[] }>("/ledger/void", { id }),
   lexicon: () => call<Lexicon>("/lexicon"),
   addLexicon: (section: string, key: string, value: unknown) => post<Lexicon>("/lexicon", { section, key, value }),
   recipe: (burn: number[][], plates: number[][]) => post<Recipe>("/inference/recipe", { burn, plates }),
   loss: (unexplained_kg: number, covariates: Record<string, number | boolean>) =>
     post<LossSplit>("/inference/loss", { unexplained_kg, covariates }),
-  syncNow: () => post<Record<string, { added?: number; error?: string }>>("/sync/now", {}),
+  syncNow: () => post<SyncResult>("/sync/now", {}),
+  syncStatus: () => call<SyncStatus>("/sync/status"),
 };
 
 const sign = (x: number) => (x < 0 ? "−" : "");

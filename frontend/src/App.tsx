@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, Health, LedgerEvent, Summary } from "./api";
+import { isUdhaar } from "./derive";
 import { Icon, Mark } from "./icons";
 import Books from "./views/Books";
 import Devices from "./views/Devices";
@@ -105,7 +106,10 @@ export default function App() {
   }, []);
 
   const data: Data = { health, summary, events, offline, loaded, refresh, go };
-  const disputes = summary?.conflicts.length ?? 0;
+  const udhaarDisputes = (summary?.conflicts ?? []).filter((c) => isUdhaar(c.kind) && c.party).length;
+  const booksDecisions = (summary?.conflicts.length ?? 0) - udhaarDisputes + (summary?.possible_duplicates.length ?? 0);
+  const disputes = udhaarDisputes + booksDecisions;
+  const badge: Partial<Record<Route, number>> = { udhaar: udhaarDisputes, books: booksDecisions };
 
   const nav = (
     <nav className="nav" aria-label="Main">
@@ -120,7 +124,7 @@ export default function App() {
                 <a key={r} href={`#/${r}`} className={`nav-item ${loc.route === r ? "on" : ""}`} aria-current={loc.route === r ? "page" : undefined}>
                   <I />
                   <span>{ROUTES[r].label}</span>
-                  {r === "udhaar" && disputes > 0 && <span className="nav-count" title={`${disputes} disputed amount${disputes > 1 ? "s" : ""} to settle`}>{disputes}</span>}
+                  {(badge[r] ?? 0) > 0 && <span className="nav-count" title={`${badge[r]} to settle or decide`}>{badge[r]}</span>}
                 </a>
               );
             })}
@@ -151,7 +155,7 @@ export default function App() {
         <span className="topbar-sep" aria-hidden="true" />
         <b className="topbar-title">{ROUTES[loc.route].label}</b>
         {disputes > 0 && (
-          <a className="nav-count topbar-count" href="#/udhaar" title={`${disputes} disputed amount${disputes > 1 ? "s" : ""} to settle`}>
+          <a className="nav-count topbar-count" href="#/today" title={`${disputes} to settle or decide (listed under Needs you)`}>
             {disputes}
           </a>
         )}
