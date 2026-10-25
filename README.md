@@ -1,62 +1,33 @@
 # Cascade '26 — The Invisible Worker (PS 1.2)
 
 A fully offline, on-device probabilistic ledger for street vendors. It listens to shop talk, reads
-wholesale slips, and reconstructs a double-entry ledger with ranges instead of point guesses.
-Three family devices sync peer-to-peer without a server, and survive broken clocks.
+wholesale slips and SMS, takes morning and evening stock counts, and reconstructs a balanced
+double-entry ledger with ranges instead of point guesses. The family's devices sync peer-to-peer
+without a server, count a trade heard by two phones once, and survive broken clocks.
 
-## Layers
-
-```
-[Perception]   mic (always on) / slip photo / SMS / tally  ->  candidate events + confidence
-               Silero VAD -> faster-whisper (small) -> local LLM via Ollama (JSON schema)
-[Ledger]       append-only event log -> evidence fusion -> double-entry postings
-               -> recipe inference / loss attribution / credit reconciliation -> Monte Carlo ranges
-[Sync]         grow-only event set (CRDT) + vector clocks; wall clocks are stored but never trusted
-```
-
-Nothing calls the internet at runtime. Models are downloaded once during setup ([docs/SETUP.md](docs/SETUP.md)).
-
-**Full design, exact models, offline matrix, API, setup and demo checklist:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-· **Stage plan + status:** [docs/PLAN.md](docs/PLAN.md)
-· **Setup on any laptop (download links, configuration, known fixes):** [docs/SETUP.md](docs/SETUP.md)
+- **Set up a laptop:** [docs/SETUP.md](docs/SETUP.md) — install 4 programs, then
+  `scripts\setup_device.ps1 -DeviceId phone-2 -SyncKey <family key> -Peers http://<ip>:8000` and `scripts\start.ps1`
+- **How it works, trade-offs, constraints:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **What's done, what's left:** [docs/PLAN.md](docs/PLAN.md)
 
 | Role | Model |
 |---|---|
-| Speech-to-text | faster-whisper `small` only (int8_float16 on CUDA; same model on CPU if CUDA fails) |
-| VAD | Silero (bundled in faster-whisper) |
-| Text → events + slip reading | Ollama `qwen3-vl:4b-instruct` (bake-off rival `gemma3:4b`) |
+| Speech-to-text | faster-whisper `small` (GPU, or CPU) |
+| Text, slips, stock counts | Ollama `qwen3-vl:4b-instruct` |
 | No-model fallback | lexicon-driven rule parser |
 
 ## Repo layout
 
 | Path | What lives there |
 |---|---|
-| `backend/app/perception/` | mic + VAD, speech-to-text, slip reading, text → events, lexicon |
-| `backend/app/ledger/` | event model, SQLite store, double-entry, fusion, inference |
-| `backend/app/sync/` | vector clocks, merge, transports |
-| `backend/app/main.py` | FastAPI app (HTTP API for the UI and for peer sync) |
-| `backend/data/lexicon.json` | vocabulary + units; editable at runtime (Lexicon Drop) |
+| `backend/app/perception/` | mic, speech-to-text, slip reading, text → events, SMS, lexicon |
+| `backend/app/inventory.py` | morning / evening stock counts |
+| `backend/app/ledger/` | events, store, identity, double-entry, business days, fusion, inference |
+| `backend/app/sync/` | protocol, background engine, LAN transport, vector clocks |
+| `backend/app/main.py` | HTTP API for the dashboard and the peers |
+| `backend/data/lexicon.json` | vocabulary and units, editable live (Lexicon Drop) |
 | `frontend/` | React + Vite dashboard |
-| `scripts/` | setup + dev helpers |
+| `scripts/` | `setup_device.ps1`, `start.ps1`, `family.ps1` (3 phones on one laptop), `run_device.ps1`, `seed_demo.py`, `setup_models.ps1` |
+| `eval/` | real samples, evaluation scripts, reports |
 
-## Setup (Windows)
-
-Full guide with download links: **[docs/SETUP.md](docs/SETUP.md)**. In short: install Git, Node.js, uv and
-Ollama (standard installers, no special model folder), download `qwen3-vl:4b-instruct` in Ollama, then:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1   # deps + Whisper small, into your user profile
-copy .env.example backend\.env          # set DEVICE_ID, MODEL_MODE, SYNC_KEY, PEERS
-cd backend;  uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
-cd frontend; npm run dev                 # http://localhost:5173
-```
-
-Run a second/third "device" on another laptop with `DEVICE_ID=phone-2`, or all three on one laptop with
-`scripts\run_device.ps1` (see the header of that script; `-HostileClock 1970` plays the broken phone).
-
-No models yet? Set `MODEL_MODE=demo` in `backend\.env`: the full UI and ledger run on labelled stand-ins.
-
-## Offline check
-
-Disconnect Wi-Fi, then start the backend and UI. Everything must still work. `GET /health` reports
-whether Ollama is reachable (`llm_problem`) and which Whisper weights loaded (`asr.source`, `asr.error`).
+Tests: `cd backend; uv run pytest -q`. Nothing calls the internet at runtime.
