@@ -1,4 +1,6 @@
 """Append-only SQLite event log. Events are never updated or deleted; corrections are new events."""
+import bisect
+import re
 import sqlite3
 import threading
 import time
@@ -8,12 +10,21 @@ from pathlib import Path
 
 from app.ledger.events import Event, Kind, Posting, Source
 
+ACTOR_RE = re.compile(r"[A-Za-z0-9_.-]+")    # an event's device_id: no ":" (ids are device_id:seq), no spaces
+
+Have = dict[str, list[list[int]]]            # {device_id: [[first_seq, last_seq], ...]} held ranges
+
 
 @dataclass
 class IngestResult:
     added: int = 0
     duplicates: int = 0                                  # already had it (normal on re-sync)
     rejected: list[dict] = field(default_factory=list)   # {"id", "reason"}
+
+
+def _holds(ranges: list[tuple[int, int]], seq: int) -> bool:
+    i = bisect.bisect_right(ranges, (seq, float("inf"))) - 1
+    return i >= 0 and ranges[i][0] <= seq <= ranges[i][1]
 
 
 class EventStore:
@@ -24,6 +35,8 @@ class EventStore:
         # One connection shared by API threads and the mic thread; the lock keeps
         # frontier-read + insert atomic so two local events can never get the same seq.
         self._lock = threading.RLock()
+        # Called with "local" or "ingest" after the book gained entries (the sync engine wakes up on it).
+        self.listeners: list[Callable[[str], None]] = []
         self.path = path
         self._open()
 
@@ -38,7 +51,23 @@ class EventStore:
                 UNIQUE (device_id, seq)
             )"""
         )
+        self.db.execute("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
         self.db.commit()
+
+    def _notify(self, why: str) -> None:
+        for fn in list(self.listeners):
+            fn(why)
+
+    # --- facts about this ledger file (its owner's name, its actor id) ---------
+    def get_meta(self, key: str) -> str | None:
+        with self._lock:
+            row = self.db.execute("SELECT value FROM meta WHERE key = ?", (key,)).fetchone()
+        return row[0] if row else None
+
+    def set_meta(self, key: str, value: str) -> None:
+        with self._lock:
+            self.db.execute("INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", (key, value))
+            self.db.commit()
 
     # --- reading -------------------------------------------------------------
     def all(self) -> list[Event]:
@@ -65,11 +94,44 @@ class EventStore:
             row = self.db.execute("SELECT MAX(seq) FROM events WHERE device_id = ?", (self.device_id,)).fetchone()
         return row[0] or 0
 
-    def missing_for(self, their_frontier: dict[str, int]) -> list[Event]:
-        """Events we have that a peer with `their_frontier` has not seen."""
+    def have(self) -> Have:
+        """Per device, the ranges of seqs held: {"a": [[1, 40], [42, 50]]}. Unlike the frontier it also says
+        what is held beyond a gap, so a peer sends exactly the missing entries and nothing twice."""
         with self._lock:
-            rows = self.db.execute("SELECT device_id, seq, body FROM events").fetchall()
-        return [Event.model_validate_json(b) for d, s, b in rows if s > their_frontier.get(d, 0)]
+            rows = self.db.execute("SELECT device_id, seq FROM events ORDER BY device_id, seq").fetchall()
+        out: Have = {}
+        for device, seq in rows:
+            ranges = out.setdefault(device, [])
+            if ranges and ranges[-1][1] + 1 == seq:
+                ranges[-1][1] = seq
+            else:
+                ranges.append([seq, seq])
+        return out
+
+    def missing(self, have: Have, after: tuple[str, int] | None = None,
+                limit: int | None = None) -> tuple[list[Event], bool]:
+        """Entries a peer holding `have` lacks, in (device_id, seq) order, after the cursor `after`.
+
+        -> (page, more). The caller moves the cursor to the page's last entry, so every page moves
+        forward even when the peer refuses some entries: one bad entry can never stall a sync.
+        """
+        held = {d: sorted((int(lo), int(hi)) for lo, hi in rs) for d, rs in have.items()}
+        d0, s0 = after or ("", 0)
+        with self._lock:
+            rows = self.db.execute(
+                "SELECT device_id, seq FROM events WHERE device_id > ? OR (device_id = ? AND seq > ?) "
+                "ORDER BY device_id, seq", (d0, d0, s0)).fetchall()
+            wanted = [(d, s) for d, s in rows if not _holds(held.get(d, []), s)]
+            more = limit is not None and len(wanted) > limit
+            wanted = wanted[:limit] if limit is not None else wanted
+            page = [Event.model_validate_json(self.db.execute(
+                "SELECT body FROM events WHERE device_id = ? AND seq = ?", (d, s)).fetchone()[0])
+                for d, s in wanted]
+        return page, more
+
+    def missing_for(self, their_frontier: dict[str, int]) -> list[Event]:
+        """Events we have that a peer with `their_frontier` (gap-free, see frontier()) has not seen."""
+        return self.missing({d: [[1, n]] for d, n in their_frontier.items() if n > 0})[0]
 
     # --- writing -------------------------------------------------------------
     def append_local(
@@ -101,6 +163,7 @@ class EventStore:
                 supersedes=supersedes or [],
             )
             self._insert(ev)
+        self._notify("local")
         return ev
 
     def ingest(self, events: list[Event]) -> IngestResult:
@@ -109,34 +172,44 @@ class EventStore:
         Rejected: ids that don't match device_id:seq, a vector clock that doesn't count the event
         itself, and an id we already hold with *different* content (corruption or forgery: the
         log is immutable, so the first version wins and the clash is reported).
+        One transaction: a failure part-way leaves the ledger as it was.
         """
         res = IngestResult()
         with self._lock:
-            for ev in events:
-                reason = None
-                if ev.device_id == "fusion" or ev.seq < 1 or ev.id != f"{ev.device_id}:{ev.seq}":
-                    reason = "id must be device_id:seq with seq >= 1"
-                elif ev.vclock.get(ev.device_id) != ev.seq:
-                    reason = "vclock must count the event itself"
-                if reason is None:
-                    row = self.db.execute("SELECT body FROM events WHERE id = ?", (ev.id,)).fetchone()
-                    if row is None:
-                        res.added += self._insert(ev)
-                        continue
-                    if Event.model_validate_json(row[0]) == ev:
-                        res.duplicates += 1
-                        continue
-                    reason = "different content already stored under this id"
-                res.rejected.append({"id": ev.id, "reason": reason})
+            try:
+                for ev in events:
+                    reason = None
+                    if (ev.device_id == "fusion" or not ACTOR_RE.fullmatch(ev.device_id) or ev.seq < 1
+                            or ev.id != f"{ev.device_id}:{ev.seq}"):
+                        reason = "id must be device_id:seq with seq >= 1 (device_id: letters, digits, . _ -)"
+                    elif ev.vclock.get(ev.device_id) != ev.seq:
+                        reason = "vclock must count the event itself"
+                    if reason is None:
+                        row = self.db.execute("SELECT body FROM events WHERE id = ?", (ev.id,)).fetchone()
+                        if row is None:
+                            res.added += self._insert(ev, commit=False)
+                            continue
+                        if Event.model_validate_json(row[0]) == ev:
+                            res.duplicates += 1
+                            continue
+                        reason = "different content already stored under this id"
+                    res.rejected.append({"id": ev.id, "reason": reason})
+                self.db.commit()
+            except BaseException:
+                self.db.rollback()
+                raise
+        if res.added:
+            self._notify("ingest")
         return res
 
-    def _insert(self, ev: Event) -> int:
+    def _insert(self, ev: Event, commit: bool = True) -> int:
         with self._lock:
             cur = self.db.execute(
                 "INSERT OR IGNORE INTO events (id, device_id, seq, body) VALUES (?, ?, ?, ?)",
                 (ev.id, ev.device_id, ev.seq, ev.model_dump_json()),
             )
-            self.db.commit()
+            if commit:
+                self.db.commit()
         return cur.rowcount
 
 
