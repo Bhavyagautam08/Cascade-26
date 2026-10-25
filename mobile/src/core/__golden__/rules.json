@@ -1,0 +1,905 @@
+{
+ "lexicon": {
+  "items": {
+   "tamatar": "tomato",
+   "pyaz": "onion",
+   "kanda": "onion",
+   "aloo": "potato",
+   "poha": "poha",
+   "mungfali": "peanut",
+   "tel": "oil",
+   "mirchi": "chilli",
+   "dhaniya": "coriander",
+   "chai": "tea",
+   "doodh": "milk",
+   "gas": "gas",
+   "bhada": "rent",
+   "kiraya": "rent",
+   "pyaaz": "onion",
+   "pyaj": "onion",
+   "onion": "onion",
+   "tomato": "tomato",
+   "bhindi": "okra",
+   "lauki": "bottle gourd",
+   "gobhi": "cauliflower",
+   "palak": "spinach",
+   "adrak": "ginger",
+   "lehsun": "garlic",
+   "nimbu": "lemon",
+   "anda": "eggs",
+   "ande": "eggs",
+   "egg": "eggs",
+   "chawal": "rice",
+   "rice": "rice",
+   "cheeni": "sugar",
+   "shakkar": "sugar",
+   "sugar": "sugar",
+   "namak": "salt",
+   "atta": "flour",
+   "maida": "refined flour",
+   "besan": "gram flour",
+   "dahi": "curd",
+   "paneer": "paneer",
+   "makhan": "butter",
+   "ghee": "ghee",
+   "mawa": "mawa",
+   "khoya": "mawa",
+   "kesar": "saffron",
+   "elaichi": "cardamom",
+   "haldi": "turmeric",
+   "jeera": "cumin",
+   "achaar": "pickle",
+   "achar": "pickle",
+   "badam": "almonds",
+   "kaju": "cashew",
+   "pista": "pistachio",
+   "milk": "milk",
+   "oil": "oil",
+   "sooji": "semolina",
+   "dal": "dal",
+   "shimla mirch": "capsicum",
+   "capsicum": "capsicum"
+  },
+  "units": {
+   "kilo": {
+    "unit": "kg",
+    "factor": 1.0
+   },
+   "kg": {
+    "unit": "kg",
+    "factor": 1.0
+   },
+   "paav": {
+    "unit": "kg",
+    "factor": 0.25
+   },
+   "aadha kilo": {
+    "unit": "kg",
+    "factor": 0.5
+   },
+   "gram": {
+    "unit": "kg",
+    "factor": 0.001
+   },
+   "litre": {
+    "unit": "l",
+    "factor": 1.0
+   },
+   "plate": {
+    "unit": "plate",
+    "factor": 1.0
+   },
+   "cup": {
+    "unit": "plate",
+    "factor": 1.0
+   },
+   "packet": {
+    "unit": "packet",
+    "factor": 1.0
+   },
+   "kgs": {
+    "unit": "kg",
+    "factor": 1.0
+   },
+   "g": {
+    "unit": "kg",
+    "factor": 0.001
+   },
+   "gm": {
+    "unit": "kg",
+    "factor": 0.001
+   },
+   "gms": {
+    "unit": "kg",
+    "factor": 0.001
+   },
+   "grams": {
+    "unit": "kg",
+    "factor": 0.001
+   },
+   "l": {
+    "unit": "l",
+    "factor": 1.0
+   },
+   "ltr": {
+    "unit": "l",
+    "factor": 1.0
+   },
+   "liter": {
+    "unit": "l",
+    "factor": 1.0
+   },
+   "ml": {
+    "unit": "l",
+    "factor": 0.001
+   },
+   "millilitre": {
+    "unit": "l",
+    "factor": 0.001
+   },
+   "dozen": {
+    "unit": "dozen",
+    "factor": 1.0
+   },
+   "darjan": {
+    "unit": "dozen",
+    "factor": 1.0
+   },
+   "piece": {
+    "unit": "piece",
+    "factor": 1.0
+   },
+   "bottle": {
+    "unit": "bottle",
+    "factor": 1.0
+   }
+  },
+  "aliases": {
+   "sharma ji": "sharma",
+   "sharma uncle": "sharma",
+   "chhotu": "chhotu",
+   "pandey ji": "pandey"
+  },
+  "verbs": {
+   "liya": "purchase",
+   "laya": "purchase",
+   "kharida": "purchase",
+   "becha": "sale",
+   "de": "sale",
+   "diya": "sale",
+   "jama": "credit_paid",
+   "chukaya": "credit_paid",
+   "udhaar": "credit_given",
+   "baaki": "credit_given",
+   "likh": "credit_given",
+   "bacha": "stock_count",
+   "bache": "stock_count",
+   "bachi": "stock_count",
+   "gina": "stock_count",
+   "kharcha": "expense",
+   "kharch": "expense",
+   "bhara": "expense",
+   "chahiye": "order",
+   "chahie": "order",
+   "chaiye": "order",
+   "bhej do": "order",
+   "mangwa": "order"
+  },
+  "numbers": {
+   "ek": 1,
+   "do": 2,
+   "teen": 3,
+   "char": 4,
+   "chaar": 4,
+   "paanch": 5,
+   "chhe": 6,
+   "saat": 7,
+   "aath": 8,
+   "nau": 9,
+   "das": 10,
+   "bees": 20,
+   "pachaas": 50,
+   "sau": 100,
+   "hazaar": 1000,
+   "dus": 10,
+   "pandrah": 15,
+   "pachees": 25,
+   "tees": 30,
+   "chalees": 40,
+   "aadha": 0.5,
+   "dedh": 1.5,
+   "dhai": 2.5,
+   "saath": 60,
+   "sattar": 70,
+   "assi": 80,
+   "nabbe": 90,
+   "chaalees": 40,
+   "pachas": 50,
+   "soo": 100,
+   "dedh sau": 150,
+   "dhai sau": 250,
+   "saadhe teen sau": 350
+  },
+  "prices": {
+   "poha": 20,
+   "tea": 10
+  },
+  "perishable": [
+   "tomato",
+   "coriander",
+   "milk",
+   "chilli"
+  ]
+ },
+ "cases": [
+  {
+   "text": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+   "spoken": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": 3.0,
+     "unit": "kg",
+     "amount_rupees": 180.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "bhai 3 kilo tamatar liya 180 mein"
+    },
+    {
+     "kind": "credit_paid",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": [],
+     "raw": "sharma ji ka 40 jama kar"
+    },
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.5,
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ],
+     "raw": "7 plate poha de"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "aaj bahut garmi hai bhai",
+   "spoken": "aaj bahut garmi hai bhai",
+   "events": [],
+   "unparsed": []
+  },
+  {
+   "text": "pandey ji ka 60 udhaar likh do",
+   "spoken": "pandey ji ka 60 udhaar likh do",
+   "events": [
+    {
+     "kind": "credit_given",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 60.0,
+     "party": "pandey",
+     "direction": null,
+     "flags": [],
+     "raw": "pandey ji ka 60 udhaar likh do"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "2 kilo pyaz laya 80 aur 1 kilo aloo 30",
+   "spoken": "2 kilo pyaz laya 80 aur 1 kilo aloo 30",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "onion",
+     "qty": 2.0,
+     "unit": "kg",
+     "amount_rupees": 80.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "2 kilo pyaz laya 80"
+    },
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.6,
+     "item": "potato",
+     "qty": 1.0,
+     "unit": "kg",
+     "amount_rupees": 30.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "verb_inherited"
+     ],
+     "raw": "1 kilo aloo 30"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "gas cylinder ka 950 kharcha hua",
+   "spoken": "gas cylinder ka 950 kharcha hua",
+   "events": [
+    {
+     "kind": "expense",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "gas",
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 950.0,
+     "party": "cylinder",
+     "direction": null,
+     "flags": [],
+     "raw": "gas cylinder ka 950 kharcha hua"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "shaam ko 2 kilo poha bacha hai",
+   "spoken": "shaam ko 2 kilo poha bacha hai",
+   "events": [
+    {
+     "kind": "stock_count",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "poha",
+     "qty": 2.0,
+     "unit": "kg",
+     "amount_rupees": null,
+     "party": "shaam",
+     "direction": null,
+     "flags": [],
+     "raw": "shaam ko 2 kilo poha bacha hai"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "5 plate poha de do",
+   "spoken": "5 plate poha de do",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.5,
+     "item": "poha",
+     "qty": 5.0,
+     "unit": "plate",
+     "amount_rupees": 100.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ],
+     "raw": "5 plate poha de do"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "7 plate poha de 2 baje",
+   "spoken": "7 plate poha de 2 baje",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.5,
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ],
+     "raw": "7 plate poha de 2 baje"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "3 plate poha 60 mein becha 2 baje",
+   "spoken": "3 plate poha 60 mein becha 2 baje",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "poha",
+     "qty": 3.0,
+     "unit": "plate",
+     "amount_rupees": 60.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "3 plate poha 60 mein becha 2 baje"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "chai 10 de 20",
+   "spoken": "chai 10 de 20",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.3,
+     "item": "tea",
+     "qty": null,
+     "unit": null,
+     "amount_rupees": null,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "ambiguous_amount"
+     ],
+     "raw": "chai 10 de 20"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "chhotu 140",
+   "spoken": "chhotu 140",
+   "events": [],
+   "unparsed": [
+    "chhotu 140"
+   ]
+  },
+  {
+   "text": "2 kilo pyaz laya 80 aur 1 kilo aloo 30",
+   "spoken": "2 kilo pyaz laya 80 aur 1 kilo aloo 30",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "onion",
+     "qty": 2.0,
+     "unit": "kg",
+     "amount_rupees": 80.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "2 kilo pyaz laya 80"
+    },
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.6,
+     "item": "potato",
+     "qty": 1.0,
+     "unit": "kg",
+     "amount_rupees": 30.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "verb_inherited"
+     ],
+     "raw": "1 kilo aloo 30"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "1 kilo aloo 30",
+   "spoken": "1 kilo aloo 30",
+   "events": [],
+   "unparsed": [
+    "1 kilo aloo 30"
+   ]
+  },
+  {
+   "text": "sharma ji ko 50 diya",
+   "spoken": "sharma ji ko 50 diya",
+   "events": [
+    {
+     "kind": "adjustment",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 50.0,
+     "party": "sharma",
+     "direction": "out",
+     "flags": [
+      "unclassified_outflow"
+     ],
+     "raw": "sharma ji ko 50 diya"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "gas ka 300 kharcha",
+   "spoken": "gas ka 300 kharcha",
+   "events": [
+    {
+     "kind": "expense",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "gas",
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 300.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "gas ka 300 kharcha"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "5 kilo tamatar bacha",
+   "spoken": "5 kilo tamatar bacha",
+   "events": [
+    {
+     "kind": "stock_count",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": 5.0,
+     "unit": "kg",
+     "amount_rupees": null,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "5 kilo tamatar bacha"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "meena ji ka 90 udhaar",
+   "spoken": "meena ji ka 90 udhaar",
+   "events": [
+    {
+     "kind": "credit_given",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 90.0,
+     "party": "meena",
+     "direction": null,
+     "flags": [],
+     "raw": "meena ji ka 90 udhaar"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "sharma ji ka 40 jama",
+   "spoken": "sharma ji ka 40 jama",
+   "events": [
+    {
+     "kind": "credit_paid",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": [],
+     "raw": "sharma ji ka 40 jama"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "sharma ji ka 400 jama",
+   "spoken": "sharma ji ka 400 jama",
+   "events": [
+    {
+     "kind": "credit_paid",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 400.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": [],
+     "raw": "sharma ji ka 400 jama"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "7 plate poha de 140",
+   "spoken": "7 plate poha de 140",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "7 plate poha de 140"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "7 plate poha becha 150",
+   "spoken": "7 plate poha becha 150",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 150.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "7 plate poha becha 150"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "10 kilo tamatar liya 300",
+   "spoken": "10 kilo tamatar liya 300",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": 10.0,
+     "unit": "kg",
+     "amount_rupees": 300.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "10 kilo tamatar liya 300"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "4 kilo tamatar bacha",
+   "spoken": "4 kilo tamatar bacha",
+   "events": [
+    {
+     "kind": "stock_count",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": 4.0,
+     "unit": "kg",
+     "amount_rupees": null,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "4 kilo tamatar bacha"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "pandey ji ka 60 udhaar likh",
+   "spoken": "pandey ji ka 60 udhaar likh",
+   "events": [
+    {
+     "kind": "credit_given",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 60.0,
+     "party": "pandey",
+     "direction": null,
+     "flags": [],
+     "raw": "pandey ji ka 60 udhaar likh"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "5 cup chai de",
+   "spoken": "5 cup chai de",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.5,
+     "item": "tea",
+     "qty": 5.0,
+     "unit": "plate",
+     "amount_rupees": 50.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ],
+     "raw": "5 cup chai de"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "7 plate poha de 140 aur 5 cup chai de",
+   "spoken": "7 plate poha de 140 aur 5 cup chai de",
+   "events": [
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "7 plate poha de 140"
+    },
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.5,
+     "item": "tea",
+     "qty": 5.0,
+     "unit": "plate",
+     "amount_rupees": 50.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ],
+     "raw": "5 cup chai de"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "aadha kilo pyaz",
+   "spoken": "0.5 kilo pyaz",
+   "events": [],
+   "unparsed": [
+    "aadha kilo pyaz"
+   ]
+  },
+  {
+   "text": "do sau ka tel liya",
+   "spoken": "do sau ka tel liya",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "oil",
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 200.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "do sau ka tel liya"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "soo gram mirchi",
+   "spoken": "100 gram mirchi",
+   "events": [],
+   "unparsed": [
+    "soo gram mirchi"
+   ]
+  },
+  {
+   "text": "ek sau assi mein tamatar liya",
+   "spoken": "180 mein tamatar liya",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 80.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "ek sau assi mein tamatar liya"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+   "spoken": "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": 3.0,
+     "unit": "kg",
+     "amount_rupees": 180.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "bhai 3 kilo tamatar liya 180 mein"
+    },
+    {
+     "kind": "credit_paid",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": [],
+     "raw": "sharma ji ka 40 jama kar"
+    },
+    {
+     "kind": "sale",
+     "source": "manual",
+     "confidence": 0.5,
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ],
+     "raw": "7 plate poha de"
+    }
+   ],
+   "unparsed": []
+  }
+ ]
+}

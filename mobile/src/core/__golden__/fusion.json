@@ -1,0 +1,2140 @@
+[
+ {
+  "name": "one sale heard by two phones",
+  "events": [
+   {
+    "id": "phone-1.t2q6p9:1",
+    "device_id": "phone-1.t2q6p9",
+    "seq": 1,
+    "vclock": {
+     "phone-1.t2q6p9": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "49c5f76d",
+     103.0
+    ],
+    "marks": {
+     "phone-2.ufu4ha": [
+      [
+       "s1",
+       3.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.ufu4ha:1",
+    "device_id": "phone-2.ufu4ha",
+    "seq": 1,
+    "vclock": {
+     "phone-2.ufu4ha": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "f1958276",
+     5004.5
+    ],
+    "marks": {
+     "phone-1.t2q6p9": [
+      [
+       "s1",
+       4.5
+      ]
+     ]
+    }
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.t2q6p9:1+phone-2.ufu4ha:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   }
+  ],
+  "duplicates": [
+   [
+    "phone-1.t2q6p9:1",
+    "phone-2.ufu4ha:1"
+   ]
+  ],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 14000,
+   "revenue:sales": -14000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 2
+   }
+  ]
+ },
+ {
+  "name": "one utterance two amounts",
+  "events": [
+   {
+    "id": "phone-1.pmz7dj:1",
+    "device_id": "phone-1.pmz7dj",
+    "seq": 1,
+    "vclock": {
+     "phone-1.pmz7dj": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "26b1ed97",
+     52.0
+    ],
+    "marks": {
+     "phone-2.2veg9x": [
+      [
+       "s1",
+       2.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.2veg9x:1",
+    "device_id": "phone-2.2veg9x",
+    "seq": 1,
+    "vclock": {
+     "phone-2.2veg9x": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 150.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 15000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -15000
+     }
+    ],
+    "raw": "7 plate poha de 150",
+    "supersedes": [],
+    "mono": [
+     "193bedf9",
+     903.0
+    ],
+    "marks": {
+     "phone-1.pmz7dj": [
+      [
+       "s1",
+       3.0
+      ]
+     ]
+    }
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.pmz7dj:1+phone-2.2veg9x:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   }
+  ],
+  "duplicates": [],
+  "conflicts": [
+   {
+    "ids": [
+     "phone-1.pmz7dj:1",
+     "phone-2.2veg9x:1"
+    ],
+    "party": null,
+    "kind": "sale",
+    "item": "poha",
+    "claims_paise": [
+     14000,
+     15000
+    ],
+    "booked_paise": 14000,
+    "disputed_paise": 1000,
+    "suspense_paise": 0,
+    "why": "heard 1 s apart on two phones"
+   }
+  ],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 14000,
+   "revenue:sales": -14000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 2
+   }
+  ]
+ },
+ {
+  "name": "udhaar two amounts",
+  "events": [
+   {
+    "id": "phone-1.raes67:1",
+    "device_id": "phone-1.raes67",
+    "seq": 1,
+    "vclock": {
+     "phone-1.raes67": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "credit_paid",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     }
+    ],
+    "raw": "sharma ji ka 40 jama",
+    "supersedes": [],
+    "mono": [
+     "bf3326a5",
+     1.0
+    ],
+    "marks": {
+     "phone-2.9s37mv": [
+      [
+       "s1",
+       1.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.9s37mv:1",
+    "device_id": "phone-2.9s37mv",
+    "seq": 1,
+    "vclock": {
+     "phone-2.9s37mv": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "credit_paid",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 60.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 6000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -6000
+     }
+    ],
+    "raw": "sharma ji ka 60 jama",
+    "supersedes": [],
+    "mono": [
+     "4d7364cb",
+     2.0
+    ],
+    "marks": {
+     "phone-1.raes67": [
+      [
+       "s1",
+       2.0
+      ]
+     ]
+    }
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.raes67:1+phone-2.9s37mv:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     },
+     {
+      "account": "suspense",
+      "amount": 2000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -2000
+     }
+    ],
+    "confidence": 0.75
+   }
+  ],
+  "duplicates": [],
+  "conflicts": [
+   {
+    "ids": [
+     "phone-1.raes67:1",
+     "phone-2.9s37mv:1"
+    ],
+    "party": "sharma",
+    "kind": "credit_paid",
+    "item": null,
+    "claims_paise": [
+     4000,
+     6000
+    ],
+    "booked_paise": 4000,
+    "disputed_paise": 2000,
+    "suspense_paise": 2000,
+    "why": "heard 1 s apart on two phones"
+   }
+  ],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 4000,
+   "receivable:sharma": -6000,
+   "suspense": 2000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 2
+   }
+  ]
+ },
+ {
+  "name": "out of touch 40 vs 400",
+  "events": [
+   {
+    "id": "phone-1.e38xgg:1",
+    "device_id": "phone-1.e38xgg",
+    "seq": 1,
+    "vclock": {
+     "phone-1.e38xgg": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "credit_paid",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     }
+    ],
+    "raw": "sharma ji ka 40 jama",
+    "supersedes": [],
+    "mono": [
+     "c34e4a25",
+     1.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.vnunjn:1",
+    "device_id": "phone-2.vnunjn",
+    "seq": 1,
+    "vclock": {
+     "phone-2.vnunjn": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "credit_paid",
+    "source": "tally",
+    "confidence": 0.75,
+    "payload": {
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 400.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 40000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -40000
+     }
+    ],
+    "raw": "sharma ji ka 400 jama",
+    "supersedes": [],
+    "mono": [
+     "03c1a62c",
+     2.0
+    ],
+    "marks": {}
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.e38xgg:1+phone-2.vnunjn:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     },
+     {
+      "account": "suspense",
+      "amount": 36000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -36000
+     }
+    ],
+    "confidence": 0.75
+   }
+  ],
+  "duplicates": [],
+  "conflicts": [
+   {
+    "ids": [
+     "phone-1.e38xgg:1",
+     "phone-2.vnunjn:1"
+    ],
+    "party": "sharma",
+    "kind": "credit_paid",
+    "item": null,
+    "claims_paise": [
+     4000,
+     40000
+    ],
+    "booked_paise": 4000,
+    "disputed_paise": 36000,
+    "suspense_paise": 36000,
+    "why": "the amounts look like one figure misheard"
+   }
+  ],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 4000,
+   "receivable:sharma": -40000,
+   "suspense": 36000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 2
+   }
+  ]
+ },
+ {
+  "name": "out of touch identical",
+  "events": [
+   {
+    "id": "phone-1.jdb748:1",
+    "device_id": "phone-1.jdb748",
+    "seq": 1,
+    "vclock": {
+     "phone-1.jdb748": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "b460912a",
+     5.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.mr74cx:1",
+    "device_id": "phone-2.mr74cx",
+    "seq": 1,
+    "vclock": {
+     "phone-2.mr74cx": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "eec19748",
+     6.0
+    ],
+    "marks": {}
+   }
+  ],
+  "effective": [
+   {
+    "id": "phone-1.jdb748:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-2.mr74cx:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   }
+  ],
+  "duplicates": [],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [
+   {
+    "ids": [
+     "phone-1.jdb748:1",
+     "phone-2.mr74cx:1"
+    ],
+    "kind": "sale",
+    "item": "poha",
+    "party": null,
+    "qty": 7.0,
+    "amount_paise": 14000,
+    "devices": [
+     "phone-1.jdb748",
+     "phone-2.mr74cx"
+    ],
+    "counted_as": "two trades",
+    "why": "the two phones were out of touch, so one trade heard twice can't be told from two trades"
+   }
+  ],
+  "balances": {
+   "cash": 28000,
+   "revenue:sales": -28000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 2
+   }
+  ]
+ },
+ {
+  "name": "out of touch identical, then same",
+  "events": [
+   {
+    "id": "phone-1.jdb748:1",
+    "device_id": "phone-1.jdb748",
+    "seq": 1,
+    "vclock": {
+     "phone-1.jdb748": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "b460912a",
+     5.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.mr74cx:1",
+    "device_id": "phone-2.mr74cx",
+    "seq": 1,
+    "vclock": {
+     "phone-2.mr74cx": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "eec19748",
+     6.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.jdb748:2",
+    "device_id": "phone-1.jdb748",
+    "seq": 2,
+    "vclock": {
+     "phone-1.jdb748": 2,
+     "phone-2.mr74cx": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "adjustment",
+    "source": "manual",
+    "confidence": 1.0,
+    "payload": {
+     "same": [
+      "phone-1.jdb748:1",
+      "phone-2.mr74cx:1"
+     ]
+    },
+    "postings": [],
+    "raw": null,
+    "supersedes": [],
+    "mono": [
+     "b460912a",
+     5.0
+    ],
+    "marks": {}
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.jdb748:1+phone-2.mr74cx:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-1.jdb748:2",
+    "postings": [],
+    "confidence": 1.0
+   }
+  ],
+  "duplicates": [
+   [
+    "phone-1.jdb748:1",
+    "phone-2.mr74cx:1"
+   ]
+  ],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 14000,
+   "revenue:sales": -14000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 3
+   }
+  ]
+ },
+ {
+  "name": "out of touch identical, then separate",
+  "events": [
+   {
+    "id": "phone-1.jdb748:1",
+    "device_id": "phone-1.jdb748",
+    "seq": 1,
+    "vclock": {
+     "phone-1.jdb748": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "b460912a",
+     5.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.mr74cx:1",
+    "device_id": "phone-2.mr74cx",
+    "seq": 1,
+    "vclock": {
+     "phone-2.mr74cx": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "eec19748",
+     6.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.jdb748:2",
+    "device_id": "phone-1.jdb748",
+    "seq": 2,
+    "vclock": {
+     "phone-1.jdb748": 2,
+     "phone-2.mr74cx": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "adjustment",
+    "source": "manual",
+    "confidence": 1.0,
+    "payload": {
+     "same": [
+      "phone-1.jdb748:1",
+      "phone-2.mr74cx:1"
+     ]
+    },
+    "postings": [],
+    "raw": null,
+    "supersedes": [],
+    "mono": [
+     "b460912a",
+     5.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.mr74cx:2",
+    "device_id": "phone-2.mr74cx",
+    "seq": 2,
+    "vclock": {
+     "phone-1.jdb748": 2,
+     "phone-2.mr74cx": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "adjustment",
+    "source": "manual",
+    "confidence": 1.0,
+    "payload": {
+     "separate": [
+      "phone-1.jdb748:1",
+      "phone-2.mr74cx:1"
+     ]
+    },
+    "postings": [],
+    "raw": null,
+    "supersedes": [],
+    "mono": [
+     "eec19748",
+     6.0
+    ],
+    "marks": {}
+   }
+  ],
+  "effective": [
+   {
+    "id": "phone-1.jdb748:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-2.mr74cx:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-1.jdb748:2",
+    "postings": [],
+    "confidence": 1.0
+   },
+   {
+    "id": "phone-2.mr74cx:2",
+    "postings": [],
+    "confidence": 1.0
+   }
+  ],
+  "duplicates": [],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 28000,
+   "revenue:sales": -28000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 4
+   }
+  ]
+ },
+ {
+  "name": "two identical sales heard by both",
+  "events": [
+   {
+    "id": "phone-1.wcepch:1",
+    "device_id": "phone-1.wcepch",
+    "seq": 1,
+    "vclock": {
+     "phone-1.wcepch": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "7de32278",
+     1.0
+    ],
+    "marks": {
+     "phone-2.ckyvbf": [
+      [
+       "s1",
+       1.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-1.wcepch:2",
+    "device_id": "phone-1.wcepch",
+    "seq": 2,
+    "vclock": {
+     "phone-1.wcepch": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "7de32278",
+     25.0
+    ],
+    "marks": {
+     "phone-2.ckyvbf": [
+      [
+       "s1",
+       25.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.ckyvbf:1",
+    "device_id": "phone-2.ckyvbf",
+    "seq": 1,
+    "vclock": {
+     "phone-2.ckyvbf": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "c471091b",
+     2.0
+    ],
+    "marks": {
+     "phone-1.wcepch": [
+      [
+       "s1",
+       2.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.ckyvbf:2",
+    "device_id": "phone-2.ckyvbf",
+    "seq": 2,
+    "vclock": {
+     "phone-2.ckyvbf": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "c471091b",
+     26.5
+    ],
+    "marks": {
+     "phone-1.wcepch": [
+      [
+       "s1",
+       26.5
+      ]
+     ]
+    }
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.wcepch:1+phone-2.ckyvbf:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "fused:phone-1.wcepch:2+phone-2.ckyvbf:2",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   }
+  ],
+  "duplicates": [
+   [
+    "phone-1.wcepch:1",
+    "phone-2.ckyvbf:1"
+   ],
+   [
+    "phone-1.wcepch:2",
+    "phone-2.ckyvbf:2"
+   ]
+  ],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 28000,
+   "revenue:sales": -28000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 4
+   }
+  ]
+ },
+ {
+  "name": "one order two items",
+  "events": [
+   {
+    "id": "phone-1.99erb4:1",
+    "device_id": "phone-1.99erb4",
+    "seq": 1,
+    "vclock": {
+     "phone-1.99erb4": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "8bf099c8",
+     1.0
+    ],
+    "marks": {
+     "phone-2.39ucey": [
+      [
+       "s1",
+       1.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-1.99erb4:2",
+    "device_id": "phone-1.99erb4",
+    "seq": 2,
+    "vclock": {
+     "phone-1.99erb4": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.5,
+    "payload": {
+     "item": "tea",
+     "qty": 5.0,
+     "unit": "plate",
+     "amount_rupees": 50.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ]
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 5000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -5000
+     }
+    ],
+    "raw": "5 cup chai de",
+    "supersedes": [],
+    "mono": [
+     "8bf099c8",
+     1.0
+    ],
+    "marks": {
+     "phone-2.39ucey": [
+      [
+       "s1",
+       1.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.39ucey:1",
+    "device_id": "phone-2.39ucey",
+    "seq": 1,
+    "vclock": {
+     "phone-2.39ucey": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.5,
+    "payload": {
+     "item": "tea",
+     "qty": 5.0,
+     "unit": "plate",
+     "amount_rupees": 50.0,
+     "party": null,
+     "direction": null,
+     "flags": [
+      "priced_from_list"
+     ]
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 5000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -5000
+     }
+    ],
+    "raw": "5 cup chai de",
+    "supersedes": [],
+    "mono": [
+     "89ae0848",
+     1.5
+    ],
+    "marks": {
+     "phone-1.99erb4": [
+      [
+       "s1",
+       1.5
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.39ucey:2",
+    "device_id": "phone-2.39ucey",
+    "seq": 2,
+    "vclock": {
+     "phone-2.39ucey": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "89ae0848",
+     1.5
+    ],
+    "marks": {
+     "phone-1.99erb4": [
+      [
+       "s1",
+       1.5
+      ]
+     ]
+    }
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.99erb4:1+phone-2.39ucey:2",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "fused:phone-1.99erb4:2+phone-2.39ucey:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 5000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -5000
+     }
+    ],
+    "confidence": 0.5
+   }
+  ],
+  "duplicates": [
+   [
+    "phone-1.99erb4:1",
+    "phone-2.39ucey:2"
+   ],
+   [
+    "phone-2.39ucey:1",
+    "phone-1.99erb4:2"
+   ]
+  ],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 19000,
+   "revenue:sales": -19000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 4
+   }
+  ]
+ },
+ {
+  "name": "voice then sms on two phones",
+  "events": [
+   {
+    "id": "phone-1.mvmyw8:1",
+    "device_id": "phone-1.mvmyw8",
+    "seq": 1,
+    "vclock": {
+     "phone-1.mvmyw8": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "credit_paid",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     }
+    ],
+    "raw": "sharma ji ka 40 jama",
+    "supersedes": [],
+    "mono": [
+     "743074c7",
+     10.0
+    ],
+    "marks": {
+     "phone-2.rfkgm9": [
+      [
+       "s1",
+       10.0
+      ]
+     ]
+    }
+   },
+   {
+    "id": "phone-2.rfkgm9:1",
+    "device_id": "phone-2.rfkgm9",
+    "seq": 1,
+    "vclock": {
+     "phone-1.mvmyw8": 1,
+     "phone-2.rfkgm9": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "credit_paid",
+    "source": "sms",
+    "confidence": 0.75,
+    "payload": {
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 40.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     }
+    ],
+    "raw": "sharma ji ka 40 jama",
+    "supersedes": [],
+    "mono": [
+     "556fbedd",
+     160.0
+    ],
+    "marks": {
+     "phone-1.mvmyw8": [
+      [
+       "s1",
+       160.0
+      ]
+     ]
+    }
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.mvmyw8:1+phone-2.rfkgm9:1",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 4000
+     },
+     {
+      "account": "receivable:sharma",
+      "amount": -4000
+     }
+    ],
+    "confidence": 0.9375
+   }
+  ],
+  "duplicates": [
+   [
+    "phone-1.mvmyw8:1",
+    "phone-2.rfkgm9:1"
+   ]
+  ],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 4000,
+   "receivable:sharma": -4000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 2
+   }
+  ]
+ },
+ {
+  "name": "echo, quiet stall, cross-modal",
+  "events": [
+   {
+    "id": "phone-1.dz6f27:1",
+    "device_id": "phone-1.dz6f27",
+    "seq": 1,
+    "vclock": {
+     "phone-1.dz6f27": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "919ae5ea",
+     1.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.dz6f27:2",
+    "device_id": "phone-1.dz6f27",
+    "seq": 2,
+    "vclock": {
+     "phone-1.dz6f27": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "919ae5ea",
+     3.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.dz6f27:3",
+    "device_id": "phone-1.dz6f27",
+    "seq": 3,
+    "vclock": {
+     "phone-1.dz6f27": 3
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha de 140",
+    "supersedes": [],
+    "mono": [
+     "919ae5ea",
+     200.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.dz6f27:4",
+    "device_id": "phone-1.dz6f27",
+    "seq": 4,
+    "vclock": {
+     "phone-1.dz6f27": 4
+    },
+    "wall_time": 1792900000.0,
+    "kind": "sale",
+    "source": "sms",
+    "confidence": 0.75,
+    "payload": {
+     "item": "poha",
+     "qty": 7.0,
+     "unit": "plate",
+     "amount_rupees": 140.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "raw": "7 plate poha becha 140",
+    "supersedes": [],
+    "mono": [
+     "919ae5ea",
+     201.0
+    ],
+    "marks": {}
+   }
+  ],
+  "effective": [
+   {
+    "id": "fused:phone-1.dz6f27:1+phone-1.dz6f27:2",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "fused:phone-1.dz6f27:3+phone-1.dz6f27:4",
+    "postings": [
+     {
+      "account": "cash",
+      "amount": 14000
+     },
+     {
+      "account": "revenue:sales",
+      "amount": -14000
+     }
+    ],
+    "confidence": 0.9375
+   }
+  ],
+  "duplicates": [
+   [
+    "phone-1.dz6f27:1",
+    "phone-1.dz6f27:2"
+   ],
+   [
+    "phone-1.dz6f27:3",
+    "phone-1.dz6f27:4"
+   ]
+  ],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "cash": 28000,
+   "revenue:sales": -28000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 4
+   }
+  ]
+ },
+ {
+  "name": "days",
+  "events": [
+   {
+    "id": "phone-1.pc8nrm:1",
+    "device_id": "phone-1.pc8nrm",
+    "seq": 1,
+    "vclock": {
+     "phone-1.pc8nrm": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "purchase",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "tomato",
+     "qty": 10.0,
+     "unit": "kg",
+     "amount_rupees": 300.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "inventory:tomato",
+      "amount": 30000
+     },
+     {
+      "account": "cash",
+      "amount": -30000
+     }
+    ],
+    "raw": "10 kilo tamatar liya 300",
+    "supersedes": [],
+    "mono": [
+     "32bce3a7",
+     1.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.pc8nrm:2",
+    "device_id": "phone-1.pc8nrm",
+    "seq": 2,
+    "vclock": {
+     "phone-1.pc8nrm": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "day_start",
+    "source": "manual",
+    "confidence": 1.0,
+    "payload": {
+     "index": 1,
+     "date": "2026-10-25"
+    },
+    "postings": [],
+    "raw": "start of day 1",
+    "supersedes": [],
+    "mono": [
+     "32bce3a7",
+     1.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-1.pc8nrm:3",
+    "device_id": "phone-1.pc8nrm",
+    "seq": 3,
+    "vclock": {
+     "phone-1.pc8nrm": 3
+    },
+    "wall_time": 1792900000.0,
+    "kind": "stock_count",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "tomato",
+     "qty": 4.0,
+     "unit": "kg",
+     "amount_rupees": null,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [],
+    "raw": "4 kilo tamatar bacha",
+    "supersedes": [],
+    "mono": [
+     "32bce3a7",
+     2.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.253duw:1",
+    "device_id": "phone-2.253duw",
+    "seq": 1,
+    "vclock": {
+     "phone-1.pc8nrm": 3,
+     "phone-2.253duw": 1
+    },
+    "wall_time": 1792900000.0,
+    "kind": "day_start",
+    "source": "manual",
+    "confidence": 1.0,
+    "payload": {
+     "index": 2,
+     "date": "2026-10-25"
+    },
+    "postings": [],
+    "raw": "start of day 2",
+    "supersedes": [],
+    "mono": [
+     "fc1b9520",
+     0.0
+    ],
+    "marks": {}
+   },
+   {
+    "id": "phone-2.253duw:2",
+    "device_id": "phone-2.253duw",
+    "seq": 2,
+    "vclock": {
+     "phone-1.pc8nrm": 3,
+     "phone-2.253duw": 2
+    },
+    "wall_time": 1792900000.0,
+    "kind": "expense",
+    "source": "voice",
+    "confidence": 0.75,
+    "payload": {
+     "item": "gas",
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 300.0,
+     "party": null,
+     "direction": null,
+     "flags": []
+    },
+    "postings": [
+     {
+      "account": "expense:gas",
+      "amount": 30000
+     },
+     {
+      "account": "cash",
+      "amount": -30000
+     }
+    ],
+    "raw": "gas ka 300 kharcha",
+    "supersedes": [],
+    "mono": [
+     "fc1b9520",
+     3.0
+    ],
+    "marks": {}
+   }
+  ],
+  "effective": [
+   {
+    "id": "phone-1.pc8nrm:1",
+    "postings": [
+     {
+      "account": "inventory:tomato",
+      "amount": 30000
+     },
+     {
+      "account": "cash",
+      "amount": -30000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-2.253duw:2",
+    "postings": [
+     {
+      "account": "expense:gas",
+      "amount": 30000
+     },
+     {
+      "account": "cash",
+      "amount": -30000
+     }
+    ],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-1.pc8nrm:2",
+    "postings": [],
+    "confidence": 1.0
+   },
+   {
+    "id": "phone-1.pc8nrm:3",
+    "postings": [],
+    "confidence": 0.75
+   },
+   {
+    "id": "phone-2.253duw:1",
+    "postings": [],
+    "confidence": 1.0
+   }
+  ],
+  "duplicates": [],
+  "conflicts": [],
+  "possible_conflicts": [],
+  "possible_duplicates": [],
+  "balances": {
+   "inventory:tomato": 30000,
+   "cash": -60000,
+   "expense:gas": 30000
+  },
+  "days": [
+   {
+    "index": 0,
+    "date": null,
+    "started_by": [],
+    "clock_suspect": false,
+    "events": 1
+   },
+   {
+    "index": 1,
+    "date": "2026-10-25",
+    "started_by": [
+     "phone-1.pc8nrm"
+    ],
+    "clock_suspect": false,
+    "events": 1
+   },
+   {
+    "index": 2,
+    "date": "2026-10-25",
+    "started_by": [
+     "phone-2.253duw"
+    ],
+    "clock_suspect": false,
+    "events": 1
+   }
+  ]
+ }
+]

@@ -1,0 +1,54 @@
+[
+ {
+  "text": "Rs.140 credited to your a/c XX1234 from CHHOTU via UPI",
+  "txn": {
+   "direction": "in",
+   "amount_rupees": 140.0,
+   "party": "chhotu"
+  }
+ },
+ {
+  "text": "Rs 140 received from Sharma via UPI",
+  "txn": {
+   "direction": "in",
+   "amount_rupees": 140.0,
+   "party": "sharma"
+  }
+ },
+ {
+  "text": "INR 250.00 debited for Gupta Traders",
+  "txn": {
+   "direction": "out",
+   "amount_rupees": 250.0,
+   "party": "gupta traders"
+  }
+ },
+ {
+  "text": "7 plate poha becha 140",
+  "txn": null
+ },
+ {
+  "text": "Rs 90 received from MEENA via UPI",
+  "txn": {
+   "direction": "in",
+   "amount_rupees": 90.0,
+   "party": "meena"
+  }
+ },
+ {
+  "text": "Rs 55 received from STRANGER via UPI",
+  "txn": {
+   "direction": "in",
+   "amount_rupees": 55.0,
+   "party": "stranger"
+  }
+ },
+ {
+  "text": "Your a/c XX12 debited by Rs.1,250.50 to VPA gupta@upi on 26-10",
+  "txn": {
+   "direction": "out",
+   "amount_rupees": 1250.5,
+   "party": "gupta@upi"
+  }
+ }
+]
