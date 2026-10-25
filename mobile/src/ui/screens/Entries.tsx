@@ -1,0 +1,135 @@
+// Saare hisaab + one entry's detail. Ported from frontend/src/views/Entries.tsx.
+import React, { useMemo, useState } from 'react';
+import { Alert, Pressable, Text, View } from 'react-native';
+import type { Event } from '../../core/events';
+import { fuse } from '../../core/fusion';
+import { nameOf } from '../../core/identity';
+import { causalOrder } from '../../core/store';
+import { EntryRow, amountText, ledger, standing, tryRun, useNav, wallClock, what } from '../common';
+import { Body, Button, C, Card, Conf, Empty, ErrorLine, KindTag, Muted, Pill, Row, Screen, Segmented, rupeesExact, s, useLedgerVersion } from '../kit';
+import { t } from '../strings';
+
+type Filter = 'all' | 'trade' | 'udhaar' | 'check' | 'corrections';
+
+export function Entries() {
+  const v = useLedgerVersion();
+  const nav = useNav();
+  const [filter, setFilter] = useState<Filter>('all');
+  const [limit, setLimit] = useState(30);
+  const { events, st } = useMemo(() => {
+    const all = ledger().store.all();
+    return { events: causalOrder(all), st: standing(all, fuse(all)) };
+  }, [v]);
+  const match = (e: Event) =>
+    filter === 'all' ||
+    (filter === 'trade' && ['purchase', 'sale', 'expense', 'stock_count', 'order'].includes(e.kind)) ||
+    (filter === 'udhaar' && (e.kind === 'credit_given' || e.kind === 'credit_paid')) ||
+    (filter === 'check' && e.kind !== 'adjustment' && !st.superseded.has(e.id) && (e.confidence < 0.6 || st.disputed.has(e.id))) ||
+    (filter === 'corrections' && (e.kind === 'adjustment' || e.supersedes.length > 0 || st.superseded.has(e.id)));
+  const rows = [...events].reverse().filter(match);
+
+  return (
+    <Screen title={t.entries.title} line={t.entries.line(events.length)} onBack={nav.pop}>
+      <Segmented value={filter} onChange={(f) => (setFilter(f), setLimit(30))} options={(['all', 'trade', 'udhaar', 'check', 'corrections'] as Filter[]).map((f) => ({ value: f, label: t.entries.filters[f] }))} />
+      <Card aside={<Text style={s.small}>{rows.length}</Text>}>
+        {rows.length === 0 ? <Empty>{events.length ? t.entries.none : t.entries.nothing}</Empty> : rows.slice(0, limit).map((e) => (
+          <EntryRow
+            key={e.id}
+            e={e}
+            gone={st.superseded.get(e.id)}
+            onPress={() => nav.push({ name: 'entry', id: e.id })}
+            marks={
+              <>
+                {st.fusedWith.has(e.id) ? <Pill tone="good">{t.entries.countedOnce}</Pill> : null}
+                {st.disputed.has(e.id) ? <Pill>{t.entries.disputed}</Pill> : null}
+                {st.maybeTwice.has(e.id) ? <Pill>{t.entries.maybeTwice}</Pill> : null}
+              </>
+            }
+          />
+        ))}
+        {rows.length > limit ? <Button kind="plain" small label={t.entries.showMore(Math.min(50, rows.length - limit), rows.length)} onPress={() => setLimit((l) => l + 50)} /> : null}
+      </Card>
+    </Screen>
+  );
+}
+
+export function EntryDetail({ id }: { id: string }) {
+  const v = useLedgerVersion();
+  const nav = useNav();
+  const [error, setError] = useState<string | null>(null);
+  const d = useMemo(() => {
+    const all = ledger().store.all();
+    return { all, e: all.find((x) => x.id === id) ?? null, st: standing(all, fuse(all)) };
+  }, [v, id]);
+  const { all, e, st } = d;
+  if (!e) return <Screen title={id} onBack={nav.pop}><ErrorLine error={`no entry ${id}`} /></Screen>;
+  const gone = st.superseded.get(e.id);
+  const by = all.find((x) => x.supersedes.includes(e.id));
+  const sum = e.postings.reduce((x, p) => x + p.amount, 0);
+  const clock = wallClock(e.wall_time);
+  const group = st.fusedWith.get(e.id);
+  const link = (x: string) => (
+    <Pressable key={x} onPress={() => nav.push({ name: 'entry', id: x })} accessibilityRole="link">
+      <Text style={[s.mono, { color: C.brand, textDecorationLine: 'underline' }]}>{x}</Text>
+    </Pressable>
+  );
+
+  return (
+    <Screen title={`${t.kinds[e.kind] ?? e.kind}: ${what(e)}`} onBack={nav.pop}>
+      <Card>
+        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <KindTag kind={e.kind} />
+          {gone ? <Pill tone="muted">{t.entries.gone[gone]}</Pill> : null}
+        </View>
+        <Fact k={t.entry.amount}><Text style={[s.big, { fontSize: 26 }]}>{amountText(e)}</Text></Fact>
+        <Fact k={t.entry.came}><Body>{t.entry.on(t.record.sources[e.source] ?? e.source, nameOf(e.device_id))}</Body><Text style={s.mono}>{e.id}</Text></Fact>
+        <Fact k={t.entry.sure}><Conf value={e.confidence} /></Fact>
+        {e.raw ? <Fact k={t.entry.said}><Body>“{e.raw}”</Body></Fact> : null}
+        {gone && by ? <Fact k={t.entry.status}><Body>{gone === 'voided' ? t.entry.voidedBy : t.entry.settledBy}</Body>{link(by.id)}</Fact> : null}
+        {group ? <Fact k={t.entry.with}>{group.filter((x) => x !== e.id).map(link)}</Fact> : null}
+        {e.supersedes.length ? <Fact k={t.entry.replaces}>{e.supersedes.map(link)}</Fact> : null}
+      </Card>
+
+      <Card title={t.entry.double}>
+        {e.postings.length === 0 ? <Muted>{e.kind === 'adjustment' ? t.entry.noLinesVoid : t.entry.noLines}</Muted> : (
+          <>
+            <Row><Text style={[s.small, { flex: 1 }]}>{t.entry.account}</Text><Text style={[s.small, { width: 90, textAlign: 'right' }]}>{t.entry.debit}</Text><Text style={[s.small, { width: 90, textAlign: 'right' }]}>{t.entry.credit}</Text></Row>
+            {e.postings.map((p, i) => (
+              <Row key={i}>
+                <Text style={[s.mono, { flex: 1, color: C.ink }]}>{p.account}</Text>
+                <Text style={[s.body, { width: 90, textAlign: 'right' }]}>{p.amount > 0 ? rupeesExact(p.amount) : ''}</Text>
+                <Text style={[s.body, { width: 90, textAlign: 'right' }]}>{p.amount < 0 ? rupeesExact(-p.amount) : ''}</Text>
+              </Row>
+            ))}
+            <Body style={{ fontWeight: '700', color: sum === 0 ? C.good : C.bad }}>{sum === 0 ? t.entry.balanced : rupeesExact(sum)}</Body>
+          </>
+        )}
+      </Card>
+
+      <Card title={t.entry.history}>
+        <Muted>{t.entry.historyNote}</Muted>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          {Object.entries(e.vclock).sort().map(([dev, n]) => <Pill key={dev} tone="muted">{`${dev}  ${n}`}</Pill>)}
+        </View>
+        <Text style={[s.muted, clock.bad && { color: C.bad }]}>{e.wall_time == null ? t.entry.noClock : t.entry.clock(clock.text, clock.bad)}</Text>
+      </Card>
+
+      {!gone && e.kind !== 'adjustment' && e.kind !== 'day_start' ? (
+        <Button kind="danger" label={t.entry.void} onPress={() => Alert.alert(t.entry.void, t.entry.voidConfirm(what(e)), [
+          { text: t.today.no, style: 'cancel' },
+          { text: t.today.yes, style: 'destructive', onPress: () => tryRun(() => ledger().void(e.id), setError) },
+        ])} />
+      ) : null}
+      <ErrorLine error={error} />
+    </Screen>
+  );
+}
+
+function Fact({ k, children }: { k: string; children: React.ReactNode }) {
+  return (
+    <View style={{ gap: 2, paddingVertical: 4 }}>
+      <Text style={s.small}>{k}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>{children}</View>
+    </View>
+  );
+}
