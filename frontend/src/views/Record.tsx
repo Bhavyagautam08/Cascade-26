@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, inr, IngestResult, Slip, SlipLine, Transcript } from "../api";
+import { api, inr, IngestResult, MicDevice, MicStatus, Slip, SlipLine, Transcript } from "../api";
 import type { Data } from "../App";
 import { amountText, pct, what } from "../derive";
 import { Icon } from "../icons";
@@ -139,6 +139,100 @@ function TypeTab({ d }: { d: Data }) {
   );
 }
 
+const MIC_STATE: Record<MicStatus["state"], string> = {
+  off: "Mic off",
+  opening: "Opening the mic…",
+  listening: "Listening",
+  reconnecting: "Reconnecting…",
+};
+
+function MicControl({ onChange }: { onChange: () => void }) {
+  const [mic, setMic] = useState<MicStatus | null>(null);
+  const [devices, setDevices] = useState<MicDevice[]>([]);
+  const [choice, setChoice] = useState<string>("");
+  const { busy, error, run } = useAction();
+
+  const loadDevices = async () => {
+    const r = await run(() => api.micDevices());
+    if (r) {
+      setDevices(r.devices);
+      setChoice((c) => c || r.wanted || "");
+    }
+  };
+  useEffect(() => {
+    loadDevices();
+    let alive = true;
+    const tick = () => api.micStatus().then((s) => alive && setMic(s)).catch(() => {});
+    tick();
+    const t = setInterval(tick, 700);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const start = async () => {
+    const s = await run(() => api.micStart(choice));
+    if (s) setMic(s);
+    onChange();
+  };
+  const stop = async () => {
+    const s = await run(() => api.micStop());
+    if (s) setMic(s);
+    onChange();
+  };
+
+  const on = mic?.listening ?? false;
+  // level meter: speech must cross the threshold line to be cut into a sentence
+  const scale = Math.max(0.05, (mic?.threshold ?? 0.01) * 4);
+  const lvl = Math.min(100, ((mic?.level ?? 0) / scale) * 100);
+  const thr = Math.min(100, ((mic?.threshold ?? 0.01) / scale) * 100);
+  return (
+    <Panel
+      title="Microphone"
+      className="span-5"
+      aside={<span className={`status ${on ? "on" : ""}`}><span className="dot" aria-hidden="true" />{mic ? MIC_STATE[mic.state] : "…"}</span>}
+      note="Pick the mic, then start. A headset plugged in later shows up after Re-scan (stop the mic first)."
+    >
+      <div className="form">
+        <div className="form-row">
+          <label className="field grow">
+            <span>Which mic</span>
+            <select className="input" value={choice} disabled={on} onChange={(e) => setChoice(e.target.value)}>
+              <option value="">Windows default mic</option>
+              {devices.map((m) => (
+                <option key={m.name} value={m.name}>
+                  {m.name}
+                  {m.default ? " (default)" : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className="btn" disabled={busy || on} onClick={loadDevices}>Re-scan</button>
+        </div>
+        <div className="form-row">
+          {on ? (
+            <button className="btn" disabled={busy} onClick={stop}>Stop listening</button>
+          ) : (
+            <button className="btn primary" disabled={busy} onClick={start}>Start listening</button>
+          )}
+          {mic?.device && <span className="hint">On: {mic.device}</span>}
+        </div>
+        <div aria-label="Sound level" title="Speech has to cross the line to be heard as a sentence"
+             style={{ position: "relative", height: 10, borderRadius: 5, background: "var(--line, #333)", overflow: "hidden" }}>
+          <div style={{ width: `${on ? lvl : 0}%`, height: "100%", background: lvl > thr ? "var(--good, #3c9)" : "var(--muted, #777)", transition: "width .2s" }} />
+          <div style={{ position: "absolute", left: `${thr}%`, top: 0, bottom: 0, width: 2, background: "var(--warn, #e93)" }} />
+        </div>
+        {mic?.warning && <p className="warn">{mic.warning}</p>}
+        {mic?.last_error && <p className="hint">Last problem: {mic.last_error}</p>}
+        {mic && <p className="hint">{mic.utterances} sentences heard · {mic.reopens} reconnects{mic.dropped ? ` · ${mic.dropped} dropped (reading fell behind)` : ""}</p>}
+        <ErrorLine error={error} />
+      </div>
+    </Panel>
+  );
+}
+
 function VoiceTab({ d }: { d: Data }) {
   const [feed, setFeed] = useState<Transcript[] | null>(null);
   const [text, setText] = useState("");
@@ -165,15 +259,25 @@ function VoiceTab({ d }: { d: Data }) {
     }
   }
 
-  const on = d.health?.mic_listening;
+  // A held (unclear) sentence or a repeat: the vendor decides it is a real trade. Sent as voice text,
+  // which books what it contains without the repeat check.
+  async function bookAnyway(u: Transcript) {
+    if (await run(() => api.ingestText(u.text, "voice", "auto"))) d.refresh();
+  }
+
+  const status = (u: Transcript) =>
+    u.held
+      ? `Too unclear to book (${pct(u.confidence)} clear)`
+      : u.events
+        ? `${u.events} ${u.events === 1 ? "entry" : "entries"} booked by ${u.engine}${u.repeats ? ` · ${u.repeats} repeated, not booked again` : ""}`
+        : u.repeats
+          ? `Repeat of something just booked, not booked again`
+          : "Small talk, nothing booked";
+
   return (
     <>
-      <Panel
-        title="Heard so far"
-        className="span-7"
-        aside={<span className={`status ${on ? "on" : ""}`}><span className="dot" aria-hidden="true" />{on ? "Mic on" : "Mic off"}</span>}
-        note={on ? "Only the words are kept. The audio is thrown away as soon as it's read." : "Turn the mic on with MIC_ENABLED=true in backend\\.env on the main phone."}
-      >
+      <MicControl onChange={d.refresh} />
+      <Panel title="Heard so far" className="span-7" note="Only the words are kept. The audio is thrown away as soon as it's read.">
         {feed == null ? null : feed.length === 0 ? (
           <Empty>Nothing heard yet.</Empty>
         ) : (
@@ -183,13 +287,17 @@ function VoiceTab({ d }: { d: Data }) {
                 <span className="row-main">
                   <span>{u.text}</span>
                   <small>
-                    {u.events ? `${u.events} ${u.events === 1 ? "entry" : "entries"} booked by ${u.engine}` : "Small talk, nothing booked"} · {pct(u.confidence)} clear · {u.via}
+                    {status(u)} · {pct(u.confidence)} clear · {u.via}
                   </small>
                 </span>
+                {(u.held || (u.repeats ?? 0) > 0) && (
+                  <button className="btn" disabled={busy} onClick={() => bookAnyway(u)}>Book it anyway</button>
+                )}
               </li>
             ))}
           </ul>
         )}
+        <ErrorLine error={error} />
       </Panel>
       <Panel title="Say it for the mic" className="span-5" note="For a loud hall: type what the mic should have heard and how clearly.">
         <div className="form">

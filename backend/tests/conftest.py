@@ -17,4 +17,5 @@ os.environ.update({
     "ALLOW_REMOTE_UI": "true",   # TestClient is not a loopback address
     "SYNC_KEY": "",
     "WHISPER_PRELOAD": "false",
+    "VOICE_REPEAT_WINDOW_S": "0",   # tests reuse sentences; the repeat test switches the window on itself
 })

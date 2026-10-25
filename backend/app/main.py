@@ -9,6 +9,7 @@ Errors: 503 = a model is unavailable, 502 = a model answered outside its schema,
 500 = a bug in this code (never relabelled as "model unavailable").
 """
 import hmac
+import time
 from contextlib import asynccontextmanager
 from typing import Literal
 
@@ -36,15 +37,21 @@ mic = None
 LOOPBACK = {"127.0.0.1", "::1", "localhost"}
 
 
+def get_mic():
+    """The one listener of this device, created on first use (start/stop never needs a backend restart)."""
+    global mic
+    if mic is None:
+        from app.perception.mic import MicListener
+        mic = MicListener(handle_utterance, settings.mic_device or None, settings.mic_min_threshold)
+    return mic
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    global mic
     if not settings.demo and settings.whisper_preload:
         start_preload()
     if settings.mic_enabled:
-        from app.perception.mic import MicListener
-        mic = MicListener(handle_utterance, settings.mic_device_index, settings.mic_min_threshold)
-        mic.start()
+        get_mic().start()
     yield
     if mic:
         mic.stop()
@@ -109,6 +116,7 @@ def health():
         "llm_problem": None if settings.demo else (ollama_problem(models=ollama) if ollama is not None
                                                    else ollama_problem(httpx.ConnectError(ollama_error or ""))),
         "mic_listening": bool(mic and mic.listening),
+        "mic_enabled_at_start": settings.mic_enabled,
         "mic": mic.status if mic else None,
         "hostile_clock": settings.hostile_clock,
         "peers": settings.peer_urls,
@@ -254,6 +262,46 @@ def ingest_text(body: TextIn):
 @app.get("/mic/recent")
 def mic_recent():
     return list(recent_transcripts)
+
+
+@app.get("/mic/status")
+def mic_status():
+    return get_mic().status
+
+
+@app.get("/mic/devices")
+def mic_devices():
+    """Mics on this laptop. Re-scans the hardware only while not listening: re-scanning under an open
+    stream would kill it (starting the mic re-scans anyway)."""
+    from app.perception.mic import list_inputs
+    m = get_mic()
+    try:
+        return {"devices": list_inputs(refresh=not m.running), "current": m.device, "wanted": m.wanted,
+                "rescanned": not m.running}
+    except Exception as e:
+        raise HTTPException(503, f"could not list microphones: {type(e).__name__}: {e}") from e
+
+
+class MicStart(BaseModel):
+    device: str | None = None     # a name from /mic/devices; "" = system default; None = keep the current choice
+
+
+@app.post("/mic/start")
+def mic_start(body: MicStart):
+    m = get_mic()
+    m.start(body.device)
+    for _ in range(30):           # give it up to 3 s to open, so the reply says whether it worked
+        if m.listening or m.errors:
+            break
+        time.sleep(0.1)
+    return m.status
+
+
+@app.post("/mic/stop")
+def mic_stop():
+    m = get_mic()
+    m.stop()
+    return m.status
 
 
 class HeardIn(BaseModel):

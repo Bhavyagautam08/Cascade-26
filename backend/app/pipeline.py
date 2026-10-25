@@ -14,6 +14,7 @@ Failures are classified, never blurred together:
 """
 import logging
 import threading
+import time
 from collections import deque
 from functools import lru_cache
 
@@ -207,8 +208,36 @@ def cross_check(text: str, cands: list[CandidateEvent]) -> dict:
             "amounts_removed": removed}
 
 
+_recent_voice: deque[tuple[float, tuple, str]] = deque(maxlen=200)   # (monotonic time, trade signature, event id)
+
+
+def _signature(c: CandidateEvent) -> tuple:
+    c = as_recorded(c)
+    return (c.kind.value, c.item, None if c.qty is None else round(c.qty, 3), c.unit, c.amount_rupees,
+            (c.party or "").lower() or None)
+
+
+def _drop_repeats(cands: list[CandidateEvent]) -> tuple[list[CandidateEvent], list[dict]]:
+    """The same trade heard again within VOICE_REPEAT_WINDOW_S (someone repeating themselves, the mic
+    catching a sentence twice, a clip uploaded twice) is booked once. A real second sale of the same
+    thing can still be booked from the feed ("book it anyway" sends it as typed text, which never
+    drops repeats). Uses this device's monotonic clock: immune to a phone clock jumping to 1970."""
+    now = time.monotonic()
+    window = settings.voice_repeat_window_s
+    recent = {sig: (t, eid) for t, sig, eid in _recent_voice if now - t <= window}
+    keep, repeats = [], []
+    for c in cands:
+        hit = recent.get(_signature(c))
+        if hit:
+            repeats.append({"of": hit[1], "seconds_ago": round(now - hit[0], 1),
+                            "what": " ".join(str(x) for x in _signature(c) if x is not None)})
+        else:
+            keep.append(c)
+    return keep, repeats
+
+
 def handle_text(text: str, source: Source, engine: str = "auto", heard_confidence: float = 1.0,
-                extra_flags: list[str] | None = None) -> dict:
+                extra_flags: list[str] | None = None, drop_repeats: bool = False) -> dict:
     """engine: auto (LLM, fall back to rules if the model is unavailable/invalid) | llm | rules
 
     heard_confidence scales every event's confidence when the text itself is uncertain (ASR output).
@@ -243,15 +272,31 @@ def handle_text(text: str, source: Source, engine: str = "auto", heard_confidenc
     for c in cands:
         c.confidence = round(c.confidence * heard_confidence, 3)
         c.flags.extend(extra_flags or [])
-    return {"engine": used, "is_transaction": bool(cands), "events": record(cands), **result}
+    is_txn = bool(cands)
+    if drop_repeats:
+        cands, result["repeats"] = _drop_repeats(cands)
+    events = record(cands)                      # one event per candidate, in order
+    if drop_repeats:
+        now = time.monotonic()
+        _recent_voice.extend((now, _signature(c), e["id"]) for c, e in zip(cands, events))
+    return {"engine": used, "is_transaction": is_txn, "events": events, **result}
 
 
 def heard(text: str, confidence: float, language: str, via: str, source: Source = Source.voice) -> dict:
-    """A transcript from any voice path (live mic, uploaded clip, simulated) -> ledger + transcript feed."""
+    """A transcript from any voice path (live mic, uploaded clip, simulated) -> ledger + transcript feed.
+
+    - Too unclear to trust (clarity < VOICE_MIN_CLARITY): shown in the feed, booked only if the vendor
+      says so - the mic once booked "1 kg onion" from "bhaj kilo kanda" heard at 8 %.
+    - The same trade heard again within VOICE_REPEAT_WINDOW_S is booked once (see _drop_repeats).
+    """
     flags = ["simulated_voice"] if via == "simulated" else None
-    result = handle_text(text, source, heard_confidence=confidence, extra_flags=flags)
-    recent_transcripts.append({"text": text, "confidence": round(confidence, 2), "language": language,
-                               "via": via, "engine": result["engine"], "events": len(result["events"])})
+    entry = {"text": text, "confidence": round(confidence, 2), "language": language, "via": via}
+    if confidence < settings.voice_min_clarity:
+        result = {"engine": None, "is_transaction": False, "events": [], "held": "too unclear to book"}
+    else:
+        result = handle_text(text, source, heard_confidence=confidence, extra_flags=flags, drop_repeats=True)
+    recent_transcripts.append({**entry, "engine": result["engine"], "events": len(result["events"]),
+                               "held": result.get("held"), "repeats": len(result.get("repeats", []))})
     return result
 
 

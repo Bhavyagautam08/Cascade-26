@@ -79,7 +79,33 @@ export type Summary = {
 };
 
 export type IngestResult = { engine: string; is_transaction: boolean; events: LedgerEvent[] };
-export type Transcript = { text: string; confidence: number; language: string; via: string; engine: string; events: number };
+export type Transcript = {
+  text: string;
+  confidence: number;
+  language: string;
+  via: string;
+  engine: string | null;
+  events: number;
+  held?: string | null; // too unclear: shown, not booked
+  repeats?: number; // trades already booked from an earlier hearing
+};
+export type MicStatus = {
+  listening: boolean;
+  state: "off" | "opening" | "listening" | "reconnecting";
+  device: string | null;
+  wanted: string | null;
+  level: number;
+  threshold: number;
+  noise_floor: number;
+  utterances: number;
+  dropped: number;
+  reopens: number;
+  errors: number;
+  last_error: string | null;
+  warning: string | null;
+  seconds_since_heard: number | null;
+};
+export type MicDevice = { name: string; default: boolean };
 export type SlipLine = { item: string; qty: number | null; unit: string | null; amount_rupees: number | null; confidence: number };
 export type Slip = { supplier: string | null; lines: SlipLine[]; total_rupees: number | null; reader: string };
 
@@ -103,6 +129,10 @@ export const api = {
     post<IngestResult>("/ingest/text", { text, source, engine }),
   simulateHeard: (text: string, confidence = 0.9) => post<IngestResult>("/mic/simulate", { text, confidence }),
   recentTranscripts: () => call<Transcript[]>("/mic/recent"),
+  micStatus: () => call<MicStatus>("/mic/status"),
+  micDevices: () => call<{ devices: MicDevice[]; current: string | null; wanted: string | null; rescanned: boolean }>("/mic/devices"),
+  micStart: (device: string | null) => post<MicStatus>("/mic/start", { device }),
+  micStop: () => post<MicStatus>("/mic/stop", {}),
   ingestAudio: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);

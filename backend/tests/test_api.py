@@ -111,3 +111,21 @@ def test_slip_confirm_priced_unreadable_and_order_lines():
     listed = client.post("/ingest/slip/confirm", json={"supplier": None, "lines": [
         {"item": "rice", "qty": 0.2, "unit": "kg", "amount_rupees": None, "confidence": 1.0}]}).json()["events"]
     assert listed[0]["kind"] == "order" and listed[0]["postings"] == []      # a price-less list: recorded, books nothing
+
+
+def test_same_trade_heard_twice_is_booked_once_but_can_be_forced(monkeypatch):
+    from app.config import settings
+    monkeypatch.setattr(settings, "voice_repeat_window_s", 60.0)
+    first = client.post("/mic/simulate", json={"text": "4 kilo aloo liya 120 mein", "confidence": 0.9}).json()
+    again = client.post("/mic/simulate", json={"text": "4 kilo aloo liya 120 mein", "confidence": 0.9}).json()
+    assert len(first["events"]) == 1 and again["events"] == []
+    assert again["repeats"][0]["of"] == first["events"][0]["id"]
+    assert client.get("/mic/recent").json()[-1]["repeats"] == 1
+    forced = client.post("/ingest/text", json={"text": "4 kilo aloo liya 120 mein", "source": "voice"}).json()
+    assert len(forced["events"]) == 1            # "book it anyway": typed path never drops repeats
+
+
+def test_too_unclear_speech_is_shown_not_booked():
+    r = client.post("/mic/simulate", json={"text": "bhaj kilo kanda", "confidence": 0.08}).json()
+    assert r["events"] == [] and r["held"]
+    assert client.get("/mic/recent").json()[-1]["held"]

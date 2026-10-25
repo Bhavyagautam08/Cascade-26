@@ -35,9 +35,12 @@ class Settings(BaseSettings):
     whisper_preload: bool = True           # load + warm Whisper at startup (first call costs ~20 s)
     llm_max_confidence: float = 0.85       # the LLM's self-reported confidence is uncalibrated: cap it
 
-    mic_enabled: bool = False
-    mic_device_index: int | None = None
+    mic_enabled: bool = False              # start listening when the backend starts (the UI can start/stop it too)
+    mic_device: str = ""                   # mic name as listed by /mic/devices; "" = the system default mic
+    mic_device_index: int | None = None    # deprecated (indexes change when a headset is plugged in); ignored
     mic_min_threshold: float = 0.01        # floor of the adaptive loudness gate (see perception/mic.py)
+    voice_repeat_window_s: float = 60.0    # the same trade heard again within this many seconds is booked once
+    voice_min_clarity: float = 0.25        # heard less clearly than this: shown, not booked until the vendor says so
 
     peers: str = ""  # comma-separated base URLs of other devices
     # Shared secret of the family's devices. When set, /sync/* requires it (X-Sync-Key header).
