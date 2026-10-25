@@ -2,9 +2,11 @@
 
 Raw audio is never stored; only the transcript survives (privacy).
 
-TODO(stage 2):
-- replace the energy gate with faster_whisper's bundled Silero VAD for speech detection
-- run in a background thread started from main.py when MIC_ENABLED=true
+Started from main.py when MIC_ENABLED=true; each utterance goes to pipeline.handle_utterance.
+The energy gate only decides where to cut; faster-whisper's bundled Silero VAD (vad_filter=True in
+asr.py) then drops non-speech inside each cut, which is what stops Whisper hallucinating on noise.
+
+TODO(stage 2): calibrate ENERGY_THRESHOLD on the demo laptop's mic in a noisy room.
 """
 import queue
 import threading

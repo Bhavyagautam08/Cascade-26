@@ -1,5 +1,5 @@
 """HTTP API for the local UI and for peer-to-peer sync. Runs entirely on localhost / LAN."""
-from functools import lru_cache
+from contextlib import asynccontextmanager
 
 import httpx
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -8,32 +8,30 @@ from pydantic import BaseModel
 
 from app.config import settings
 from app.ledger import inference
-from app.ledger.doubleentry import balances, postings_for, trial_balance_ok
-from app.ledger.events import CandidateEvent, Event, Source
+from app.ledger.doubleentry import balances, trial_balance_ok
+from app.ledger.events import CandidateEvent, Event, Kind, Source
 from app.ledger.fusion import fuse
-from app.ledger.store import EventStore, causal_order
-from app.perception import rules
-from app.perception.lexicon import Lexicon
+from app.ledger.store import causal_order
+from app.pipeline import handle_text, handle_utterance, lexicon, recent_transcripts, record, slip_reader, store
 from app.sync.transport import LanTransport
 
-app = FastAPI(title="Invisible Worker", version="0.1.0")
+mic = None
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    global mic
+    if settings.mic_enabled:
+        from app.perception.mic import MicListener
+        mic = MicListener(handle_utterance, settings.mic_device_index)
+        mic.start()
+    yield
+    if mic:
+        mic.stop()
+
+
+app = FastAPI(title="Invisible Worker", version="0.2.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-
-store = EventStore(settings.resolve(settings.db_path), settings.device_id)
-lexicon = Lexicon(settings.resolve(settings.lexicon_path))
-
-
-# Heavy models load on first use so the API (and sync) work even if a model is missing.
-@lru_cache
-def extractor():
-    from app.perception.extractor import Extractor
-    return Extractor(settings.ollama_host, settings.llm_model, lexicon)
-
-
-@lru_cache
-def slip_reader():
-    from app.perception.vision import SlipReader
-    return SlipReader(settings.ollama_host, settings.llm_model)
 
 
 # --- health ------------------------------------------------------------------
@@ -44,7 +42,13 @@ def health():
         ollama = [m["name"] for m in tags.get("models", [])]
     except httpx.HTTPError:
         ollama = None
-    return {"device_id": settings.device_id, "ollama_models": ollama, "events": len(store.all())}
+    return {
+        "device_id": settings.device_id,
+        "ollama_models": ollama,
+        "llm_ready": bool(ollama) and settings.llm_model in ollama,
+        "mic_listening": mic is not None,
+        "events": len(store.all()),
+    }
 
 
 # --- ledger ------------------------------------------------------------------
@@ -100,34 +104,18 @@ class TextIn(BaseModel):
     engine: str = "auto"          # auto | llm | rules
 
 
-def _record(cands: list[CandidateEvent]) -> list[dict]:
-    created = []
-    for c in cands:
-        ev = store.append_local(
-            kind=c.kind, source=c.source, postings=postings_for(c),
-            payload=c.model_dump(exclude={"kind", "source", "raw", "confidence"}),
-            confidence=c.confidence, raw=c.raw,
-        )
-        created.append(ev.model_dump(mode="json"))
-    return created
-
-
 @app.post("/ingest/text")
 def ingest_text(body: TextIn):
-    """Typed text, SMS, or a transcript -> candidate events -> ledger.
+    """Typed text, SMS, tally, or a transcript -> candidate events -> ledger."""
+    try:
+        return handle_text(body.text, body.source, body.engine)
+    except Exception as e:
+        raise HTTPException(503, f"extractor unavailable: {e}") from e
 
-    auto: try the local LLM, fall back to the rule parser if the model isn't available.
-    """
-    if body.engine in ("auto", "llm"):
-        try:
-            ex = extractor().from_text(body.text, body.source)
-            return {"engine": "llm", "is_transaction": ex.is_transaction, "events": _record(ex.events)}
-        except Exception as e:  # model not downloaded / Ollama not running
-            if body.engine == "llm":
-                raise HTTPException(503, f"extractor unavailable: {e}") from e
-    lexicon.reload_if_changed()
-    cands = rules.parse(body.text, lexicon.data, body.source)
-    return {"engine": "rules", "is_transaction": bool(cands), "events": _record(cands)}
+
+@app.get("/mic/recent")
+def mic_recent():
+    return recent_transcripts
 
 
 @app.post("/ingest/slip")
@@ -140,11 +128,28 @@ async def ingest_slip(file: UploadFile = File(...)):
     return slip.model_dump()
 
 
+class SlipConfirm(BaseModel):
+    supplier: str | None = None
+    lines: list[dict]             # [{item, qty, unit, amount_rupees, confidence}] after vendor edits
+
+
+@app.post("/ingest/slip/confirm")
+def confirm_slip(body: SlipConfirm):
+    """Post confirmed slip lines as purchases. Vendor-confirmed lines get full confidence."""
+    cands = [
+        CandidateEvent(kind=Kind.purchase, source=Source.slip, confidence=float(l.get("confidence", 1.0)),
+                       item=l.get("item"), qty=l.get("qty"), unit=l.get("unit"),
+                       amount_rupees=l.get("amount_rupees"), party=body.supplier, raw=str(l))
+        for l in body.lines
+    ]
+    return {"events": record(cands)}
+
+
 # --- lexicon (Lexicon Drop) --------------------------------------------------
 class LexiconEntry(BaseModel):
-    section: str          # items | units | aliases | verbs
+    section: str          # items | units | aliases | verbs | numbers | prices
     key: str
-    value: str | dict
+    value: str | float | dict
 
 
 @app.get("/lexicon")

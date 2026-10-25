@@ -16,6 +16,16 @@ Three family devices sync peer-to-peer without a server, and survive broken cloc
 
 Nothing calls the internet at runtime. Models are downloaded once by `scripts/setup_models.ps1`.
 
+**Full design, exact models, offline matrix, API, setup and demo checklist:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+· **Stage plan + status:** [docs/PLAN.md](docs/PLAN.md)
+
+| Role | Model |
+|---|---|
+| Speech-to-text | faster-whisper `large-v3-turbo` (int8_float16, CUDA); CPU fallback `small` |
+| VAD | Silero (bundled in faster-whisper) |
+| Text → events + slip reading | Ollama `qwen3-vl:4b` (bake-off rival `gemma3:4b`) |
+| No-model fallback | lexicon-driven rule parser |
+
 ## Repo layout
 
 | Path | What lives there |
@@ -31,17 +41,19 @@ Nothing calls the internet at runtime. Models are downloaded once by `scripts/se
 ## Setup (Windows)
 
 ```powershell
-# 1. Models + Ollama + uv (downloads ~8 GB to E:\ai). Watch: Get-Content E:\ai\logs\setup.log -Wait
+# 1. Everything: Ollama, models, Python + UI deps (~10 GB to E:\ai, or -Root D:\ai)
+#    Watch progress: Get-Content E:\ai\logs\setup.log -Wait
 powershell -ExecutionPolicy Bypass -File scripts\setup_models.ps1
 
-# 2. Backend
-cd backend
-uv sync
-uv run uvicorn app.main:app --reload --port 8000
+# 2. Configure this device
+copy .env.example backend\.env
 
-# 3. Frontend
+# 3. Backend
+cd backend
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# 4. Frontend (new terminal)
 cd frontend
-npm install
 npm run dev
 ```
 

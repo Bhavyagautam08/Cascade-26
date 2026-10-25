@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     whisper_model: str = "large-v3-turbo"
     whisper_device: str = "cuda"
     whisper_compute_type: str = "int8_float16"
+    whisper_fallback_model: str = "small"   # CPU fallback if CUDA is unavailable
 
     mic_enabled: bool = False
     mic_device_index: int | None = None
