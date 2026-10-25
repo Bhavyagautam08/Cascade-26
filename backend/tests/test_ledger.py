@@ -72,6 +72,16 @@ def test_recipe_recovers_grams_per_plate():
     burn = plates * true + np.array([[0.2], [0.1], [0.3], [0.2], [0.1]])   # + some waste
     out = inference.recipe_per_plate(burn, plates)
     assert abs(out["usage_per_plate"][0][0] - true) < 0.01
+    assert 0.1 < np.mean(out["unexplained_per_day"]) < 0.5     # true waste 0.18 kg/day; 5 noisy days
+
+
+def test_recipe_separates_dishes_sharing_a_kitchen():
+    plates = np.array([[50, 60], [80, 45], [65, 70], [40, 55], [90, 80]], dtype=float)  # poha, chai
+    waste = np.array([0.3, 0.2, 0.4, 0.25, 0.15])
+    burn = np.c_[plates[:, 0] * 0.08 + waste, plates[:, 1] * 0.10 + 2 * waste]          # poha kg, milk l
+    u = np.array(inference.recipe_per_plate(burn, plates)["usage_per_plate"])
+    assert abs(u[0, 0] - 0.08) < 0.01 and abs(u[1, 1] - 0.10) < 0.01
+    assert u[1, 0] < 0.01 and u[0, 1] < 0.01                     # chai uses no poha, poha no milk
 
 
 def test_loss_attribution_shifts_with_covariates():
@@ -89,3 +99,18 @@ def test_profit_is_a_range(tmp_path):
     p = inference.profit_range(fuse(s.all()).effective)
     assert p["p10"] <= p["p50"] <= p["p90"]
     assert p["receivables"]["pandey"] == 60.0
+
+
+def test_disputed_udhaar_is_not_income_or_bad_debt(tmp_path):
+    a = EventStore(tmp_path / "a.db", "phone-1")
+    b = EventStore(tmp_path / "b.db", "phone-2")
+    _add(a, "chhotu ka 30 baaki", Source.voice)
+    _add(b, "chhotu ka 300 baaki", Source.tally)
+    a.ingest(b.all())
+    rep = fuse(a.all())
+    bal = balances(rep.effective)
+    assert bal["receivable:chhotu"] == 30000 and bal["suspense"] == -27000   # books carry the claim
+    p = inference.profit_range(rep.effective)
+    assert p["receivables"]["chhotu"] == 30.0                    # but only Rs30 is owed for sure
+    assert p["components"]["expected_bad_debt"] < 15             # risk on Rs30, not on Rs300
+

@@ -29,7 +29,7 @@ class SlipReader:
         from ollama import Client
 
         self.client = Client(host=host)
-        self.model = model
+        self.model = self.name = model
 
     def read(self, image_bytes: bytes) -> Slip:
         resp = self.client.chat(

@@ -1,30 +1,134 @@
-// Thin client for the local backend (proxied at /api by Vite).
+// Thin client for the local backend (proxied at /api by Vite). Nothing here leaves localhost.
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: init?.body instanceof FormData ? undefined : { "Content-Type": "application/json" },
     ...init,
   });
-  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+  if (!res.ok) {
+    let detail = await res.text();
+    try {
+      detail = JSON.parse(detail).detail ?? detail;
+    } catch {
+      /* plain text */
+    }
+    throw new Error(`${res.status}: ${typeof detail === "string" ? detail : JSON.stringify(detail)}`);
+  }
   return res.json() as Promise<T>;
 }
 
+const post = <T>(path: string, body: unknown) => call<T>(path, { method: "POST", body: JSON.stringify(body) });
+
 export type Posting = { account: string; amount: number };
+export type Payload = {
+  item?: string | null;
+  qty?: number | null;
+  unit?: string | null;
+  amount_rupees?: number | null;
+  party?: string | null;
+  voided?: string;
+};
 export type LedgerEvent = {
   id: string;
   device_id: string;
+  seq: number;
+  vclock: Record<string, number>;
   kind: string;
   source: string;
   confidence: number;
+  payload: Payload;
   raw: string | null;
   postings: Posting[];
   wall_time: number | null;
+  supersedes: string[];
 };
 
-export const api = {
-  health: () => call<{ device_id: string; ollama_models: string[] | null; events: number }>("/health"),
-  events: () => call<LedgerEvent[]>("/events"),
-  balances: () => call<{ balances_paise: Record<string, number>; balanced: boolean }>("/ledger/balances"),
-  ingestText: (text: string, source = "manual") =>
-    call("/ingest/text", { method: "POST", body: JSON.stringify({ text, source }) }),
-  syncNow: () => call<Record<string, unknown>>("/sync/now", { method: "POST" }),
+export type Health = {
+  device_id: string;
+  model_mode: "demo" | "real";
+  llm_model: string;
+  whisper_model: string;
+  ollama_models: string[] | null;
+  llm_ready: boolean;
+  mic_listening: boolean;
+  hostile_clock: string;
+  peers: string[];
+  events: number;
 };
+
+export type Conflict = {
+  ids: string[];
+  party: string;
+  kind: string;
+  claims_paise: [number, number];
+  suspense_paise: number;
+};
+
+export type Summary = {
+  balanced: boolean;
+  balances_paise: Record<string, number>;
+  profit: {
+    p10: number;
+    p50: number;
+    p90: number;
+    components: { revenue: number; cogs: number; expenses: number; expected_bad_debt: number };
+    receivables: Record<string, number>;
+  };
+  duplicates: string[][];
+  conflicts: Conflict[];
+  frontier: Record<string, number>;
+};
+
+export type IngestResult = { engine: string; is_transaction: boolean; events: LedgerEvent[] };
+export type Transcript = { text: string; confidence: number; language: string; via: string; engine: string; events: number };
+export type SlipLine = { item: string; qty: number | null; unit: string | null; amount_rupees: number | null; confidence: number };
+export type Slip = { supplier: string | null; lines: SlipLine[]; total_rupees: number | null; reader: string };
+
+export type Recipe = {
+  usage_per_plate: number[][];
+  baseline_waste_per_day: number[];
+  unexplained_per_day: number[][];
+  residual_sd: number[];
+};
+export type LossSplit = {
+  split: Record<"spoilage" | "theft" | "personal", { p: number; p10: number; p90: number; kg: number }>;
+  reasons: string[];
+};
+export type Lexicon = Record<string, Record<string, unknown> | string[]>;
+
+export const api = {
+  health: () => call<Health>("/health"),
+  events: () => call<LedgerEvent[]>("/events"),
+  summary: () => call<Summary>("/ledger/summary"),
+  ingestText: (text: string, source: string, engine: string) =>
+    post<IngestResult>("/ingest/text", { text, source, engine }),
+  simulateHeard: (text: string, confidence = 0.9) => post<IngestResult>("/mic/simulate", { text, confidence }),
+  recentTranscripts: () => call<Transcript[]>("/mic/recent"),
+  ingestAudio: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return call<IngestResult & { transcript: string | null; confidence?: number; asr?: string }>("/ingest/audio", {
+      method: "POST",
+      body: fd,
+    });
+  },
+  readSlip: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return call<Slip>("/ingest/slip", { method: "POST", body: fd });
+  },
+  confirmSlip: (supplier: string | null, lines: SlipLine[]) =>
+    post<{ events: LedgerEvent[] }>("/ingest/slip/confirm", { supplier, lines }),
+  resolve: (ids: string[], amount_rupees: number) => post<{ events: LedgerEvent[] }>("/ledger/resolve", { ids, amount_rupees }),
+  void: (id: string) => post<{ events: LedgerEvent[] }>("/ledger/void", { id }),
+  lexicon: () => call<Lexicon>("/lexicon"),
+  addLexicon: (section: string, key: string, value: unknown) => post<Lexicon>("/lexicon", { section, key, value }),
+  recipe: (burn: number[][], plates: number[][]) => post<Recipe>("/inference/recipe", { burn, plates }),
+  loss: (unexplained_kg: number, covariates: Record<string, number | boolean>) =>
+    post<LossSplit>("/inference/loss", { unexplained_kg, covariates }),
+  syncNow: () => post<Record<string, { added?: number; error?: string }>>("/sync/now", {}),
+};
+
+const sign = (x: number) => (x < 0 ? "−" : "");
+export const rupees = (paise: number) =>
+  `${sign(paise)}₹${Math.abs(paise / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+export const inr = (r: number) => `${sign(Math.round(r))}₹${Math.abs(r).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;

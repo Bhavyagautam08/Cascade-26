@@ -25,7 +25,7 @@ class Extractor:
         from ollama import Client
 
         self.client = Client(host=host)
-        self.model = model
+        self.model = self.name = model
         self.lexicon = lexicon
 
     def from_text(self, text: str, source: Source) -> Extraction:

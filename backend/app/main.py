@@ -12,7 +12,8 @@ from app.ledger.doubleentry import balances, trial_balance_ok
 from app.ledger.events import CandidateEvent, Event, Kind, Source
 from app.ledger.fusion import fuse
 from app.ledger.store import causal_order
-from app.pipeline import handle_text, handle_utterance, lexicon, recent_transcripts, record, slip_reader, store
+from app.pipeline import (handle_audio_file, handle_text, handle_utterance, heard, lexicon, recent_transcripts,
+                          record, resolve_conflict, slip_reader, store, void)
 from app.sync.transport import LanTransport
 
 mic = None
@@ -44,9 +45,14 @@ def health():
         ollama = None
     return {
         "device_id": settings.device_id,
+        "model_mode": "demo" if settings.demo else "real",
+        "llm_model": settings.llm_model,
+        "whisper_model": settings.whisper_model,
         "ollama_models": ollama,
         "llm_ready": bool(ollama) and settings.llm_model in ollama,
         "mic_listening": mic is not None,
+        "hostile_clock": settings.hostile_clock,
+        "peers": settings.peer_urls,
         "events": len(store.all()),
     }
 
@@ -73,7 +79,35 @@ def ledger_summary():
         "profit": inference.profit_range(report.effective),
         "duplicates": report.duplicates,
         "conflicts": report.conflicts,
+        "frontier": store.frontier(),
     }
+
+
+class ResolveIn(BaseModel):
+    ids: list[str]
+    amount_rupees: float
+
+
+@app.post("/ledger/resolve")
+def ledger_resolve(body: ResolveIn):
+    """Vendor settles a suspense item (e.g. Sharma really paid Rs40). Recorded as a superseding event."""
+    try:
+        return resolve_conflict(body.ids, body.amount_rupees)
+    except KeyError as e:
+        raise HTTPException(404, str(e)) from e
+
+
+class VoidIn(BaseModel):
+    id: str
+
+
+@app.post("/ledger/void")
+def ledger_void(body: VoidIn):
+    """Withdraw a wrong entry. Append-only: the original stays, a superseding event stops it counting."""
+    try:
+        return void(body.id)
+    except KeyError as e:
+        raise HTTPException(404, f"no event {e}") from e
 
 
 # --- inference ---------------------------------------------------------------
@@ -115,17 +149,38 @@ def ingest_text(body: TextIn):
 
 @app.get("/mic/recent")
 def mic_recent():
-    return recent_transcripts
+    return list(recent_transcripts)
+
+
+class HeardIn(BaseModel):
+    text: str
+    confidence: float = 0.9
+
+
+@app.post("/mic/simulate")
+def mic_simulate(body: HeardIn):
+    """Inject a line as if the mic heard it (backup demo when the hall is too loud)."""
+    return heard(body.text, body.confidence, "typed", via="simulated")
+
+
+@app.post("/ingest/audio")
+async def ingest_audio(file: UploadFile = File(...)):
+    """A recorded clip -> the same ASR + extractor path as the live mic."""
+    try:
+        return handle_audio_file(await file.read())
+    except Exception as e:
+        raise HTTPException(503, f"speech-to-text unavailable: {e}") from e
 
 
 @app.post("/ingest/slip")
 async def ingest_slip(file: UploadFile = File(...)):
     """Photo of a wholesale slip -> lines for the vendor to confirm (not posted yet)."""
     try:
-        slip = slip_reader().read(await file.read())
+        reader = slip_reader()
+        slip = reader.read(await file.read())
     except Exception as e:
         raise HTTPException(503, f"slip reader unavailable: {e}") from e
-    return slip.model_dump()
+    return {**slip.model_dump(), "reader": reader.name}
 
 
 class SlipConfirm(BaseModel):
@@ -147,9 +202,9 @@ def confirm_slip(body: SlipConfirm):
 
 # --- lexicon (Lexicon Drop) --------------------------------------------------
 class LexiconEntry(BaseModel):
-    section: str          # items | units | aliases | verbs | numbers | prices
+    section: str          # items | units | aliases | verbs | numbers | prices | perishable
     key: str
-    value: str | float | dict
+    value: str | float | dict | None = None   # not needed for list sections (perishable)
 
 
 @app.get("/lexicon")

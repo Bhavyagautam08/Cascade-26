@@ -28,7 +28,12 @@ class Lexicon:
     def add(self, section: str, key: str, value) -> None:
         """Add one entry at runtime and persist it."""
         with self._lock:
-            self.data.setdefault(section, {})[key] = value
+            current = self.data.setdefault(section, {})
+            if isinstance(current, list):          # e.g. "perishable": ["tomato", ...]
+                if key not in current:
+                    current.append(key)
+            else:
+                current[key] = value
             self.path.write_text(json.dumps(self.data, ensure_ascii=False, indent=2), encoding="utf-8")
             self._mtime = self.path.stat().st_mtime
 

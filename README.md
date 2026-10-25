@@ -57,7 +57,10 @@ cd frontend
 npm run dev
 ```
 
-Run a second/third "device" on another laptop (or another port) with `DEVICE_ID=phone-2`; see `.env.example`.
+Run a second/third "device" on another laptop with `DEVICE_ID=phone-2`, or all three on one laptop with
+`scripts\run_device.ps1` (see the header of that script; `-HostileClock 1970` plays the broken phone).
+
+No models yet? Set `MODEL_MODE=demo` in `backend\.env`: the full UI and ledger run on labelled stand-ins.
 
 ## Offline check
 

@@ -237,11 +237,14 @@ create two different "merge" events for the same evidence.
 
 | Function | Method | Output |
 |---|---|---|
-| `recipe_per_plate(burn, plates)` | Non-negative least squares per ingredient (`scipy.optimize.nnls`) | usage per plate, unexplained burn per day (wastage), residual SD |
+| `recipe_per_plate(burn, plates)` | Non-negative least squares per ingredient (`scipy.optimize.nnls`) with a non-negative daily-baseline term (otherwise steady waste is absorbed into grams/plate) | usage per plate, unexplained burn per day (wastage), residual SD |
 | `attribute_loss(kg, covariates)` | Priors 0.5/0.2/0.3 (spoilage/theft/personal) × explainable multipliers (heat > 30 °C, perishable, unattended hours, family present); Dirichlet(α = p·20) for intervals | p, p10, p90, kg per cause + plain-language reasons |
 | `profit_range(events)` | Monte Carlo (2000 draws, fixed seed): amounts wobble with SD 0.5·(1 − confidence); unsold stock ~ U(0, 0.3) of purchases; collection probability ~ Beta(8, 2) on receivables | p10/p50/p90 accrual profit + components + receivables |
 
 `profit = revenue − cost of stock used − expenses − expected bad debt`
+
+Disputed amounts (the half of a conflict parked against `suspense`) are excluded from receivables and
+bad debt: they were never booked as income.
 
 ### 6.5 Sync (`sync/`) — CRDT over a swappable transport
 
@@ -266,6 +269,10 @@ create two different "merge" events for the same evidence.
 | GET | `/ledger/summary` | — | balances, profit range, duplicates, conflicts |
 | POST | `/ingest/text` | `{text, source, engine: auto\|llm\|rules}` | engine used, events created |
 | GET | `/mic/recent` | — | last 20 transcripts (text only) |
+| POST | `/mic/simulate` | `{text, confidence}` | voice path without Whisper (backup demo) |
+| POST | `/ingest/audio` | multipart `file` | pre-recorded clip → same ASR + extractor as the mic |
+| POST | `/ledger/resolve` | `{ids[], amount_rupees}` | settles a suspense item with a superseding event |
+| POST | `/ledger/void` | `{id}` | withdraws a wrong entry (superseding adjustment, append-only) |
 | POST | `/ingest/slip` | multipart `file` | proposed lines (not posted) |
 | POST | `/ingest/slip/confirm` | `{supplier, lines[]}` | purchase events created |
 | GET / POST | `/lexicon` | `{section, key, value}` | full lexicon |
@@ -277,6 +284,12 @@ create two different "merge" events for the same evidence.
 | POST | `/sync/now` | — | per-peer result |
 
 Errors: model unavailable → `503` (only when `engine=llm`); `auto` silently falls back to rules.
+
+**`MODEL_MODE=demo`** (in `backend/.env`) swaps the three models for stand-ins with the same interfaces
+(`perception/demo.py`: scripted ASR, rule parser behind the LLM interface, one sample slip). Every demo
+response is labelled `demo`; ledger, fusion, inference and sync are unchanged. Set `MODEL_MODE=real`
+once Whisper and Ollama are installed. `HOSTILE_CLOCK=1970|jump` simulates a broken phone clock, and
+`scripts/run_device.ps1` runs phone-1/2/3 on one laptop.
 
 ---
 

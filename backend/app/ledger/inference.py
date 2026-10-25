@@ -3,8 +3,9 @@
 Evaluation chain: Raw Material Burn -> Inferred Wastage -> Reconciled Credit -> True Accrual Profit
 
 - recipe_per_plate: how much of each ingredient one plate uses, learned from daily burn vs plates
-  sold with non-negative least squares (no Bill of Materials needed). The leftover burn that plates
-  can't explain is the wastage signal.
+  sold with non-negative least squares (no Bill of Materials needed). A non-negative constant term
+  soaks up the steady daily loss; without it that loss would be smeared into "grams per plate" and
+  the wastage signal would vanish. The burn plates can't explain is the wastage signal.
 - attribute_loss: splits unexplained stock loss into spoilage / theft / personal use. Starts from
   priors and shifts them with simple, explainable multipliers (heat, unattended hours, family).
   Uncertainty comes from a Dirichlet around the point estimate.
@@ -16,7 +17,7 @@ from collections import defaultdict
 import numpy as np
 from scipy.optimize import nnls
 
-from app.ledger.events import Event, Kind
+from app.ledger.events import Event, Kind, Posting
 
 RNG_SEED = 7  # reproducible demo numbers
 
@@ -29,14 +30,18 @@ def recipe_per_plate(burn: np.ndarray, plates: np.ndarray) -> dict:
     """
     burn = np.asarray(burn, dtype=float)
     plates = np.asarray(plates, dtype=float)
-    usage = np.zeros((plates.shape[1], burn.shape[1]))
+    design = np.column_stack([plates, np.ones(len(plates))])     # last column: daily baseline loss
+    coef = np.zeros((design.shape[1], burn.shape[1]))
     for j in range(burn.shape[1]):
-        usage[:, j], _ = nnls(plates, burn[:, j])
+        coef[:, j], _ = nnls(design, burn[:, j])
+    usage, baseline = coef[:-1], coef[-1]
     unexplained = burn - plates @ usage
-    # spread of residuals = how sure we are about the recipe
-    resid_sd = unexplained.std(axis=0, ddof=1) if len(burn) > 1 else np.zeros(burn.shape[1])
+    # spread of residuals around the baseline = how sure we are about the recipe
+    resid = unexplained - baseline
+    resid_sd = resid.std(axis=0, ddof=1) if len(burn) > 1 else np.zeros(burn.shape[1])
     return {
         "usage_per_plate": usage.tolist(),             # dishes x ingredients
+        "baseline_waste_per_day": baseline.tolist(),   # ingredients
         "unexplained_per_day": unexplained.tolist(),   # days x ingredients (wastage signal)
         "residual_sd": resid_sd.tolist(),
     }
@@ -80,6 +85,20 @@ def attribute_loss(unexplained_kg: float, covariates: dict, concentration: float
 
 
 # --- Reconciled Credit + True Accrual Profit -------------------------------------------------
+def _certain_postings(e: Event) -> list[Posting]:
+    """Postings minus the receivable half of a disputed amount (see fusion.py conflicts).
+
+    That half is parked against suspense, not revenue: it was never income, so it can't be owed
+    for sure or become bad debt until a human settles the dispute.
+    """
+    disputed = e.payload.get("disputed_paise")
+    if not disputed:
+        return e.postings
+    idx = next((i for i in reversed(range(len(e.postings)))
+                if e.postings[i].account.startswith("receivable:") and abs(e.postings[i].amount) == disputed), None)
+    return [p for i, p in enumerate(e.postings) if i != idx]
+
+
 def profit_range(events: list[Event], collect_alpha: float = 8.0, collect_beta: float = 2.0,
                  unsold_fraction: tuple[float, float] = (0.0, 0.3), samples: int = 2000) -> dict:
     """Accrual profit (rupees) as a range, from the *effective* (fused) events.
@@ -91,7 +110,7 @@ def profit_range(events: list[Event], collect_alpha: float = 8.0, collect_beta: 
     revenue, purchases, expenses = [], [], []        # (amount_paise, confidence)
     receivable: dict[str, int] = defaultdict(int)
     for e in events:
-        for p in e.postings:
+        for p in _certain_postings(e):
             if p.account == "revenue:sales":
                 revenue.append((-p.amount, e.confidence))
             elif p.account.startswith("inventory:") and e.kind == Kind.purchase:

@@ -21,3 +21,4 @@ backend/data/uploads/
 Thumbs.db
 .vscode/
 .idea/
+*.tsbuildinfo

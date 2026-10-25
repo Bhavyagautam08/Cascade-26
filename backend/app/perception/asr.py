@@ -1,5 +1,6 @@
 """Speech-to-text with faster-whisper, fully local. Model weights come from HF_HOME (E:\\ai\\hf)."""
 from dataclasses import dataclass
+from io import BytesIO
 
 import numpy as np
 
@@ -26,6 +27,7 @@ class ASR:
         from faster_whisper import WhisperModel  # imported lazily: heavy, needs CUDA libs
 
         self.model = WhisperModel(model, device=device, compute_type=compute_type)
+        self.name = f"{model} ({device})"
 
     def transcribe(self, audio: np.ndarray, hotwords: str | None = None) -> Transcript | None:
         """audio: float32 mono 16 kHz."""
@@ -49,3 +51,9 @@ class ASR:
             avg_logprob=float(np.mean([s.avg_logprob for s in segs])),
             no_speech_prob=float(np.mean([s.no_speech_prob for s in segs])),
         )
+
+    def transcribe_file(self, data: bytes, hotwords: str | None = None) -> Transcript | None:
+        """A recorded clip (wav/mp3/m4a/ogg...), decoded to 16 kHz mono by faster-whisper's PyAV."""
+        from faster_whisper import decode_audio
+
+        return self.transcribe(decode_audio(BytesIO(data), sampling_rate=16_000), hotwords)

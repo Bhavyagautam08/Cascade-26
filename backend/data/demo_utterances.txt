@@ -1,0 +1,7 @@
+# Script DemoASR "hears", one utterance per cut (MODEL_MODE=demo). Mix of trades and chatter.
+Bhai 3 kilo tamatar liya 180 mein… Sharma ji ka 40 jama kar, aur 7 plate poha de.
+aaj bahut garmi hai bhai
+5 cup chai de
+pandey ji ka 60 udhaar likh
+2 kilo pyaz laya 80
+chhotu ka 30 baaki
