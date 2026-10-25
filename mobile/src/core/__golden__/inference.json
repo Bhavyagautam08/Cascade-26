@@ -1,0 +1,4620 @@
+{
+ "events": [
+  {
+   "id": "phone-1.q3bpm2:1",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 1,
+   "vclock": {
+    "phone-1.q3bpm2": 1
+   },
+   "wall_time": 1792630800.0,
+   "kind": "day_start",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "index": 1,
+    "date": "2026-10-22"
+   },
+   "postings": [],
+   "raw": "start of day 1",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.375
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:2",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 2,
+   "vclock": {
+    "phone-1.q3bpm2": 2
+   },
+   "wall_time": 1792631400.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 10.0,
+    "unit": "kg",
+    "amount_rupees": 400.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": 40.0,
+    "recording_id": "seed:2026-10-22:opening",
+    "inventory": "opening",
+    "said": "10 kg poha"
+   },
+   "postings": [
+    {
+     "account": "inventory:poha",
+     "amount": 40000
+    },
+    {
+     "account": "equity:opening_stock",
+     "amount": -40000
+    }
+   ],
+   "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.609
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:3",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 3,
+   "vclock": {
+    "phone-1.q3bpm2": 3
+   },
+   "wall_time": 1792631400.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 4.0,
+    "unit": "kg",
+    "amount_rupees": 120.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": 30.0,
+    "recording_id": "seed:2026-10-22:opening",
+    "inventory": "opening",
+    "said": "4 kg onion"
+   },
+   "postings": [
+    {
+     "account": "inventory:onion",
+     "amount": 12000
+    },
+    {
+     "account": "equity:opening_stock",
+     "amount": -12000
+    }
+   ],
+   "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.625
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:4",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 4,
+   "vclock": {
+    "phone-1.q3bpm2": 4
+   },
+   "wall_time": 1792631400.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 2.0,
+    "unit": "l",
+    "amount_rupees": 280.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": 140.0,
+    "recording_id": "seed:2026-10-22:opening",
+    "inventory": "opening",
+    "said": "2 l oil"
+   },
+   "postings": [
+    {
+     "account": "inventory:oil",
+     "amount": 28000
+    },
+    {
+     "account": "equity:opening_stock",
+     "amount": -28000
+    }
+   ],
+   "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.625
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:5",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 5,
+   "vclock": {
+    "phone-1.q3bpm2": 5
+   },
+   "wall_time": 1792631400.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 18.0,
+    "unit": "l",
+    "amount_rupees": 1008.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": 56.0,
+    "recording_id": "seed:2026-10-22:opening",
+    "inventory": "opening",
+    "said": "18 l milk"
+   },
+   "postings": [
+    {
+     "account": "inventory:milk",
+     "amount": 100800
+    },
+    {
+     "account": "equity:opening_stock",
+     "amount": -100800
+    }
+   ],
+   "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.625
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:6",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 6,
+   "vclock": {
+    "phone-1.q3bpm2": 6
+   },
+   "wall_time": 1792631400.0,
+   "kind": "expense",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "gas",
+    "qty": null,
+    "unit": null,
+    "amount_rupees": 950.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "expense:gas",
+     "amount": 95000
+    },
+    {
+     "account": "cash",
+     "amount": -95000
+    }
+   ],
+   "raw": "[demo] gas ka 950 kharcha",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.625
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:7",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 7,
+   "vclock": {
+    "phone-1.q3bpm2": 7
+   },
+   "wall_time": 1792635000.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 62.0,
+    "unit": "plate",
+    "amount_rupees": 1240.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 124000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -124000
+    }
+   ],
+   "raw": "[demo] 62 plate poha becha 1240",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.64
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:8",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 8,
+   "vclock": {
+    "phone-1.q3bpm2": 8
+   },
+   "wall_time": 1792638600.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 20.0,
+    "unit": "plate",
+    "amount_rupees": 400.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 40000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -40000
+    }
+   ],
+   "raw": "[demo] 20 plate poha becha 400",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.64
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:9",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 9,
+   "vclock": {
+    "phone-1.q3bpm2": 9
+   },
+   "wall_time": 1792642200.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 10.0,
+    "unit": "plate",
+    "amount_rupees": 200.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 20000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -20000
+    }
+   ],
+   "raw": "[demo] 10 plate poha becha 200",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.64
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:10",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 10,
+   "vclock": {
+    "phone-1.q3bpm2": 10
+   },
+   "wall_time": 1792645800.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 80.0,
+    "unit": "plate",
+    "amount_rupees": 800.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 80000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -80000
+    }
+   ],
+   "raw": "[demo] 80 plate tea becha 800",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.64
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:11",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 11,
+   "vclock": {
+    "phone-1.q3bpm2": 11
+   },
+   "wall_time": 1792649400.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 6.0,
+    "unit": "plate",
+    "amount_rupees": 60.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 6000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -6000
+    }
+   ],
+   "raw": "[demo] 6 plate tea becha 60",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.656
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:12",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 12,
+   "vclock": {
+    "phone-1.q3bpm2": 12
+   },
+   "wall_time": 1792653000.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 18.0,
+    "unit": "plate",
+    "amount_rupees": 180.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 18000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -18000
+    }
+   ],
+   "raw": "[demo] 18 plate tea becha 180",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.656
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:13",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 13,
+   "vclock": {
+    "phone-1.q3bpm2": 13
+   },
+   "wall_time": 1792654200.0,
+   "kind": "credit_given",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": null,
+    "qty": null,
+    "unit": null,
+    "amount_rupees": 60.0,
+    "party": "sharma",
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "receivable:sharma",
+     "amount": 6000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -6000
+    }
+   ],
+   "raw": "[demo] sharma ji ka 60 udhaar likh",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.656
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:14",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 14,
+   "vclock": {
+    "phone-1.q3bpm2": 14
+   },
+   "wall_time": 1792661400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 2.5,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-22:closing",
+    "inventory": "closing",
+    "said": "2.5 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.656
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:15",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 15,
+   "vclock": {
+    "phone-1.q3bpm2": 15
+   },
+   "wall_time": 1792661400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 1.59,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-22:closing",
+    "inventory": "closing",
+    "said": "1.59 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.656
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:16",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 16,
+   "vclock": {
+    "phone-1.q3bpm2": 16
+   },
+   "wall_time": 1792661400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.06,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-22:closing",
+    "inventory": "closing",
+    "said": "1.06 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.671
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:17",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 17,
+   "vclock": {
+    "phone-1.q3bpm2": 17
+   },
+   "wall_time": 1792661400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 7.26,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-22:closing",
+    "inventory": "closing",
+    "said": "7.26 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.671
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:18",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 18,
+   "vclock": {
+    "phone-1.q3bpm2": 18
+   },
+   "wall_time": 1792717200.0,
+   "kind": "day_start",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "index": 2,
+    "date": "2026-10-23"
+   },
+   "postings": [],
+   "raw": "start of day 2",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.671
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:19",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 19,
+   "vclock": {
+    "phone-1.q3bpm2": 19
+   },
+   "wall_time": 1792717800.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 2.5,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-23:opening",
+    "inventory": "opening",
+    "said": "2.5 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.671
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:20",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 20,
+   "vclock": {
+    "phone-1.q3bpm2": 20
+   },
+   "wall_time": 1792717800.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 1.54,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-23:opening",
+    "inventory": "opening",
+    "said": "1.54 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.687
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:21",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 21,
+   "vclock": {
+    "phone-1.q3bpm2": 21
+   },
+   "wall_time": 1792717800.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.06,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-23:opening",
+    "inventory": "opening",
+    "said": "1.06 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.687
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:22",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 22,
+   "vclock": {
+    "phone-1.q3bpm2": 22
+   },
+   "wall_time": 1792717800.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 6.86,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-23:opening",
+    "inventory": "opening",
+    "said": "6.86 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.687
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:23",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 23,
+   "vclock": {
+    "phone-1.q3bpm2": 23
+   },
+   "wall_time": 1792718700.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 11.5,
+    "unit": "kg",
+    "amount_rupees": 460.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:poha",
+     "amount": 46000
+    },
+    {
+     "account": "cash",
+     "amount": -46000
+    }
+   ],
+   "raw": "[demo] 11.5 kg poha liya 460 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.687
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:24",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 24,
+   "vclock": {
+    "phone-1.q3bpm2": 24
+   },
+   "wall_time": 1792719600.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 4.46,
+    "unit": "kg",
+    "amount_rupees": 133.8,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:onion",
+     "amount": 13380
+    },
+    {
+     "account": "cash",
+     "amount": -13380
+    }
+   ],
+   "raw": "[demo] 4.46 kg onion liya 133.8 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.703
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:25",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 25,
+   "vclock": {
+    "phone-1.q3bpm2": 25
+   },
+   "wall_time": 1792720500.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.94,
+    "unit": "l",
+    "amount_rupees": 271.6,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:oil",
+     "amount": 27160
+    },
+    {
+     "account": "cash",
+     "amount": -27160
+    }
+   ],
+   "raw": "[demo] 1.94 l oil liya 271.6 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.703
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:26",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 26,
+   "vclock": {
+    "phone-1.q3bpm2": 26
+   },
+   "wall_time": 1792721400.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 13.14,
+    "unit": "l",
+    "amount_rupees": 735.84,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:milk",
+     "amount": 73584
+    },
+    {
+     "account": "cash",
+     "amount": -73584
+    }
+   ],
+   "raw": "[demo] 13.14 l milk liya 735.84 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.703
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:27",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 27,
+   "vclock": {
+    "phone-1.q3bpm2": 27
+   },
+   "wall_time": 1792725000.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 6.0,
+    "unit": "plate",
+    "amount_rupees": 120.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 12000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -12000
+    }
+   ],
+   "raw": "[demo] 6 plate poha becha 120",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.703
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:28",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 28,
+   "vclock": {
+    "phone-1.q3bpm2": 28
+   },
+   "wall_time": 1792728600.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 16.0,
+    "unit": "plate",
+    "amount_rupees": 320.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 32000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -32000
+    }
+   ],
+   "raw": "[demo] 16 plate poha becha 320",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.718
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:29",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 29,
+   "vclock": {
+    "phone-1.q3bpm2": 29
+   },
+   "wall_time": 1792732200.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 25.0,
+    "unit": "plate",
+    "amount_rupees": 500.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 50000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -50000
+    }
+   ],
+   "raw": "[demo] 25 plate poha becha 500",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.718
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:30",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 30,
+   "vclock": {
+    "phone-1.q3bpm2": 30
+   },
+   "wall_time": 1792735800.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 35.0,
+    "unit": "plate",
+    "amount_rupees": 350.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 35000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -35000
+    }
+   ],
+   "raw": "[demo] 35 plate tea becha 350",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.718
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:31",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 31,
+   "vclock": {
+    "phone-1.q3bpm2": 31
+   },
+   "wall_time": 1792739400.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 5.0,
+    "unit": "plate",
+    "amount_rupees": 50.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 5000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -5000
+    }
+   ],
+   "raw": "[demo] 5 plate tea becha 50",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.718
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:32",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 32,
+   "vclock": {
+    "phone-1.q3bpm2": 32
+   },
+   "wall_time": 1792743000.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 76.0,
+    "unit": "plate",
+    "amount_rupees": 760.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 76000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -76000
+    }
+   ],
+   "raw": "[demo] 76 plate tea becha 760",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.718
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:33",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 33,
+   "vclock": {
+    "phone-1.q3bpm2": 33
+   },
+   "wall_time": 1792744200.0,
+   "kind": "credit_paid",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": null,
+    "qty": null,
+    "unit": null,
+    "amount_rupees": 60.0,
+    "party": "sharma",
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 6000
+    },
+    {
+     "account": "receivable:sharma",
+     "amount": -6000
+    }
+   ],
+   "raw": "[demo] sharma ji ka 60 jama",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.734
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:34",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 34,
+   "vclock": {
+    "phone-1.q3bpm2": 34
+   },
+   "wall_time": 1792751400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 10.1,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-23:closing",
+    "inventory": "closing",
+    "said": "10.1 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.734
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:35",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 35,
+   "vclock": {
+    "phone-1.q3bpm2": 35
+   },
+   "wall_time": 1792751400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 4.73,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-23:closing",
+    "inventory": "closing",
+    "said": "4.73 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.734
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:36",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 36,
+   "vclock": {
+    "phone-1.q3bpm2": 36
+   },
+   "wall_time": 1792751400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 2.51,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-23:closing",
+    "inventory": "closing",
+    "said": "2.51 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.734
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:37",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 37,
+   "vclock": {
+    "phone-1.q3bpm2": 37
+   },
+   "wall_time": 1792751400.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 8.09,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-23:closing",
+    "inventory": "closing",
+    "said": "8.09 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.734
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:38",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 38,
+   "vclock": {
+    "phone-1.q3bpm2": 38
+   },
+   "wall_time": 1792803600.0,
+   "kind": "day_start",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "index": 3,
+    "date": "2026-10-24"
+   },
+   "postings": [],
+   "raw": "start of day 3",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.75
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:39",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 39,
+   "vclock": {
+    "phone-1.q3bpm2": 39
+   },
+   "wall_time": 1792804200.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 10.1,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-24:opening",
+    "inventory": "opening",
+    "said": "10.1 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.75
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:40",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 40,
+   "vclock": {
+    "phone-1.q3bpm2": 40
+   },
+   "wall_time": 1792804200.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 4.68,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-24:opening",
+    "inventory": "opening",
+    "said": "4.68 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.75
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:41",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 41,
+   "vclock": {
+    "phone-1.q3bpm2": 41
+   },
+   "wall_time": 1792804200.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 2.51,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-24:opening",
+    "inventory": "opening",
+    "said": "2.51 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.765
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:42",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 42,
+   "vclock": {
+    "phone-1.q3bpm2": 42
+   },
+   "wall_time": 1792804200.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 7.69,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-24:opening",
+    "inventory": "opening",
+    "said": "7.69 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.765
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:43",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 43,
+   "vclock": {
+    "phone-1.q3bpm2": 43
+   },
+   "wall_time": 1792805100.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 12.31,
+    "unit": "l",
+    "amount_rupees": 689.36,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:milk",
+     "amount": 68936
+    },
+    {
+     "account": "cash",
+     "amount": -68936
+    }
+   ],
+   "raw": "[demo] 12.31 l milk liya 689.36 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.765
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:44",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 44,
+   "vclock": {
+    "phone-1.q3bpm2": 44
+   },
+   "wall_time": 1792808700.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 54.0,
+    "unit": "plate",
+    "amount_rupees": 1080.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 108000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -108000
+    }
+   ],
+   "raw": "[demo] 54 plate poha becha 1080",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.765
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:45",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 45,
+   "vclock": {
+    "phone-1.q3bpm2": 45
+   },
+   "wall_time": 1792812300.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 13.0,
+    "unit": "plate",
+    "amount_rupees": 260.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 26000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -26000
+    }
+   ],
+   "raw": "[demo] 13 plate poha becha 260",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.765
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:46",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 46,
+   "vclock": {
+    "phone-1.q3bpm2": 46
+   },
+   "wall_time": 1792815900.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 1.0,
+    "unit": "plate",
+    "amount_rupees": 20.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 2000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -2000
+    }
+   ],
+   "raw": "[demo] 1 plate poha becha 20",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.781
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:47",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 47,
+   "vclock": {
+    "phone-1.q3bpm2": 47
+   },
+   "wall_time": 1792819500.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 44.0,
+    "unit": "plate",
+    "amount_rupees": 440.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 44000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -44000
+    }
+   ],
+   "raw": "[demo] 44 plate tea becha 440",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.781
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:48",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 48,
+   "vclock": {
+    "phone-1.q3bpm2": 48
+   },
+   "wall_time": 1792823100.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 36.0,
+    "unit": "plate",
+    "amount_rupees": 360.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 36000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -36000
+    }
+   ],
+   "raw": "[demo] 36 plate tea becha 360",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.781
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:49",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 49,
+   "vclock": {
+    "phone-1.q3bpm2": 49
+   },
+   "wall_time": 1792826700.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 50.0,
+    "unit": "plate",
+    "amount_rupees": 500.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 50000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -50000
+    }
+   ],
+   "raw": "[demo] 50 plate tea becha 500",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.781
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:50",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 50,
+   "vclock": {
+    "phone-1.q3bpm2": 50
+   },
+   "wall_time": 1792827900.0,
+   "kind": "credit_given",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": null,
+    "qty": null,
+    "unit": null,
+    "amount_rupees": 45.0,
+    "party": "pandey",
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "receivable:pandey",
+     "amount": 4500
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -4500
+    }
+   ],
+   "raw": "[demo] pandey ji ka 45 udhaar likh",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.781
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:51",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 51,
+   "vclock": {
+    "phone-1.q3bpm2": 51
+   },
+   "wall_time": 1792835100.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 4.53,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-24:closing",
+    "inventory": "closing",
+    "said": "4.53 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.796
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:52",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 52,
+   "vclock": {
+    "phone-1.q3bpm2": 52
+   },
+   "wall_time": 1792835100.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 2.89,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-24:closing",
+    "inventory": "closing",
+    "said": "2.89 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.796
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:53",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 53,
+   "vclock": {
+    "phone-1.q3bpm2": 53
+   },
+   "wall_time": 1792835100.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.81,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-24:closing",
+    "inventory": "closing",
+    "said": "1.81 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.796
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:54",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 54,
+   "vclock": {
+    "phone-1.q3bpm2": 54
+   },
+   "wall_time": 1792835100.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 6.75,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-24:closing",
+    "inventory": "closing",
+    "said": "6.75 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.812
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:55",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 55,
+   "vclock": {
+    "phone-1.q3bpm2": 55
+   },
+   "wall_time": 1792890000.0,
+   "kind": "day_start",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "index": 4,
+    "date": "2026-10-25"
+   },
+   "postings": [],
+   "raw": "start of day 4",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.812
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:56",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 56,
+   "vclock": {
+    "phone-1.q3bpm2": 56
+   },
+   "wall_time": 1792890600.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 4.53,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-25:opening",
+    "inventory": "opening",
+    "said": "4.53 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.812
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:57",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 57,
+   "vclock": {
+    "phone-1.q3bpm2": 57
+   },
+   "wall_time": 1792890600.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 2.84,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-25:opening",
+    "inventory": "opening",
+    "said": "2.84 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.812
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:58",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 58,
+   "vclock": {
+    "phone-1.q3bpm2": 58
+   },
+   "wall_time": 1792890600.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.81,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-25:opening",
+    "inventory": "opening",
+    "said": "1.81 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.828
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:59",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 59,
+   "vclock": {
+    "phone-1.q3bpm2": 59
+   },
+   "wall_time": 1792890600.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 6.35,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-25:opening",
+    "inventory": "opening",
+    "said": "6.35 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.828
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:60",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 60,
+   "vclock": {
+    "phone-1.q3bpm2": 60
+   },
+   "wall_time": 1792891500.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 9.47,
+    "unit": "kg",
+    "amount_rupees": 378.8,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:poha",
+     "amount": 37880
+    },
+    {
+     "account": "cash",
+     "amount": -37880
+    }
+   ],
+   "raw": "[demo] 9.47 kg poha liya 378.8 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.828
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:61",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 61,
+   "vclock": {
+    "phone-1.q3bpm2": 61
+   },
+   "wall_time": 1792892400.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 3.16,
+    "unit": "kg",
+    "amount_rupees": 94.8,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:onion",
+     "amount": 9480
+    },
+    {
+     "account": "cash",
+     "amount": -9480
+    }
+   ],
+   "raw": "[demo] 3.16 kg onion liya 94.8 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.828
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:62",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 62,
+   "vclock": {
+    "phone-1.q3bpm2": 62
+   },
+   "wall_time": 1792893300.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 13.65,
+    "unit": "l",
+    "amount_rupees": 764.4,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:milk",
+     "amount": 76440
+    },
+    {
+     "account": "cash",
+     "amount": -76440
+    }
+   ],
+   "raw": "[demo] 13.65 l milk liya 764.4 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.843
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:63",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 63,
+   "vclock": {
+    "phone-1.q3bpm2": 63
+   },
+   "wall_time": 1792893300.0,
+   "kind": "expense",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "rent",
+    "qty": null,
+    "unit": null,
+    "amount_rupees": 300.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "expense:rent",
+     "amount": 30000
+    },
+    {
+     "account": "cash",
+     "amount": -30000
+    }
+   ],
+   "raw": "[demo] rent ka 300 kharcha",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.843
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:64",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 64,
+   "vclock": {
+    "phone-1.q3bpm2": 64
+   },
+   "wall_time": 1792896900.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 9.0,
+    "unit": "plate",
+    "amount_rupees": 180.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 18000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -18000
+    }
+   ],
+   "raw": "[demo] 9 plate poha becha 180",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.843
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:65",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 65,
+   "vclock": {
+    "phone-1.q3bpm2": 65
+   },
+   "wall_time": 1792900500.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 24.0,
+    "unit": "plate",
+    "amount_rupees": 480.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 48000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -48000
+    }
+   ],
+   "raw": "[demo] 24 plate poha becha 480",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.843
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:66",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 66,
+   "vclock": {
+    "phone-1.q3bpm2": 66
+   },
+   "wall_time": 1792904100.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 31.0,
+    "unit": "plate",
+    "amount_rupees": 620.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 62000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -62000
+    }
+   ],
+   "raw": "[demo] 31 plate poha becha 620",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.843
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:67",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 67,
+   "vclock": {
+    "phone-1.q3bpm2": 67
+   },
+   "wall_time": 1792907700.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 28.0,
+    "unit": "plate",
+    "amount_rupees": 280.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 28000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -28000
+    }
+   ],
+   "raw": "[demo] 28 plate tea becha 280",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.859
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:68",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 68,
+   "vclock": {
+    "phone-1.q3bpm2": 68
+   },
+   "wall_time": 1792911300.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 22.0,
+    "unit": "plate",
+    "amount_rupees": 220.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 22000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -22000
+    }
+   ],
+   "raw": "[demo] 22 plate tea becha 220",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.859
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:69",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 69,
+   "vclock": {
+    "phone-1.q3bpm2": 69
+   },
+   "wall_time": 1792914900.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 12.0,
+    "unit": "plate",
+    "amount_rupees": 120.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 12000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -12000
+    }
+   ],
+   "raw": "[demo] 12 plate tea becha 120",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.859
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:70",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 70,
+   "vclock": {
+    "phone-1.q3bpm2": 70
+   },
+   "wall_time": 1792916100.0,
+   "kind": "credit_given",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": null,
+    "qty": null,
+    "unit": null,
+    "amount_rupees": 30.0,
+    "party": "chhotu",
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "receivable:chhotu",
+     "amount": 3000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -3000
+    }
+   ],
+   "raw": "[demo] chhotu ji ka 30 udhaar likh",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.859
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:71",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 71,
+   "vclock": {
+    "phone-1.q3bpm2": 71
+   },
+   "wall_time": 1792923300.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 8.72,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-25:closing",
+    "inventory": "closing",
+    "said": "8.72 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.875
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:72",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 72,
+   "vclock": {
+    "phone-1.q3bpm2": 72
+   },
+   "wall_time": 1792923300.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 4.3,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-25:closing",
+    "inventory": "closing",
+    "said": "4.3 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.875
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:73",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 73,
+   "vclock": {
+    "phone-1.q3bpm2": 73
+   },
+   "wall_time": 1792923300.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.15,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-25:closing",
+    "inventory": "closing",
+    "said": "1.15 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.875
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:74",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 74,
+   "vclock": {
+    "phone-1.q3bpm2": 74
+   },
+   "wall_time": 1792923300.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 13.53,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-25:closing",
+    "inventory": "closing",
+    "said": "13.53 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.875
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:75",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 75,
+   "vclock": {
+    "phone-1.q3bpm2": 75
+   },
+   "wall_time": 1792976400.0,
+   "kind": "day_start",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "index": 5,
+    "date": "2026-10-26"
+   },
+   "postings": [],
+   "raw": "start of day 5",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.89
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:76",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 76,
+   "vclock": {
+    "phone-1.q3bpm2": 76
+   },
+   "wall_time": 1792977000.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 8.72,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-26:opening",
+    "inventory": "opening",
+    "said": "8.72 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.89
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:77",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 77,
+   "vclock": {
+    "phone-1.q3bpm2": 77
+   },
+   "wall_time": 1792977000.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 4.25,
+    "unit": "kg",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-26:opening",
+    "inventory": "opening",
+    "said": "4.25 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.89
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:78",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 78,
+   "vclock": {
+    "phone-1.q3bpm2": 78
+   },
+   "wall_time": 1792977000.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.15,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-26:opening",
+    "inventory": "opening",
+    "said": "1.15 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.89
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:79",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 79,
+   "vclock": {
+    "phone-1.q3bpm2": 79
+   },
+   "wall_time": 1792977000.0,
+   "kind": "opening_stock",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 13.13,
+    "unit": "l",
+    "amount_rupees": null,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ],
+    "unit_cost": null,
+    "recording_id": "seed:2026-10-26:opening",
+    "inventory": "opening",
+    "said": "13.13 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.906
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:80",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 80,
+   "vclock": {
+    "phone-1.q3bpm2": 80
+   },
+   "wall_time": 1792977900.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 5.28,
+    "unit": "kg",
+    "amount_rupees": 211.2,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:poha",
+     "amount": 21120
+    },
+    {
+     "account": "cash",
+     "amount": -21120
+    }
+   ],
+   "raw": "[demo] 5.28 kg poha liya 211.2 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.906
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:81",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 81,
+   "vclock": {
+    "phone-1.q3bpm2": 81
+   },
+   "wall_time": 1792978800.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 1.85,
+    "unit": "l",
+    "amount_rupees": 259.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:oil",
+     "amount": 25900
+    },
+    {
+     "account": "cash",
+     "amount": -25900
+    }
+   ],
+   "raw": "[demo] 1.85 l oil liya 259 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.906
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:82",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 82,
+   "vclock": {
+    "phone-1.q3bpm2": 82
+   },
+   "wall_time": 1792979700.0,
+   "kind": "purchase",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 6.87,
+    "unit": "l",
+    "amount_rupees": 384.72,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "inventory:milk",
+     "amount": 38472
+    },
+    {
+     "account": "cash",
+     "amount": -38472
+    }
+   ],
+   "raw": "[demo] 6.87 l milk liya 384.72 mein",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.906
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:83",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 83,
+   "vclock": {
+    "phone-1.q3bpm2": 83
+   },
+   "wall_time": 1792983300.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 10.0,
+    "unit": "plate",
+    "amount_rupees": 200.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 20000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -20000
+    }
+   ],
+   "raw": "[demo] 10 plate poha becha 200",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.906
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:84",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 84,
+   "vclock": {
+    "phone-1.q3bpm2": 84
+   },
+   "wall_time": 1792986900.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 9.0,
+    "unit": "plate",
+    "amount_rupees": 180.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 18000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -18000
+    }
+   ],
+   "raw": "[demo] 9 plate poha becha 180",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.921
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:85",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 85,
+   "vclock": {
+    "phone-1.q3bpm2": 85
+   },
+   "wall_time": 1792990500.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 76.0,
+    "unit": "plate",
+    "amount_rupees": 1520.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 152000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -152000
+    }
+   ],
+   "raw": "[demo] 76 plate poha becha 1520",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.921
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:86",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 86,
+   "vclock": {
+    "phone-1.q3bpm2": 86
+   },
+   "wall_time": 1792994100.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 41.0,
+    "unit": "plate",
+    "amount_rupees": 410.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 41000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -41000
+    }
+   ],
+   "raw": "[demo] 41 plate tea becha 410",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.921
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:87",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 87,
+   "vclock": {
+    "phone-1.q3bpm2": 87
+   },
+   "wall_time": 1792997700.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 12.0,
+    "unit": "plate",
+    "amount_rupees": 120.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 12000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -12000
+    }
+   ],
+   "raw": "[demo] 12 plate tea becha 120",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.921
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:88",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 88,
+   "vclock": {
+    "phone-1.q3bpm2": 88
+   },
+   "wall_time": 1793001300.0,
+   "kind": "sale",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "tea",
+    "qty": 7.0,
+    "unit": "plate",
+    "amount_rupees": 70.0,
+    "party": null,
+    "direction": null,
+    "flags": [
+     "demo_seed"
+    ]
+   },
+   "postings": [
+    {
+     "account": "cash",
+     "amount": 7000
+    },
+    {
+     "account": "revenue:sales",
+     "amount": -7000
+    }
+   ],
+   "raw": "[demo] 7 plate tea becha 70",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.937
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:89",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 89,
+   "vclock": {
+    "phone-1.q3bpm2": 89
+   },
+   "wall_time": 1793008500.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "poha",
+    "qty": 6.26,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-26:closing",
+    "inventory": "closing",
+    "said": "6.26 kg poha"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.937
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:90",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 90,
+   "vclock": {
+    "phone-1.q3bpm2": 90
+   },
+   "wall_time": 1793008500.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "onion",
+    "qty": 1.79,
+    "unit": "kg",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-26:closing",
+    "inventory": "closing",
+    "said": "1.79 kg onion"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.937
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:91",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 91,
+   "vclock": {
+    "phone-1.q3bpm2": 91
+   },
+   "wall_time": 1793008500.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "oil",
+    "qty": 2.03,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-26:closing",
+    "inventory": "closing",
+    "said": "2.03 l oil"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.937
+   ],
+   "marks": {}
+  },
+  {
+   "id": "phone-1.q3bpm2:92",
+   "device_id": "phone-1.q3bpm2",
+   "seq": 92,
+   "vclock": {
+    "phone-1.q3bpm2": 92
+   },
+   "wall_time": 1793008500.0,
+   "kind": "stock_count",
+   "source": "manual",
+   "confidence": 1.0,
+   "payload": {
+    "item": "milk",
+    "qty": 13.74,
+    "unit": "l",
+    "closing": true,
+    "flags": [
+     "demo_seed"
+    ],
+    "recording_id": "seed:2026-10-26:closing",
+    "inventory": "closing",
+    "said": "13.74 l milk"
+   },
+   "postings": [],
+   "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
+   "supersedes": [],
+   "mono": [
+    "18dd6f2b",
+    51735.953
+   ],
+   "marks": {}
+  }
+ ],
+ "perishable": [
+  "tomato",
+  "coriander",
+  "milk",
+  "chilli"
+ ],
+ "receivables": {
+  "pandey": 45.0,
+  "chhotu": 30.0
+ },
+ "day_profit": {
+  "1": {
+   "p10": 862.36,
+   "p50": 874.0,
+   "p90": 881.03,
+   "components": {
+    "revenue": 2940.0,
+    "cogs": 1105.34,
+    "expenses": 950.0,
+    "expected_bad_debt": 10.66
+   },
+   "receivables": {
+    "sharma": 60.0
+   },
+   "cogs_method": {
+    "poha": "stock_count",
+    "onion": "stock_count",
+    "oil": "stock_count",
+    "milk": "stock_count"
+   },
+   "assumptions": {
+    "collection_beta": [
+     8.0,
+     2.0
+    ],
+    "unsold_fraction_if_uncounted": [
+     0.0,
+     0.3
+    ],
+    "amount_noise_sd": "0.5 x (1 - confidence)",
+    "samples": 2000,
+    "seed": 7
+   }
+  },
+  "2": {
+   "p10": 1170.34,
+   "p50": 1170.34,
+   "p90": 1170.34,
+   "components": {
+    "revenue": 2100.0,
+    "cogs": 929.66,
+    "expenses": 0.0,
+    "expected_bad_debt": 0.0
+   },
+   "receivables": {
+    "sharma": -60.0
+   },
+   "cogs_method": {
+    "poha": "stock_count",
+    "onion": "stock_count",
+    "oil": "stock_count",
+    "milk": "stock_count"
+   },
+   "assumptions": {
+    "collection_beta": [
+     8.0,
+     2.0
+    ],
+    "unsold_fraction_if_uncounted": [
+     0.0,
+     0.3
+    ],
+    "amount_noise_sd": "0.5 x (1 - confidence)",
+    "samples": 2000,
+    "seed": 7
+   }
+  },
+  "3": {
+   "p10": 1571.77,
+   "p50": 1580.51,
+   "p90": 1585.78,
+   "components": {
+    "revenue": 2705.0,
+    "cogs": 1116.5,
+    "expenses": 0.0,
+    "expected_bad_debt": 7.99
+   },
+   "receivables": {
+    "pandey": 45.0
+   },
+   "cogs_method": {
+    "milk": "stock_count",
+    "poha": "stock_count",
+    "onion": "stock_count",
+    "oil": "stock_count"
+   },
+   "assumptions": {
+    "collection_beta": [
+     8.0,
+     2.0
+    ],
+    "unsold_fraction_if_uncounted": [
+     0.0,
+     0.3
+    ],
+    "amount_noise_sd": "0.5 x (1 - confidence)",
+    "samples": 2000,
+    "seed": 7
+   }
+  },
+  "4": {
+   "p10": 902.33,
+   "p50": 907.72,
+   "p90": 911.4,
+   "components": {
+    "revenue": 1930.0,
+    "cogs": 716.92,
+    "expenses": 300.0,
+    "expected_bad_debt": 5.36
+   },
+   "receivables": {
+    "chhotu": 30.0
+   },
+   "cogs_method": {
+    "poha": "stock_count",
+    "onion": "stock_count",
+    "milk": "stock_count",
+    "oil": "stock_count"
+   },
+   "assumptions": {
+    "collection_beta": [
+     8.0,
+     2.0
+    ],
+    "unsold_fraction_if_uncounted": [
+     0.0,
+     0.3
+    ],
+    "amount_noise_sd": "0.5 x (1 - confidence)",
+    "samples": 2000,
+    "seed": 7
+   }
+  },
+  "5": {
+   "p10": 1630.24,
+   "p50": 1630.24,
+   "p90": 1630.24,
+   "components": {
+    "revenue": 2500.0,
+    "cogs": 869.76,
+    "expenses": 0.0,
+    "expected_bad_debt": 0.0
+   },
+   "receivables": {},
+   "cogs_method": {
+    "poha": "stock_count",
+    "oil": "stock_count",
+    "milk": "stock_count",
+    "onion": "stock_count"
+   },
+   "assumptions": {
+    "collection_beta": [
+     8.0,
+     2.0
+    ],
+    "unsold_fraction_if_uncounted": [
+     0.0,
+     0.3
+    ],
+    "amount_noise_sd": "0.5 x (1 - confidence)",
+    "samples": 2000,
+    "seed": 7
+   }
+  }
+ },
+ "wastage": {
+  "dishes": [
+   "poha",
+   "tea"
+  ],
+  "ingredients": {
+   "milk": {
+    "unit": "l",
+    "rows": [
+     {
+      "from_day": 1,
+      "to_day": 1,
+      "start_qty": 18.0,
+      "start_kind": "opening_stock",
+      "end_qty": 7.26,
+      "plates": {
+       "poha": 92.0,
+       "tea": 104.0
+      },
+      "bought": 0,
+      "burn": 10.74,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "start_qty": 7.26,
+      "start_kind": "stock_count",
+      "end_qty": 6.86,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.4,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 2,
+      "to_day": 2,
+      "start_qty": 6.86,
+      "start_kind": "opening_stock",
+      "end_qty": 8.09,
+      "plates": {
+       "poha": 47.0,
+       "tea": 116.0
+      },
+      "bought": 13.14,
+      "burn": 11.91,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "start_qty": 8.09,
+      "start_kind": "stock_count",
+      "end_qty": 7.69,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.4,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 3,
+      "to_day": 3,
+      "start_qty": 7.69,
+      "start_kind": "opening_stock",
+      "end_qty": 6.75,
+      "plates": {
+       "poha": 68.0,
+       "tea": 130.0
+      },
+      "bought": 12.31,
+      "burn": 13.25,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "start_qty": 6.75,
+      "start_kind": "stock_count",
+      "end_qty": 6.35,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.4,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 4,
+      "to_day": 4,
+      "start_qty": 6.35,
+      "start_kind": "opening_stock",
+      "end_qty": 13.53,
+      "plates": {
+       "poha": 64.0,
+       "tea": 62.0
+      },
+      "bought": 13.65,
+      "burn": 6.47,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "start_qty": 13.53,
+      "start_kind": "stock_count",
+      "end_qty": 13.13,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.4,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 5,
+      "to_day": 5,
+      "start_qty": 13.13,
+      "start_kind": "opening_stock",
+      "end_qty": 13.74,
+      "plates": {
+       "poha": 95.0,
+       "tea": 60.0
+      },
+      "bought": 6.87,
+      "burn": 6.26,
+      "note": null,
+      "kind": "trading"
+     }
+    ],
+    "overnight": [
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "change": 0.4
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "change": 0.4
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "change": 0.4
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "change": 0.4
+     }
+    ],
+    "periods": 5,
+    "burn": [
+     10.74,
+     11.91,
+     13.25,
+     6.47,
+     6.26
+    ],
+    "status": "ok",
+    "usage_per_dish": {
+     "poha": 0.0003273143155863663,
+     "tea": 0.10037018283313351
+    },
+    "baseline_waste_per_period": 0.22709533265127504,
+    "unexplained": 1.135476663256374,
+    "loss": {
+     "split": {
+      "spoilage": {
+       "p": 0.6,
+       "p10": 0.464,
+       "p90": 0.737,
+       "kg": 0.681
+      },
+      "theft": {
+       "p": 0.16,
+       "p10": 0.066,
+       "p90": 0.268,
+       "kg": 0.182
+      },
+      "personal": {
+       "p": 0.24,
+       "p10": 0.127,
+       "p90": 0.364,
+       "kg": 0.273
+      }
+     },
+     "reasons": [
+      "perishable item"
+     ],
+     "assumptions": {
+      "priors": {
+       "spoilage": 0.5,
+       "theft": 0.2,
+       "personal": 0.3
+      },
+      "spoilage_per_degree_above_30c": 0.08,
+      "spoilage_if_perishable": 1.5,
+      "theft_per_unattended_hour": 0.15,
+      "personal_per_family_member": 0.3,
+      "dirichlet_concentration": 20.0
+     }
+    }
+   },
+   "oil": {
+    "unit": "l",
+    "rows": [
+     {
+      "from_day": 1,
+      "to_day": 1,
+      "start_qty": 2.0,
+      "start_kind": "opening_stock",
+      "end_qty": 1.06,
+      "plates": {
+       "poha": 92.0,
+       "tea": 104.0
+      },
+      "bought": 0,
+      "burn": 0.94,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "start_qty": 1.06,
+      "start_kind": "stock_count",
+      "end_qty": 1.06,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 2,
+      "to_day": 2,
+      "start_qty": 1.06,
+      "start_kind": "opening_stock",
+      "end_qty": 2.51,
+      "plates": {
+       "poha": 47.0,
+       "tea": 116.0
+      },
+      "bought": 1.94,
+      "burn": 0.49,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "start_qty": 2.51,
+      "start_kind": "stock_count",
+      "end_qty": 2.51,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 3,
+      "to_day": 3,
+      "start_qty": 2.51,
+      "start_kind": "opening_stock",
+      "end_qty": 1.81,
+      "plates": {
+       "poha": 68.0,
+       "tea": 130.0
+      },
+      "bought": 0,
+      "burn": 0.7,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "start_qty": 1.81,
+      "start_kind": "stock_count",
+      "end_qty": 1.81,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 4,
+      "to_day": 4,
+      "start_qty": 1.81,
+      "start_kind": "opening_stock",
+      "end_qty": 1.15,
+      "plates": {
+       "poha": 64.0,
+       "tea": 62.0
+      },
+      "bought": 0,
+      "burn": 0.66,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "start_qty": 1.15,
+      "start_kind": "stock_count",
+      "end_qty": 1.15,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 5,
+      "to_day": 5,
+      "start_qty": 1.15,
+      "start_kind": "opening_stock",
+      "end_qty": 2.03,
+      "plates": {
+       "poha": 95.0,
+       "tea": 60.0
+      },
+      "bought": 1.85,
+      "burn": 0.97,
+      "note": null,
+      "kind": "trading"
+     }
+    ],
+    "overnight": [
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "change": 0.0
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "change": 0.0
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "change": 0.0
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "change": 0.0
+     }
+    ],
+    "periods": 5,
+    "burn": [
+     0.94,
+     0.49,
+     0.7,
+     0.66,
+     0.97
+    ],
+    "status": "ok",
+    "usage_per_dish": {
+     "poha": 0.009999999999999997,
+     "tea": 1.007049026113954e-18
+    },
+    "baseline_waste_per_period": 0.020000000000000077,
+    "unexplained": 0.10000000000000053,
+    "loss": {
+     "split": {
+      "spoilage": {
+       "p": 0.5,
+       "p10": 0.364,
+       "p90": 0.639,
+       "kg": 0.05
+      },
+      "theft": {
+       "p": 0.2,
+       "p10": 0.093,
+       "p90": 0.315,
+       "kg": 0.02
+      },
+      "personal": {
+       "p": 0.3,
+       "p10": 0.178,
+       "p90": 0.438,
+       "kg": 0.03
+      }
+     },
+     "reasons": [],
+     "assumptions": {
+      "priors": {
+       "spoilage": 0.5,
+       "theft": 0.2,
+       "personal": 0.3
+      },
+      "spoilage_per_degree_above_30c": 0.08,
+      "spoilage_if_perishable": 1.5,
+      "theft_per_unattended_hour": 0.15,
+      "personal_per_family_member": 0.3,
+      "dirichlet_concentration": 20.0
+     }
+    }
+   },
+   "onion": {
+    "unit": "kg",
+    "rows": [
+     {
+      "from_day": 1,
+      "to_day": 1,
+      "start_qty": 4.0,
+      "start_kind": "opening_stock",
+      "end_qty": 1.59,
+      "plates": {
+       "poha": 92.0,
+       "tea": 104.0
+      },
+      "bought": 0,
+      "burn": 2.41,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "start_qty": 1.59,
+      "start_kind": "stock_count",
+      "end_qty": 1.54,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.05,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 2,
+      "to_day": 2,
+      "start_qty": 1.54,
+      "start_kind": "opening_stock",
+      "end_qty": 4.73,
+      "plates": {
+       "poha": 47.0,
+       "tea": 116.0
+      },
+      "bought": 4.46,
+      "burn": 1.27,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "start_qty": 4.73,
+      "start_kind": "stock_count",
+      "end_qty": 4.68,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.05,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 3,
+      "to_day": 3,
+      "start_qty": 4.68,
+      "start_kind": "opening_stock",
+      "end_qty": 2.89,
+      "plates": {
+       "poha": 68.0,
+       "tea": 130.0
+      },
+      "bought": 0,
+      "burn": 1.79,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "start_qty": 2.89,
+      "start_kind": "stock_count",
+      "end_qty": 2.84,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.05,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 4,
+      "to_day": 4,
+      "start_qty": 2.84,
+      "start_kind": "opening_stock",
+      "end_qty": 4.3,
+      "plates": {
+       "poha": 64.0,
+       "tea": 62.0
+      },
+      "bought": 3.16,
+      "burn": 1.7,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "start_qty": 4.3,
+      "start_kind": "stock_count",
+      "end_qty": 4.25,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.05,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 5,
+      "to_day": 5,
+      "start_qty": 4.25,
+      "start_kind": "opening_stock",
+      "end_qty": 1.79,
+      "plates": {
+       "poha": 95.0,
+       "tea": 60.0
+      },
+      "bought": 0,
+      "burn": 2.46,
+      "note": null,
+      "kind": "trading"
+     }
+    ],
+    "overnight": [
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "change": 0.05
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "change": 0.05
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "change": 0.05
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "change": 0.05
+     }
+    ],
+    "periods": 5,
+    "burn": [
+     2.41,
+     1.27,
+     1.79,
+     1.7,
+     2.46
+    ],
+    "status": "ok",
+    "usage_per_dish": {
+     "poha": 0.02505935729464305,
+     "tea": 5.141084401928242e-05
+    },
+    "baseline_waste_per_period": 0.08680186235670853,
+    "unexplained": 0.4340093117835424,
+    "loss": {
+     "split": {
+      "spoilage": {
+       "p": 0.5,
+       "p10": 0.364,
+       "p90": 0.639,
+       "kg": 0.217
+      },
+      "theft": {
+       "p": 0.2,
+       "p10": 0.093,
+       "p90": 0.315,
+       "kg": 0.087
+      },
+      "personal": {
+       "p": 0.3,
+       "p10": 0.178,
+       "p90": 0.438,
+       "kg": 0.13
+      }
+     },
+     "reasons": [],
+     "assumptions": {
+      "priors": {
+       "spoilage": 0.5,
+       "theft": 0.2,
+       "personal": 0.3
+      },
+      "spoilage_per_degree_above_30c": 0.08,
+      "spoilage_if_perishable": 1.5,
+      "theft_per_unattended_hour": 0.15,
+      "personal_per_family_member": 0.3,
+      "dirichlet_concentration": 20.0
+     }
+    }
+   },
+   "poha": {
+    "unit": "kg",
+    "rows": [
+     {
+      "from_day": 1,
+      "to_day": 1,
+      "start_qty": 10.0,
+      "start_kind": "opening_stock",
+      "end_qty": 2.5,
+      "plates": {
+       "poha": 92.0,
+       "tea": 104.0
+      },
+      "bought": 0,
+      "burn": 7.5,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "start_qty": 2.5,
+      "start_kind": "stock_count",
+      "end_qty": 2.5,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 2,
+      "to_day": 2,
+      "start_qty": 2.5,
+      "start_kind": "opening_stock",
+      "end_qty": 10.1,
+      "plates": {
+       "poha": 47.0,
+       "tea": 116.0
+      },
+      "bought": 11.5,
+      "burn": 3.9,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "start_qty": 10.1,
+      "start_kind": "stock_count",
+      "end_qty": 10.1,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 3,
+      "to_day": 3,
+      "start_qty": 10.1,
+      "start_kind": "opening_stock",
+      "end_qty": 4.53,
+      "plates": {
+       "poha": 68.0,
+       "tea": 130.0
+      },
+      "bought": 0,
+      "burn": 5.57,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "start_qty": 4.53,
+      "start_kind": "stock_count",
+      "end_qty": 4.53,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 4,
+      "to_day": 4,
+      "start_qty": 4.53,
+      "start_kind": "opening_stock",
+      "end_qty": 8.72,
+      "plates": {
+       "poha": 64.0,
+       "tea": 62.0
+      },
+      "bought": 9.47,
+      "burn": 5.28,
+      "note": null,
+      "kind": "trading"
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "start_qty": 8.72,
+      "start_kind": "stock_count",
+      "end_qty": 8.72,
+      "plates": {
+       "poha": 0,
+       "tea": 0
+      },
+      "bought": 0,
+      "burn": 0.0,
+      "note": null,
+      "kind": "overnight"
+     },
+     {
+      "from_day": 5,
+      "to_day": 5,
+      "start_qty": 8.72,
+      "start_kind": "opening_stock",
+      "end_qty": 6.26,
+      "plates": {
+       "poha": 95.0,
+       "tea": 60.0
+      },
+      "bought": 5.28,
+      "burn": 7.74,
+      "note": null,
+      "kind": "trading"
+     }
+    ],
+    "overnight": [
+     {
+      "from_day": 1,
+      "to_day": 2,
+      "change": 0.0
+     },
+     {
+      "from_day": 2,
+      "to_day": 3,
+      "change": 0.0
+     },
+     {
+      "from_day": 3,
+      "to_day": 4,
+      "change": 0.0
+     },
+     {
+      "from_day": 4,
+      "to_day": 5,
+      "change": 0.0
+     }
+    ],
+    "periods": 5,
+    "burn": [
+     7.5,
+     3.9,
+     5.57,
+     5.28,
+     7.74
+    ],
+    "status": "ok",
+    "usage_per_dish": {
+     "poha": 0.07991885910990904,
+     "tea": 0.0
+    },
+    "baseline_waste_per_period": 0.1479395131546581,
+    "unexplained": 0.7396975657732936,
+    "loss": {
+     "split": {
+      "spoilage": {
+       "p": 0.5,
+       "p10": 0.364,
+       "p90": 0.639,
+       "kg": 0.37
+      },
+      "theft": {
+       "p": 0.2,
+       "p10": 0.093,
+       "p90": 0.315,
+       "kg": 0.148
+      },
+      "personal": {
+       "p": 0.3,
+       "p10": 0.178,
+       "p90": 0.438,
+       "kg": 0.222
+      }
+     },
+     "reasons": [],
+     "assumptions": {
+      "priors": {
+       "spoilage": 0.5,
+       "theft": 0.2,
+       "personal": 0.3
+      },
+      "spoilage_per_degree_above_30c": 0.08,
+      "spoilage_if_perishable": 1.5,
+      "theft_per_unattended_hour": 0.15,
+      "personal_per_family_member": 0.3,
+      "dirichlet_concentration": 20.0
+     }
+    }
+   }
+  }
+ },
+ "recipe": {
+  "burn": [
+   [
+    3.3,
+    1.0
+   ],
+   [
+    5.1,
+    1.4
+   ],
+   [
+    6.9,
+    2.2
+   ],
+   [
+    4.0,
+    1.1
+   ]
+  ],
+  "plates": [
+   [
+    40,
+    60
+   ],
+   [
+    62,
+    90
+   ],
+   [
+    85,
+    130
+   ],
+   [
+    50,
+    70
+   ]
+  ],
+  "out": {
+   "usage_per_plate": [
+    [
+     0.06707779886148053,
+     0.0
+    ],
+    [
+     0.008700189753320443,
+     0.016388059701492538
+    ]
+   ],
+   "baseline_waste_per_day": [
+    0.08937381404174065,
+    0.0
+   ],
+   "unexplained_per_day": [
+    [
+     0.09487666034155184,
+     0.016716417910447756
+    ],
+    [
+     0.15815939278936675,
+     -0.07492537313432845
+    ],
+    [
+     0.06736242884249766,
+     0.06955223880597039
+    ],
+    [
+     0.037096774193542625,
+     -0.047164179104477455
+    ]
+   ],
+   "residual_sd": [
+    0.051572367067144124,
+    0.06489591600296225
+   ]
+  }
+ },
+ "loss": [
+  {
+   "kg": 1.2,
+   "cov": {},
+   "out": {
+    "split": {
+     "spoilage": {
+      "p": 0.5,
+      "p10": 0.364,
+      "p90": 0.639,
+      "kg": 0.6
+     },
+     "theft": {
+      "p": 0.2,
+      "p10": 0.093,
+      "p90": 0.315,
+      "kg": 0.24
+     },
+     "personal": {
+      "p": 0.3,
+      "p10": 0.178,
+      "p90": 0.438,
+      "kg": 0.36
+     }
+    },
+    "reasons": [],
+    "assumptions": {
+     "priors": {
+      "spoilage": 0.5,
+      "theft": 0.2,
+      "personal": 0.3
+     },
+     "spoilage_per_degree_above_30c": 0.08,
+     "spoilage_if_perishable": 1.5,
+     "theft_per_unattended_hour": 0.15,
+     "personal_per_family_member": 0.3,
+     "dirichlet_concentration": 20.0
+    }
+   }
+  },
+  {
+   "kg": 1.2,
+   "cov": {
+    "temperature_c": 38,
+    "perishable": true
+   },
+   "out": {
+    "split": {
+     "spoilage": {
+      "p": 0.711,
+      "p10": 0.58,
+      "p90": 0.834,
+      "kg": 0.853
+     },
+     "theft": {
+      "p": 0.116,
+      "p10": 0.038,
+      "p90": 0.209,
+      "kg": 0.139
+     },
+     "personal": {
+      "p": 0.173,
+      "p10": 0.076,
+      "p90": 0.283,
+      "kg": 0.208
+     }
+    },
+    "reasons": [
+     "hot day (38°C) raises spoilage",
+     "perishable item"
+    ],
+    "assumptions": {
+     "priors": {
+      "spoilage": 0.5,
+      "theft": 0.2,
+      "personal": 0.3
+     },
+     "spoilage_per_degree_above_30c": 0.08,
+     "spoilage_if_perishable": 1.5,
+     "theft_per_unattended_hour": 0.15,
+     "personal_per_family_member": 0.3,
+     "dirichlet_concentration": 20.0
+    }
+   }
+  },
+  {
+   "kg": 1.2,
+   "cov": {
+    "unattended_hours": 3,
+    "family_present": 2
+   },
+   "out": {
+    "split": {
+     "spoilage": {
+      "p": 0.394,
+      "p10": 0.26,
+      "p90": 0.532,
+      "kg": 0.472
+     },
+     "theft": {
+      "p": 0.228,
+      "p10": 0.115,
+      "p90": 0.351,
+      "kg": 0.274
+     },
+     "personal": {
+      "p": 0.378,
+      "p10": 0.247,
+      "p90": 0.523,
+      "kg": 0.454
+     }
+    },
+    "reasons": [
+     "stall unattended 3h raises theft",
+     "2 family members ate at the stall"
+    ],
+    "assumptions": {
+     "priors": {
+      "spoilage": 0.5,
+      "theft": 0.2,
+      "personal": 0.3
+     },
+     "spoilage_per_degree_above_30c": 0.08,
+     "spoilage_if_perishable": 1.5,
+     "theft_per_unattended_hour": 0.15,
+     "personal_per_family_member": 0.3,
+     "dirichlet_concentration": 20.0
+    }
+   }
+  }
+ ]
+}

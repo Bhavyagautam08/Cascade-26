@@ -193,7 +193,31 @@ def main():
                         "possible_conflicts": rep.possible_conflicts, "possible_duplicates": rep.possible_duplicates,
                         "balances": balances(rep.effective), "days": days.list_days(evs)})
     (OUT / "fusion.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"wrote {len(SENTENCES)} rule cases, {len(SMS)} sms cases, {len(out)} fusion scenarios to {OUT}")
+
+    # inference: the seeded 5-day demo ledger (scripts/demo_scenario.json) + a plain recipe fit
+    from app import seed
+    from app.ledger import inference
+    sc = json.loads((ROOT / "scripts" / "demo_scenario.json").read_text(encoding="utf-8"))
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+        store = EventStore.open(Path(tmp) / "demo.db", sc["device_id"])
+        seed.run(store, sc)
+        evs = store.all()
+        eff = fuse(evs).effective
+        n_days = days.current_day(evs)
+        inf = {
+            "events": [e.model_dump(mode="json") for e in evs],
+            "perishable": LEX.get("perishable", []),
+            "receivables": inference.receivables(eff),
+            "day_profit": {str(i): inference.day_profit(eff, i) for i in range(1, n_days + 1)},
+            "wastage": inference.wastage_from_ledger(eff, LEX.get("perishable", [])),
+            "recipe": {"burn": [[3.3, 1.0], [5.1, 1.4], [6.9, 2.2], [4.0, 1.1]], "plates": [[40, 60], [62, 90], [85, 130], [50, 70]]},
+            "loss": [{"kg": 1.2, "cov": c, "out": inference.attribute_loss(1.2, c)}
+                     for c in ({}, {"temperature_c": 38, "perishable": True}, {"unattended_hours": 3, "family_present": 2})],
+        }
+        inf["recipe"]["out"] = inference.recipe_per_plate(inf["recipe"]["burn"], inf["recipe"]["plates"])
+    (OUT / "inference.json").write_text(json.dumps(inf, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"wrote {len(SENTENCES)} rule cases, {len(SMS)} sms cases, {len(out)} fusion scenarios, "
+          f"inference over {len(inf['events'])} demo entries / {n_days} days to {OUT}")
 
 
 if __name__ == "__main__":
