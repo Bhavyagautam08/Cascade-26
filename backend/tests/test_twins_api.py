@@ -37,8 +37,9 @@ def _cash():
 
 
 def test_possible_duplicates_are_listed_and_a_person_can_merge_them(tmp_path):
-    other, _ = _other_phone(tmp_path)                       # never synced with this laptop: out of touch
-    before = _cash()
+    other, _ = _other_phone(tmp_path)
+    other.ingest(pipeline.store.all())                      # synced earlier today (same business day)...
+    before = _cash()                                        # ...then out of touch: no shared moments
     mine = _here("9 plate poha de 180")
     theirs = _say(other, "9 plate poha de 180")
     pipeline.store.ingest([theirs])
