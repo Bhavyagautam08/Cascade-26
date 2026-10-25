@@ -406,3 +406,10 @@ def test_two_servers_sync_and_converge(two_devices):
     assert sa["balances_paise"] == sb["balances_paise"] and sa["balanced"]
     assert sa["conflicts"][0]["suspense_paise"] == 36000
     assert httpx.get(a + "/sync/frontier").status_code == 401        # B9: no key, no ledger
+
+
+def test_typed_hinglish_spellings_or_and_udhar():
+    """Typed as people type on WhatsApp: "or" for "aur", "udhar" for "udhaar" (seen on the phone app)."""
+    evs = rules.parse("3 kilo tamatar liya 180 mein or sharma ji ka 60 udhar", LEX)
+    assert [(e.kind, e.item, e.qty, e.amount_rupees, e.party) for e in evs] == [
+        (Kind.purchase, "tomato", 3.0, 180.0, None), (Kind.credit_given, None, None, 60.0, "sharma")]

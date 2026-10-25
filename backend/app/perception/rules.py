@@ -23,7 +23,8 @@ from dataclasses import dataclass, field
 
 from app.ledger.events import CandidateEvent, Kind, Source
 
-_CLAUSE_SPLIT = re.compile(r"[,.;!?…|\n]+|\s+aur\s+|\s+and\s+|\s+phir\s+")
+# "or" too: typed Hinglish spells "aur" (and) as "or" ("tamatar liya or sharma ji ka 60 udhar")
+_CLAUSE_SPLIT = re.compile(r"[,.;!?…|\n]+|\s+aur\s+|\s+or\s+|\s+and\s+|\s+phir\s+")
 _MONEY_AFTER = {"mein", "me", "main", "rupay", "rupaye", "rupee", "rupees", "rs", "ka", "ke", "ki"}
 _MONEY_BEFORE = {"rs", "₹", "inr", "ka", "ke", "ki"}
 _TIME_WORDS = {"baje", "bje", "bajkar", "minute", "min", "mins", "ghanta", "ghante", "din", "tarikh", "tareekh",

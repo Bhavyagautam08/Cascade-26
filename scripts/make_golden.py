@@ -30,6 +30,7 @@ SENTENCES = [json.loads(ln)["text"] for ln in (ROOT / "eval" / "samples" / "text
     "4 kilo tamatar bacha", "pandey ji ka 60 udhaar likh", "5 cup chai de", "7 plate poha de 140 aur 5 cup chai de",
     "aadha kilo pyaz", "do sau ka tel liya", "soo gram mirchi", "ek sau assi mein tamatar liya",
     "Bhai 3 kilo tamatar liya 180 mein... Sharma ji ka 40 jama kar, aur 7 plate poha de.",
+    "3 kilo tamatar liya 180 mein or sharma ji ka 60 udhar",
 ]
 SMS = [
     "Rs.140 credited to your a/c XX1234 from CHHOTU via UPI", "Rs 140 received from Sharma via UPI",

@@ -183,7 +183,9 @@
    "chahie": "order",
    "chaiye": "order",
    "bhej do": "order",
-   "mangwa": "order"
+   "mangwa": "order",
+   "udhar": "credit_given",
+   "udhari": "credit_given"
   },
   "numbers": {
    "ek": 1,
@@ -897,6 +899,39 @@
       "priced_from_list"
      ],
      "raw": "7 plate poha de"
+    }
+   ],
+   "unparsed": []
+  },
+  {
+   "text": "3 kilo tamatar liya 180 mein or sharma ji ka 60 udhar",
+   "spoken": "3 kilo tamatar liya 180 mein or sharma ji ka 60 udhar",
+   "events": [
+    {
+     "kind": "purchase",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": "tomato",
+     "qty": 3.0,
+     "unit": "kg",
+     "amount_rupees": 180.0,
+     "party": null,
+     "direction": null,
+     "flags": [],
+     "raw": "3 kilo tamatar liya 180 mein"
+    },
+    {
+     "kind": "credit_given",
+     "source": "manual",
+     "confidence": 0.75,
+     "item": null,
+     "qty": null,
+     "unit": null,
+     "amount_rupees": 60.0,
+     "party": "sharma",
+     "direction": null,
+     "flags": [],
+     "raw": "sharma ji ka 60 udhar"
     }
    ],
    "unparsed": []

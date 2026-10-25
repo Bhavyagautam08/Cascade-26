@@ -12,7 +12,8 @@
 import type { CandidateEvent, Kind, Source } from './events';
 import type { LexiconData } from './lexicon';
 
-const CLAUSE_SPLIT = /[,.;!?…|\n]+|\s+aur\s+|\s+and\s+|\s+phir\s+/;
+// "or" too: typed Hinglish spells "aur" (and) as "or" ("tamatar liya or sharma ji ka 60 udhar")
+const CLAUSE_SPLIT = /[,.;!?…|\n]+|\s+aur\s+|\s+or\s+|\s+and\s+|\s+phir\s+/;
 const MONEY_AFTER = new Set(['mein', 'me', 'main', 'rupay', 'rupaye', 'rupee', 'rupees', 'rs', 'ka', 'ke', 'ki']);
 const MONEY_BEFORE = new Set(['rs', '₹', 'inr', 'ka', 'ke', 'ki']);
 const TIME_WORDS = new Set(['baje', 'bje', 'bajkar', 'minute', 'min', 'mins', 'ghanta', 'ghante', 'din', 'tarikh', 'tareekh', 'saal', 'am', 'pm', "o'clock"]);

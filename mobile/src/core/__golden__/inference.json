@@ -1,11 +1,11 @@
 {
  "events": [
   {
-   "id": "phone-1.q3bpm2:1",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:1",
+   "device_id": "phone-1.34c76n",
    "seq": 1,
    "vclock": {
-    "phone-1.q3bpm2": 1
+    "phone-1.34c76n": 1
    },
    "wall_time": 1792630800.0,
    "kind": "day_start",
@@ -19,17 +19,17 @@
    "raw": "start of day 1",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.375
+    "803740ce",
+    53195.078
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:2",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:2",
+   "device_id": "phone-1.34c76n",
    "seq": 2,
    "vclock": {
-    "phone-1.q3bpm2": 2
+    "phone-1.34c76n": 2
    },
    "wall_time": 1792631400.0,
    "kind": "opening_stock",
@@ -63,17 +63,17 @@
    "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.609
+    "803740ce",
+    53195.25
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:3",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:3",
+   "device_id": "phone-1.34c76n",
    "seq": 3,
    "vclock": {
-    "phone-1.q3bpm2": 3
+    "phone-1.34c76n": 3
    },
    "wall_time": 1792631400.0,
    "kind": "opening_stock",
@@ -107,17 +107,17 @@
    "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.625
+    "803740ce",
+    53195.25
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:4",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:4",
+   "device_id": "phone-1.34c76n",
    "seq": 4,
    "vclock": {
-    "phone-1.q3bpm2": 4
+    "phone-1.34c76n": 4
    },
    "wall_time": 1792631400.0,
    "kind": "opening_stock",
@@ -151,17 +151,17 @@
    "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.625
+    "803740ce",
+    53195.265
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:5",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:5",
+   "device_id": "phone-1.34c76n",
    "seq": 5,
    "vclock": {
-    "phone-1.q3bpm2": 5
+    "phone-1.34c76n": 5
    },
    "wall_time": 1792631400.0,
    "kind": "opening_stock",
@@ -195,17 +195,17 @@
    "raw": "[demo] 10 kg poha, 4 kg onion, 2 l oil, 18 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.625
+    "803740ce",
+    53195.265
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:6",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:6",
+   "device_id": "phone-1.34c76n",
    "seq": 6,
    "vclock": {
-    "phone-1.q3bpm2": 6
+    "phone-1.34c76n": 6
    },
    "wall_time": 1792631400.0,
    "kind": "expense",
@@ -235,17 +235,17 @@
    "raw": "[demo] gas ka 950 kharcha",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.625
+    "803740ce",
+    53195.281
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:7",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:7",
+   "device_id": "phone-1.34c76n",
    "seq": 7,
    "vclock": {
-    "phone-1.q3bpm2": 7
+    "phone-1.34c76n": 7
    },
    "wall_time": 1792635000.0,
    "kind": "sale",
@@ -275,17 +275,17 @@
    "raw": "[demo] 62 plate poha becha 1240",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.64
+    "803740ce",
+    53195.281
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:8",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:8",
+   "device_id": "phone-1.34c76n",
    "seq": 8,
    "vclock": {
-    "phone-1.q3bpm2": 8
+    "phone-1.34c76n": 8
    },
    "wall_time": 1792638600.0,
    "kind": "sale",
@@ -315,17 +315,17 @@
    "raw": "[demo] 20 plate poha becha 400",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.64
+    "803740ce",
+    53195.281
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:9",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:9",
+   "device_id": "phone-1.34c76n",
    "seq": 9,
    "vclock": {
-    "phone-1.q3bpm2": 9
+    "phone-1.34c76n": 9
    },
    "wall_time": 1792642200.0,
    "kind": "sale",
@@ -355,17 +355,17 @@
    "raw": "[demo] 10 plate poha becha 200",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.64
+    "803740ce",
+    53195.296
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:10",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:10",
+   "device_id": "phone-1.34c76n",
    "seq": 10,
    "vclock": {
-    "phone-1.q3bpm2": 10
+    "phone-1.34c76n": 10
    },
    "wall_time": 1792645800.0,
    "kind": "sale",
@@ -395,17 +395,17 @@
    "raw": "[demo] 80 plate tea becha 800",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.64
+    "803740ce",
+    53195.296
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:11",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:11",
+   "device_id": "phone-1.34c76n",
    "seq": 11,
    "vclock": {
-    "phone-1.q3bpm2": 11
+    "phone-1.34c76n": 11
    },
    "wall_time": 1792649400.0,
    "kind": "sale",
@@ -435,17 +435,17 @@
    "raw": "[demo] 6 plate tea becha 60",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.656
+    "803740ce",
+    53195.312
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:12",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:12",
+   "device_id": "phone-1.34c76n",
    "seq": 12,
    "vclock": {
-    "phone-1.q3bpm2": 12
+    "phone-1.34c76n": 12
    },
    "wall_time": 1792653000.0,
    "kind": "sale",
@@ -475,17 +475,17 @@
    "raw": "[demo] 18 plate tea becha 180",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.656
+    "803740ce",
+    53195.312
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:13",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:13",
+   "device_id": "phone-1.34c76n",
    "seq": 13,
    "vclock": {
-    "phone-1.q3bpm2": 13
+    "phone-1.34c76n": 13
    },
    "wall_time": 1792654200.0,
    "kind": "credit_given",
@@ -515,17 +515,17 @@
    "raw": "[demo] sharma ji ka 60 udhaar likh",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.656
+    "803740ce",
+    53195.312
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:14",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:14",
+   "device_id": "phone-1.34c76n",
    "seq": 14,
    "vclock": {
-    "phone-1.q3bpm2": 14
+    "phone-1.34c76n": 14
    },
    "wall_time": 1792661400.0,
    "kind": "stock_count",
@@ -547,17 +547,17 @@
    "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.656
+    "803740ce",
+    53195.328
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:15",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:15",
+   "device_id": "phone-1.34c76n",
    "seq": 15,
    "vclock": {
-    "phone-1.q3bpm2": 15
+    "phone-1.34c76n": 15
    },
    "wall_time": 1792661400.0,
    "kind": "stock_count",
@@ -579,17 +579,17 @@
    "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.656
+    "803740ce",
+    53195.328
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:16",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:16",
+   "device_id": "phone-1.34c76n",
    "seq": 16,
    "vclock": {
-    "phone-1.q3bpm2": 16
+    "phone-1.34c76n": 16
    },
    "wall_time": 1792661400.0,
    "kind": "stock_count",
@@ -611,17 +611,17 @@
    "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.671
+    "803740ce",
+    53195.343
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:17",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:17",
+   "device_id": "phone-1.34c76n",
    "seq": 17,
    "vclock": {
-    "phone-1.q3bpm2": 17
+    "phone-1.34c76n": 17
    },
    "wall_time": 1792661400.0,
    "kind": "stock_count",
@@ -643,17 +643,17 @@
    "raw": "[demo] bacha: 2.5 kg poha, 1.59 kg onion, 1.06 l oil, 7.26 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.671
+    "803740ce",
+    53195.343
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:18",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:18",
+   "device_id": "phone-1.34c76n",
    "seq": 18,
    "vclock": {
-    "phone-1.q3bpm2": 18
+    "phone-1.34c76n": 18
    },
    "wall_time": 1792717200.0,
    "kind": "day_start",
@@ -667,17 +667,17 @@
    "raw": "start of day 2",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.671
+    "803740ce",
+    53195.343
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:19",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:19",
+   "device_id": "phone-1.34c76n",
    "seq": 19,
    "vclock": {
-    "phone-1.q3bpm2": 19
+    "phone-1.34c76n": 19
    },
    "wall_time": 1792717800.0,
    "kind": "opening_stock",
@@ -702,17 +702,17 @@
    "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.671
+    "803740ce",
+    53195.359
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:20",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:20",
+   "device_id": "phone-1.34c76n",
    "seq": 20,
    "vclock": {
-    "phone-1.q3bpm2": 20
+    "phone-1.34c76n": 20
    },
    "wall_time": 1792717800.0,
    "kind": "opening_stock",
@@ -737,17 +737,17 @@
    "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.687
+    "803740ce",
+    53195.359
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:21",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:21",
+   "device_id": "phone-1.34c76n",
    "seq": 21,
    "vclock": {
-    "phone-1.q3bpm2": 21
+    "phone-1.34c76n": 21
    },
    "wall_time": 1792717800.0,
    "kind": "opening_stock",
@@ -772,17 +772,17 @@
    "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.687
+    "803740ce",
+    53195.359
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:22",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:22",
+   "device_id": "phone-1.34c76n",
    "seq": 22,
    "vclock": {
-    "phone-1.q3bpm2": 22
+    "phone-1.34c76n": 22
    },
    "wall_time": 1792717800.0,
    "kind": "opening_stock",
@@ -807,17 +807,17 @@
    "raw": "[demo] 2.5 kg poha, 1.54 kg onion, 1.06 l oil, 6.86 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.687
+    "803740ce",
+    53195.375
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:23",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:23",
+   "device_id": "phone-1.34c76n",
    "seq": 23,
    "vclock": {
-    "phone-1.q3bpm2": 23
+    "phone-1.34c76n": 23
    },
    "wall_time": 1792718700.0,
    "kind": "purchase",
@@ -847,17 +847,17 @@
    "raw": "[demo] 11.5 kg poha liya 460 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.687
+    "803740ce",
+    53195.375
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:24",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:24",
+   "device_id": "phone-1.34c76n",
    "seq": 24,
    "vclock": {
-    "phone-1.q3bpm2": 24
+    "phone-1.34c76n": 24
    },
    "wall_time": 1792719600.0,
    "kind": "purchase",
@@ -887,17 +887,17 @@
    "raw": "[demo] 4.46 kg onion liya 133.8 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.703
+    "803740ce",
+    53195.39
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:25",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:25",
+   "device_id": "phone-1.34c76n",
    "seq": 25,
    "vclock": {
-    "phone-1.q3bpm2": 25
+    "phone-1.34c76n": 25
    },
    "wall_time": 1792720500.0,
    "kind": "purchase",
@@ -927,17 +927,17 @@
    "raw": "[demo] 1.94 l oil liya 271.6 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.703
+    "803740ce",
+    53195.39
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:26",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:26",
+   "device_id": "phone-1.34c76n",
    "seq": 26,
    "vclock": {
-    "phone-1.q3bpm2": 26
+    "phone-1.34c76n": 26
    },
    "wall_time": 1792721400.0,
    "kind": "purchase",
@@ -967,17 +967,17 @@
    "raw": "[demo] 13.14 l milk liya 735.84 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.703
+    "803740ce",
+    53195.39
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:27",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:27",
+   "device_id": "phone-1.34c76n",
    "seq": 27,
    "vclock": {
-    "phone-1.q3bpm2": 27
+    "phone-1.34c76n": 27
    },
    "wall_time": 1792725000.0,
    "kind": "sale",
@@ -1007,17 +1007,17 @@
    "raw": "[demo] 6 plate poha becha 120",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.703
+    "803740ce",
+    53195.406
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:28",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:28",
+   "device_id": "phone-1.34c76n",
    "seq": 28,
    "vclock": {
-    "phone-1.q3bpm2": 28
+    "phone-1.34c76n": 28
    },
    "wall_time": 1792728600.0,
    "kind": "sale",
@@ -1047,17 +1047,17 @@
    "raw": "[demo] 16 plate poha becha 320",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.718
+    "803740ce",
+    53195.406
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:29",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:29",
+   "device_id": "phone-1.34c76n",
    "seq": 29,
    "vclock": {
-    "phone-1.q3bpm2": 29
+    "phone-1.34c76n": 29
    },
    "wall_time": 1792732200.0,
    "kind": "sale",
@@ -1087,17 +1087,17 @@
    "raw": "[demo] 25 plate poha becha 500",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.718
+    "803740ce",
+    53195.421
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:30",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:30",
+   "device_id": "phone-1.34c76n",
    "seq": 30,
    "vclock": {
-    "phone-1.q3bpm2": 30
+    "phone-1.34c76n": 30
    },
    "wall_time": 1792735800.0,
    "kind": "sale",
@@ -1127,17 +1127,17 @@
    "raw": "[demo] 35 plate tea becha 350",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.718
+    "803740ce",
+    53195.421
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:31",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:31",
+   "device_id": "phone-1.34c76n",
    "seq": 31,
    "vclock": {
-    "phone-1.q3bpm2": 31
+    "phone-1.34c76n": 31
    },
    "wall_time": 1792739400.0,
    "kind": "sale",
@@ -1167,17 +1167,17 @@
    "raw": "[demo] 5 plate tea becha 50",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.718
+    "803740ce",
+    53195.421
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:32",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:32",
+   "device_id": "phone-1.34c76n",
    "seq": 32,
    "vclock": {
-    "phone-1.q3bpm2": 32
+    "phone-1.34c76n": 32
    },
    "wall_time": 1792743000.0,
    "kind": "sale",
@@ -1207,17 +1207,17 @@
    "raw": "[demo] 76 plate tea becha 760",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.718
+    "803740ce",
+    53195.437
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:33",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:33",
+   "device_id": "phone-1.34c76n",
    "seq": 33,
    "vclock": {
-    "phone-1.q3bpm2": 33
+    "phone-1.34c76n": 33
    },
    "wall_time": 1792744200.0,
    "kind": "credit_paid",
@@ -1247,17 +1247,17 @@
    "raw": "[demo] sharma ji ka 60 jama",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.734
+    "803740ce",
+    53195.437
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:34",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:34",
+   "device_id": "phone-1.34c76n",
    "seq": 34,
    "vclock": {
-    "phone-1.q3bpm2": 34
+    "phone-1.34c76n": 34
    },
    "wall_time": 1792751400.0,
    "kind": "stock_count",
@@ -1279,17 +1279,17 @@
    "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.734
+    "803740ce",
+    53195.453
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:35",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:35",
+   "device_id": "phone-1.34c76n",
    "seq": 35,
    "vclock": {
-    "phone-1.q3bpm2": 35
+    "phone-1.34c76n": 35
    },
    "wall_time": 1792751400.0,
    "kind": "stock_count",
@@ -1311,17 +1311,17 @@
    "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.734
+    "803740ce",
+    53195.453
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:36",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:36",
+   "device_id": "phone-1.34c76n",
    "seq": 36,
    "vclock": {
-    "phone-1.q3bpm2": 36
+    "phone-1.34c76n": 36
    },
    "wall_time": 1792751400.0,
    "kind": "stock_count",
@@ -1343,17 +1343,17 @@
    "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.734
+    "803740ce",
+    53195.453
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:37",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:37",
+   "device_id": "phone-1.34c76n",
    "seq": 37,
    "vclock": {
-    "phone-1.q3bpm2": 37
+    "phone-1.34c76n": 37
    },
    "wall_time": 1792751400.0,
    "kind": "stock_count",
@@ -1375,17 +1375,17 @@
    "raw": "[demo] bacha: 10.1 kg poha, 4.73 kg onion, 2.51 l oil, 8.09 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.734
+    "803740ce",
+    53195.468
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:38",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:38",
+   "device_id": "phone-1.34c76n",
    "seq": 38,
    "vclock": {
-    "phone-1.q3bpm2": 38
+    "phone-1.34c76n": 38
    },
    "wall_time": 1792803600.0,
    "kind": "day_start",
@@ -1399,17 +1399,17 @@
    "raw": "start of day 3",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.75
+    "803740ce",
+    53195.468
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:39",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:39",
+   "device_id": "phone-1.34c76n",
    "seq": 39,
    "vclock": {
-    "phone-1.q3bpm2": 39
+    "phone-1.34c76n": 39
    },
    "wall_time": 1792804200.0,
    "kind": "opening_stock",
@@ -1434,17 +1434,17 @@
    "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.75
+    "803740ce",
+    53195.468
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:40",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:40",
+   "device_id": "phone-1.34c76n",
    "seq": 40,
    "vclock": {
-    "phone-1.q3bpm2": 40
+    "phone-1.34c76n": 40
    },
    "wall_time": 1792804200.0,
    "kind": "opening_stock",
@@ -1469,17 +1469,17 @@
    "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.75
+    "803740ce",
+    53195.484
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:41",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:41",
+   "device_id": "phone-1.34c76n",
    "seq": 41,
    "vclock": {
-    "phone-1.q3bpm2": 41
+    "phone-1.34c76n": 41
    },
    "wall_time": 1792804200.0,
    "kind": "opening_stock",
@@ -1504,17 +1504,17 @@
    "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.765
+    "803740ce",
+    53195.484
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:42",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:42",
+   "device_id": "phone-1.34c76n",
    "seq": 42,
    "vclock": {
-    "phone-1.q3bpm2": 42
+    "phone-1.34c76n": 42
    },
    "wall_time": 1792804200.0,
    "kind": "opening_stock",
@@ -1539,17 +1539,17 @@
    "raw": "[demo] 10.1 kg poha, 4.68 kg onion, 2.51 l oil, 7.69 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.765
+    "803740ce",
+    53195.5
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:43",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:43",
+   "device_id": "phone-1.34c76n",
    "seq": 43,
    "vclock": {
-    "phone-1.q3bpm2": 43
+    "phone-1.34c76n": 43
    },
    "wall_time": 1792805100.0,
    "kind": "purchase",
@@ -1579,17 +1579,17 @@
    "raw": "[demo] 12.31 l milk liya 689.36 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.765
+    "803740ce",
+    53195.5
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:44",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:44",
+   "device_id": "phone-1.34c76n",
    "seq": 44,
    "vclock": {
-    "phone-1.q3bpm2": 44
+    "phone-1.34c76n": 44
    },
    "wall_time": 1792808700.0,
    "kind": "sale",
@@ -1619,17 +1619,17 @@
    "raw": "[demo] 54 plate poha becha 1080",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.765
+    "803740ce",
+    53195.515
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:45",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:45",
+   "device_id": "phone-1.34c76n",
    "seq": 45,
    "vclock": {
-    "phone-1.q3bpm2": 45
+    "phone-1.34c76n": 45
    },
    "wall_time": 1792812300.0,
    "kind": "sale",
@@ -1659,17 +1659,17 @@
    "raw": "[demo] 13 plate poha becha 260",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.765
+    "803740ce",
+    53195.515
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:46",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:46",
+   "device_id": "phone-1.34c76n",
    "seq": 46,
    "vclock": {
-    "phone-1.q3bpm2": 46
+    "phone-1.34c76n": 46
    },
    "wall_time": 1792815900.0,
    "kind": "sale",
@@ -1699,17 +1699,17 @@
    "raw": "[demo] 1 plate poha becha 20",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.781
+    "803740ce",
+    53195.515
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:47",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:47",
+   "device_id": "phone-1.34c76n",
    "seq": 47,
    "vclock": {
-    "phone-1.q3bpm2": 47
+    "phone-1.34c76n": 47
    },
    "wall_time": 1792819500.0,
    "kind": "sale",
@@ -1739,17 +1739,17 @@
    "raw": "[demo] 44 plate tea becha 440",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.781
+    "803740ce",
+    53195.531
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:48",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:48",
+   "device_id": "phone-1.34c76n",
    "seq": 48,
    "vclock": {
-    "phone-1.q3bpm2": 48
+    "phone-1.34c76n": 48
    },
    "wall_time": 1792823100.0,
    "kind": "sale",
@@ -1779,17 +1779,17 @@
    "raw": "[demo] 36 plate tea becha 360",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.781
+    "803740ce",
+    53195.531
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:49",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:49",
+   "device_id": "phone-1.34c76n",
    "seq": 49,
    "vclock": {
-    "phone-1.q3bpm2": 49
+    "phone-1.34c76n": 49
    },
    "wall_time": 1792826700.0,
    "kind": "sale",
@@ -1819,17 +1819,17 @@
    "raw": "[demo] 50 plate tea becha 500",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.781
+    "803740ce",
+    53195.531
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:50",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:50",
+   "device_id": "phone-1.34c76n",
    "seq": 50,
    "vclock": {
-    "phone-1.q3bpm2": 50
+    "phone-1.34c76n": 50
    },
    "wall_time": 1792827900.0,
    "kind": "credit_given",
@@ -1859,17 +1859,17 @@
    "raw": "[demo] pandey ji ka 45 udhaar likh",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.781
+    "803740ce",
+    53195.531
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:51",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:51",
+   "device_id": "phone-1.34c76n",
    "seq": 51,
    "vclock": {
-    "phone-1.q3bpm2": 51
+    "phone-1.34c76n": 51
    },
    "wall_time": 1792835100.0,
    "kind": "stock_count",
@@ -1891,17 +1891,17 @@
    "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.796
+    "803740ce",
+    53195.546
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:52",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:52",
+   "device_id": "phone-1.34c76n",
    "seq": 52,
    "vclock": {
-    "phone-1.q3bpm2": 52
+    "phone-1.34c76n": 52
    },
    "wall_time": 1792835100.0,
    "kind": "stock_count",
@@ -1923,17 +1923,17 @@
    "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.796
+    "803740ce",
+    53195.546
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:53",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:53",
+   "device_id": "phone-1.34c76n",
    "seq": 53,
    "vclock": {
-    "phone-1.q3bpm2": 53
+    "phone-1.34c76n": 53
    },
    "wall_time": 1792835100.0,
    "kind": "stock_count",
@@ -1955,17 +1955,17 @@
    "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.796
+    "803740ce",
+    53195.546
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:54",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:54",
+   "device_id": "phone-1.34c76n",
    "seq": 54,
    "vclock": {
-    "phone-1.q3bpm2": 54
+    "phone-1.34c76n": 54
    },
    "wall_time": 1792835100.0,
    "kind": "stock_count",
@@ -1987,17 +1987,17 @@
    "raw": "[demo] bacha: 4.53 kg poha, 2.89 kg onion, 1.81 l oil, 6.75 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.812
+    "803740ce",
+    53195.546
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:55",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:55",
+   "device_id": "phone-1.34c76n",
    "seq": 55,
    "vclock": {
-    "phone-1.q3bpm2": 55
+    "phone-1.34c76n": 55
    },
    "wall_time": 1792890000.0,
    "kind": "day_start",
@@ -2011,17 +2011,17 @@
    "raw": "start of day 4",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.812
+    "803740ce",
+    53195.562
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:56",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:56",
+   "device_id": "phone-1.34c76n",
    "seq": 56,
    "vclock": {
-    "phone-1.q3bpm2": 56
+    "phone-1.34c76n": 56
    },
    "wall_time": 1792890600.0,
    "kind": "opening_stock",
@@ -2046,17 +2046,17 @@
    "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.812
+    "803740ce",
+    53195.562
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:57",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:57",
+   "device_id": "phone-1.34c76n",
    "seq": 57,
    "vclock": {
-    "phone-1.q3bpm2": 57
+    "phone-1.34c76n": 57
    },
    "wall_time": 1792890600.0,
    "kind": "opening_stock",
@@ -2081,17 +2081,17 @@
    "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.812
+    "803740ce",
+    53195.562
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:58",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:58",
+   "device_id": "phone-1.34c76n",
    "seq": 58,
    "vclock": {
-    "phone-1.q3bpm2": 58
+    "phone-1.34c76n": 58
    },
    "wall_time": 1792890600.0,
    "kind": "opening_stock",
@@ -2116,17 +2116,17 @@
    "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.828
+    "803740ce",
+    53195.562
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:59",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:59",
+   "device_id": "phone-1.34c76n",
    "seq": 59,
    "vclock": {
-    "phone-1.q3bpm2": 59
+    "phone-1.34c76n": 59
    },
    "wall_time": 1792890600.0,
    "kind": "opening_stock",
@@ -2151,17 +2151,17 @@
    "raw": "[demo] 4.53 kg poha, 2.84 kg onion, 1.81 l oil, 6.35 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.828
+    "803740ce",
+    53195.578
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:60",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:60",
+   "device_id": "phone-1.34c76n",
    "seq": 60,
    "vclock": {
-    "phone-1.q3bpm2": 60
+    "phone-1.34c76n": 60
    },
    "wall_time": 1792891500.0,
    "kind": "purchase",
@@ -2191,17 +2191,17 @@
    "raw": "[demo] 9.47 kg poha liya 378.8 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.828
+    "803740ce",
+    53195.578
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:61",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:61",
+   "device_id": "phone-1.34c76n",
    "seq": 61,
    "vclock": {
-    "phone-1.q3bpm2": 61
+    "phone-1.34c76n": 61
    },
    "wall_time": 1792892400.0,
    "kind": "purchase",
@@ -2231,17 +2231,17 @@
    "raw": "[demo] 3.16 kg onion liya 94.8 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.828
+    "803740ce",
+    53195.578
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:62",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:62",
+   "device_id": "phone-1.34c76n",
    "seq": 62,
    "vclock": {
-    "phone-1.q3bpm2": 62
+    "phone-1.34c76n": 62
    },
    "wall_time": 1792893300.0,
    "kind": "purchase",
@@ -2271,17 +2271,17 @@
    "raw": "[demo] 13.65 l milk liya 764.4 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.843
+    "803740ce",
+    53195.578
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:63",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:63",
+   "device_id": "phone-1.34c76n",
    "seq": 63,
    "vclock": {
-    "phone-1.q3bpm2": 63
+    "phone-1.34c76n": 63
    },
    "wall_time": 1792893300.0,
    "kind": "expense",
@@ -2311,17 +2311,17 @@
    "raw": "[demo] rent ka 300 kharcha",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.843
+    "803740ce",
+    53195.578
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:64",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:64",
+   "device_id": "phone-1.34c76n",
    "seq": 64,
    "vclock": {
-    "phone-1.q3bpm2": 64
+    "phone-1.34c76n": 64
    },
    "wall_time": 1792896900.0,
    "kind": "sale",
@@ -2351,17 +2351,17 @@
    "raw": "[demo] 9 plate poha becha 180",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.843
+    "803740ce",
+    53195.593
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:65",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:65",
+   "device_id": "phone-1.34c76n",
    "seq": 65,
    "vclock": {
-    "phone-1.q3bpm2": 65
+    "phone-1.34c76n": 65
    },
    "wall_time": 1792900500.0,
    "kind": "sale",
@@ -2391,17 +2391,17 @@
    "raw": "[demo] 24 plate poha becha 480",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.843
+    "803740ce",
+    53195.593
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:66",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:66",
+   "device_id": "phone-1.34c76n",
    "seq": 66,
    "vclock": {
-    "phone-1.q3bpm2": 66
+    "phone-1.34c76n": 66
    },
    "wall_time": 1792904100.0,
    "kind": "sale",
@@ -2431,17 +2431,17 @@
    "raw": "[demo] 31 plate poha becha 620",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.843
+    "803740ce",
+    53195.593
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:67",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:67",
+   "device_id": "phone-1.34c76n",
    "seq": 67,
    "vclock": {
-    "phone-1.q3bpm2": 67
+    "phone-1.34c76n": 67
    },
    "wall_time": 1792907700.0,
    "kind": "sale",
@@ -2471,17 +2471,17 @@
    "raw": "[demo] 28 plate tea becha 280",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.859
+    "803740ce",
+    53195.593
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:68",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:68",
+   "device_id": "phone-1.34c76n",
    "seq": 68,
    "vclock": {
-    "phone-1.q3bpm2": 68
+    "phone-1.34c76n": 68
    },
    "wall_time": 1792911300.0,
    "kind": "sale",
@@ -2511,17 +2511,17 @@
    "raw": "[demo] 22 plate tea becha 220",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.859
+    "803740ce",
+    53195.609
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:69",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:69",
+   "device_id": "phone-1.34c76n",
    "seq": 69,
    "vclock": {
-    "phone-1.q3bpm2": 69
+    "phone-1.34c76n": 69
    },
    "wall_time": 1792914900.0,
    "kind": "sale",
@@ -2551,17 +2551,17 @@
    "raw": "[demo] 12 plate tea becha 120",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.859
+    "803740ce",
+    53195.609
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:70",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:70",
+   "device_id": "phone-1.34c76n",
    "seq": 70,
    "vclock": {
-    "phone-1.q3bpm2": 70
+    "phone-1.34c76n": 70
    },
    "wall_time": 1792916100.0,
    "kind": "credit_given",
@@ -2591,17 +2591,17 @@
    "raw": "[demo] chhotu ji ka 30 udhaar likh",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.859
+    "803740ce",
+    53195.609
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:71",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:71",
+   "device_id": "phone-1.34c76n",
    "seq": 71,
    "vclock": {
-    "phone-1.q3bpm2": 71
+    "phone-1.34c76n": 71
    },
    "wall_time": 1792923300.0,
    "kind": "stock_count",
@@ -2623,17 +2623,17 @@
    "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.875
+    "803740ce",
+    53195.625
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:72",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:72",
+   "device_id": "phone-1.34c76n",
    "seq": 72,
    "vclock": {
-    "phone-1.q3bpm2": 72
+    "phone-1.34c76n": 72
    },
    "wall_time": 1792923300.0,
    "kind": "stock_count",
@@ -2655,17 +2655,17 @@
    "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.875
+    "803740ce",
+    53195.625
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:73",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:73",
+   "device_id": "phone-1.34c76n",
    "seq": 73,
    "vclock": {
-    "phone-1.q3bpm2": 73
+    "phone-1.34c76n": 73
    },
    "wall_time": 1792923300.0,
    "kind": "stock_count",
@@ -2687,17 +2687,17 @@
    "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.875
+    "803740ce",
+    53195.625
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:74",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:74",
+   "device_id": "phone-1.34c76n",
    "seq": 74,
    "vclock": {
-    "phone-1.q3bpm2": 74
+    "phone-1.34c76n": 74
    },
    "wall_time": 1792923300.0,
    "kind": "stock_count",
@@ -2719,17 +2719,17 @@
    "raw": "[demo] bacha: 8.72 kg poha, 4.3 kg onion, 1.15 l oil, 13.53 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.875
+    "803740ce",
+    53195.625
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:75",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:75",
+   "device_id": "phone-1.34c76n",
    "seq": 75,
    "vclock": {
-    "phone-1.q3bpm2": 75
+    "phone-1.34c76n": 75
    },
    "wall_time": 1792976400.0,
    "kind": "day_start",
@@ -2743,17 +2743,17 @@
    "raw": "start of day 5",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.89
+    "803740ce",
+    53195.64
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:76",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:76",
+   "device_id": "phone-1.34c76n",
    "seq": 76,
    "vclock": {
-    "phone-1.q3bpm2": 76
+    "phone-1.34c76n": 76
    },
    "wall_time": 1792977000.0,
    "kind": "opening_stock",
@@ -2778,17 +2778,17 @@
    "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.89
+    "803740ce",
+    53195.64
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:77",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:77",
+   "device_id": "phone-1.34c76n",
    "seq": 77,
    "vclock": {
-    "phone-1.q3bpm2": 77
+    "phone-1.34c76n": 77
    },
    "wall_time": 1792977000.0,
    "kind": "opening_stock",
@@ -2813,17 +2813,17 @@
    "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.89
+    "803740ce",
+    53195.64
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:78",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:78",
+   "device_id": "phone-1.34c76n",
    "seq": 78,
    "vclock": {
-    "phone-1.q3bpm2": 78
+    "phone-1.34c76n": 78
    },
    "wall_time": 1792977000.0,
    "kind": "opening_stock",
@@ -2848,17 +2848,17 @@
    "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.89
+    "803740ce",
+    53195.656
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:79",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:79",
+   "device_id": "phone-1.34c76n",
    "seq": 79,
    "vclock": {
-    "phone-1.q3bpm2": 79
+    "phone-1.34c76n": 79
    },
    "wall_time": 1792977000.0,
    "kind": "opening_stock",
@@ -2883,17 +2883,17 @@
    "raw": "[demo] 8.72 kg poha, 4.25 kg onion, 1.15 l oil, 13.13 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.906
+    "803740ce",
+    53195.656
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:80",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:80",
+   "device_id": "phone-1.34c76n",
    "seq": 80,
    "vclock": {
-    "phone-1.q3bpm2": 80
+    "phone-1.34c76n": 80
    },
    "wall_time": 1792977900.0,
    "kind": "purchase",
@@ -2923,17 +2923,17 @@
    "raw": "[demo] 5.28 kg poha liya 211.2 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.906
+    "803740ce",
+    53195.656
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:81",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:81",
+   "device_id": "phone-1.34c76n",
    "seq": 81,
    "vclock": {
-    "phone-1.q3bpm2": 81
+    "phone-1.34c76n": 81
    },
    "wall_time": 1792978800.0,
    "kind": "purchase",
@@ -2963,17 +2963,17 @@
    "raw": "[demo] 1.85 l oil liya 259 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.906
+    "803740ce",
+    53195.656
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:82",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:82",
+   "device_id": "phone-1.34c76n",
    "seq": 82,
    "vclock": {
-    "phone-1.q3bpm2": 82
+    "phone-1.34c76n": 82
    },
    "wall_time": 1792979700.0,
    "kind": "purchase",
@@ -3003,17 +3003,17 @@
    "raw": "[demo] 6.87 l milk liya 384.72 mein",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.906
+    "803740ce",
+    53195.671
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:83",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:83",
+   "device_id": "phone-1.34c76n",
    "seq": 83,
    "vclock": {
-    "phone-1.q3bpm2": 83
+    "phone-1.34c76n": 83
    },
    "wall_time": 1792983300.0,
    "kind": "sale",
@@ -3043,17 +3043,17 @@
    "raw": "[demo] 10 plate poha becha 200",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.906
+    "803740ce",
+    53195.671
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:84",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:84",
+   "device_id": "phone-1.34c76n",
    "seq": 84,
    "vclock": {
-    "phone-1.q3bpm2": 84
+    "phone-1.34c76n": 84
    },
    "wall_time": 1792986900.0,
    "kind": "sale",
@@ -3083,17 +3083,17 @@
    "raw": "[demo] 9 plate poha becha 180",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.921
+    "803740ce",
+    53195.671
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:85",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:85",
+   "device_id": "phone-1.34c76n",
    "seq": 85,
    "vclock": {
-    "phone-1.q3bpm2": 85
+    "phone-1.34c76n": 85
    },
    "wall_time": 1792990500.0,
    "kind": "sale",
@@ -3123,17 +3123,17 @@
    "raw": "[demo] 76 plate poha becha 1520",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.921
+    "803740ce",
+    53195.687
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:86",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:86",
+   "device_id": "phone-1.34c76n",
    "seq": 86,
    "vclock": {
-    "phone-1.q3bpm2": 86
+    "phone-1.34c76n": 86
    },
    "wall_time": 1792994100.0,
    "kind": "sale",
@@ -3163,17 +3163,17 @@
    "raw": "[demo] 41 plate tea becha 410",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.921
+    "803740ce",
+    53195.687
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:87",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:87",
+   "device_id": "phone-1.34c76n",
    "seq": 87,
    "vclock": {
-    "phone-1.q3bpm2": 87
+    "phone-1.34c76n": 87
    },
    "wall_time": 1792997700.0,
    "kind": "sale",
@@ -3203,17 +3203,17 @@
    "raw": "[demo] 12 plate tea becha 120",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.921
+    "803740ce",
+    53195.687
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:88",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:88",
+   "device_id": "phone-1.34c76n",
    "seq": 88,
    "vclock": {
-    "phone-1.q3bpm2": 88
+    "phone-1.34c76n": 88
    },
    "wall_time": 1793001300.0,
    "kind": "sale",
@@ -3243,17 +3243,17 @@
    "raw": "[demo] 7 plate tea becha 70",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.937
+    "803740ce",
+    53195.703
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:89",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:89",
+   "device_id": "phone-1.34c76n",
    "seq": 89,
    "vclock": {
-    "phone-1.q3bpm2": 89
+    "phone-1.34c76n": 89
    },
    "wall_time": 1793008500.0,
    "kind": "stock_count",
@@ -3275,17 +3275,17 @@
    "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.937
+    "803740ce",
+    53195.703
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:90",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:90",
+   "device_id": "phone-1.34c76n",
    "seq": 90,
    "vclock": {
-    "phone-1.q3bpm2": 90
+    "phone-1.34c76n": 90
    },
    "wall_time": 1793008500.0,
    "kind": "stock_count",
@@ -3307,17 +3307,17 @@
    "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.937
+    "803740ce",
+    53195.703
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:91",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:91",
+   "device_id": "phone-1.34c76n",
    "seq": 91,
    "vclock": {
-    "phone-1.q3bpm2": 91
+    "phone-1.34c76n": 91
    },
    "wall_time": 1793008500.0,
    "kind": "stock_count",
@@ -3339,17 +3339,17 @@
    "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.937
+    "803740ce",
+    53195.703
    ],
    "marks": {}
   },
   {
-   "id": "phone-1.q3bpm2:92",
-   "device_id": "phone-1.q3bpm2",
+   "id": "phone-1.34c76n:92",
+   "device_id": "phone-1.34c76n",
    "seq": 92,
    "vclock": {
-    "phone-1.q3bpm2": 92
+    "phone-1.34c76n": 92
    },
    "wall_time": 1793008500.0,
    "kind": "stock_count",
@@ -3371,8 +3371,8 @@
    "raw": "[demo] bacha: 6.26 kg poha, 1.79 kg onion, 2.03 l oil, 13.74 l milk",
    "supersedes": [],
    "mono": [
-    "18dd6f2b",
-    51735.953
+    "803740ce",
+    53195.718
    ],
    "marks": {}
   }
