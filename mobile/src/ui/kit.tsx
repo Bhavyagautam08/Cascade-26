@@ -1,6 +1,6 @@
 // Shared look for the phone: big type, big touch targets (>= 56 dp), one main action per card.
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 import { service } from '../app/service';
 import { t } from './strings';
 
@@ -65,7 +65,9 @@ export function useLedgerVersion(): number {
 }
 
 export function Screen({ title, line, children, onBack }: { title: string; line?: string; children: React.ReactNode; onBack?: () => void }) {
+  // Edge-to-edge (Android 15+) ignores adjustResize: lift the content above the keyboard ourselves.
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
     <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       {onBack ? (
         <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel={t.back} style={s.back} hitSlop={12}>
@@ -76,6 +78,7 @@ export function Screen({ title, line, children, onBack }: { title: string; line?
       {line ? <Text style={s.line}>{line}</Text> : null}
       {children}
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -67,12 +67,12 @@ function TypeIt() {
           placeholderTextColor={C.faint}
           accessibilityLabel={t.record.what}
         />
+        <Button label={busy ? t.record.reading : t.record.add} onPress={submit} disabled={busy || !text.trim()} />
+        <ErrorLine error={error} />
         <Text style={s.small}>{t.record.from}</Text>
         <Segmented value={source} onChange={setSource} options={(['manual', 'sms', 'tally', 'voice'] as Source[]).map((x) => ({ value: x, label: t.record.sources[x] }))} />
         <Text style={s.small}>{t.record.reader}</Text>
         <Segmented value={engine} onChange={setEngine} options={(['auto', 'llm', 'rules'] as const).map((x) => ({ value: x, label: t.record.readers[x] }))} />
-        <Button label={busy ? t.record.reading : t.record.add} onPress={submit} disabled={busy || !text.trim()} />
-        <ErrorLine error={error} />
       </Card>
 
       {result ? (
