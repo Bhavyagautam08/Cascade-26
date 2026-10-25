@@ -25,6 +25,7 @@ from app.ledger.events import CandidateEvent, Event, Kind, Source
 from app.ledger.fusion import fuse
 from app.ledger.store import causal_order
 from app.perception.asr import UnsupportedAudio
+from app.perception.vision import normalize as normalize_slip
 from app.pipeline import (
     ModelOutputInvalid, ModelUnavailable, asr_status, ollama_problem, correct, handle_audio_file, handle_text,
     handle_utterance, heard, lexicon, recent_transcripts, record, resolve_conflict, separate, slip_reader,
@@ -280,7 +281,8 @@ async def ingest_slip(file: UploadFile = File(...)):
     data = await file.read()
     reader = _model_call("slip reader", slip_reader)
     slip = _model_call("slip reader", lambda: reader.read(data))
-    return {**slip.model_dump(), "reader": reader.name}
+    lexicon.reload_if_changed()
+    return {**normalize_slip(slip, lexicon.data).model_dump(), "reader": reader.name}
 
 
 class SlipConfirm(BaseModel):
