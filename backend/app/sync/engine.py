@@ -97,7 +97,7 @@ class SyncEngine:
         st, now = self.states[peer.url], self.clock()
         st.last_attempt = now
         try:
-            rep = protocol.exchange(self.store, peer, self.page)
+            rep = protocol.exchange(self.store, peer, self.page, known_actor=st.actor)
         except protocol.Unreachable as e:
             return self._failed(st, "unreachable", str(e))
         except protocol.PeerRefused as e:

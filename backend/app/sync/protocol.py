@@ -1,6 +1,9 @@
 """The sync conversation between two devices, whatever carries the bytes (transport.py: HTTP on the LAN).
 
   hello -> {name, actor, have, instance}  who the peer is and which entries it holds (seq ranges per actor)
+           The caller says who it is and may make this sync a shared moment (sync_id, mark): both
+           phones then note it on their own monotonic clocks, and entries recorded in the next minute
+           carry "N s after sync X" (Event.marks), so fusion can time two phones' entries exactly.
   pull  -> entries we lack, in (actor, seq) order, one page at a time, after a cursor
   push  -> entries the peer lacks (from its hello), one page at a time
 
@@ -20,6 +23,8 @@ from app.ledger.store import EventStore, Have
 VERSION = 2
 PAGE = 500          # entries per request: a phone away for days catches up in several small requests
 MAX_PAGE = 2000
+MARK_SPACING_S = 5.0        # at most one shared moment per peer every 5 s: ~12 marks per peer on an entry
+LONG_MARK_SPACING_S = 60.0  # and one "long" moment a minute, kept 10 min (store.LONG_MARK_WINDOW_S): ~10 more
 
 
 def new_instance() -> str:
@@ -44,7 +49,7 @@ class ProtocolError(Exception):
 class Peer(Protocol):
     url: str
 
-    def hello(self) -> dict: ...
+    def hello(self, me: dict | None) -> dict: ...
 
     def pull(self, have: Have, after: list | None, limit: int) -> dict: ...
 
@@ -52,7 +57,10 @@ class Peer(Protocol):
 
 
 # --- answering (server side) ----------------------------------------------------------------------
-def hello(store: EventStore, instance: str = INSTANCE) -> dict:
+def hello(store: EventStore, me: dict | None = None, instance: str = INSTANCE) -> dict:
+    """me = the caller: {name, actor, sync_id, mark, long}. mark=True: note this moment as shared with it."""
+    if me and me.get("mark") and me.get("sync_id") and me.get("actor"):
+        store.record_contact(me["actor"], me["sync_id"], long=bool(me.get("long")))
     return {"protocol": VERSION, "name": store.name, "actor": store.device_id, "instance": instance,
             "have": store.have(), "frontier": store.frontier()}
 
@@ -93,14 +101,24 @@ def _cursor(page: list, before: tuple | None) -> tuple[str, int]:
     return cur
 
 
-def exchange(store: EventStore, peer: Peer, page: int = PAGE) -> dict:
-    """Pull what we lack, then push what the peer lacks. -> what happened (pulled, pushed, refusals...)."""
-    hi = peer.hello()
+def exchange(store: EventStore, peer: Peer, page: int = PAGE, known_actor: str | None = None) -> dict:
+    """Pull what we lack, then push what the peer lacks. -> what happened (pulled, pushed, refusals...).
+    known_actor: the peer's actor from the last exchange, to space shared moments MARK_SPACING_S apart."""
+    age = store.contact_age(known_actor) if known_actor else None
+    long_age = store.contact_age(known_actor, long=True) if known_actor else None
+    mark = age is None or age >= MARK_SPACING_S
+    long = mark and (long_age is None or long_age >= LONG_MARK_SPACING_S)
+    sync_id = secrets.token_hex(6)
+    t0 = store.mono()
+    hi = peer.hello({"name": store.name, "actor": store.device_id, "sync_id": sync_id, "mark": mark, "long": long})
+    t1 = store.mono()
     for key in ("name", "actor", "have"):
         if key not in hi:
             raise ProtocolError(f"{peer.url} said hello without {key!r}: is it running this app?")
     if hi.get("instance") == INSTANCE:
         raise ProtocolError(f"{peer.url} is this device itself: remove it from PEERS")
+    if mark:                                   # the peer noted it while answering: the middle of our wait
+        store.record_contact(hi["actor"], sync_id, at=(t0 + t1) / 2, long=long)
     rep = {"peer_name": hi["name"], "peer_actor": hi["actor"], "pulled": 0, "pushed": 0, "duplicates": 0,
            "rejected": [], "rotated": [], "warnings": []}
     if hi["name"] == store.name:

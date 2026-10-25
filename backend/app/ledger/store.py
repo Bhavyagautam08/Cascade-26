@@ -2,6 +2,7 @@
 import bisect
 import json
 import re
+import secrets
 import sqlite3
 import threading
 import time
@@ -13,6 +14,8 @@ from app.ledger import identity
 from app.ledger.events import Event, Kind, Posting, Source
 
 ACTOR_RE = re.compile(r"[A-Za-z0-9_.-]+")    # an event's device_id: no ":" (ids are device_id:seq), no spaces
+MARK_WINDOW_S = 60.0         # entries carry the syncs of the last minute: twins (fusion.TWIN_S) always share one
+LONG_MARK_WINDOW_S = 600.0   # ...and the once-a-minute "long" syncs of the last 10 minutes (fusion.CROSS_MODAL_S)
 
 Have = dict[str, list[list[int]]]            # {device_id: [[first_seq, last_seq], ...]} held ranges
 
@@ -33,10 +36,15 @@ def _holds(ranges: list[tuple[int, int]], seq: int) -> bool:
 
 
 class EventStore:
-    def __init__(self, path: Path, device_id: str, wall_clock: Callable[[], float] = time.time):
+    def __init__(self, path: Path, device_id: str, wall_clock: Callable[[], float] = time.time,
+                 mono: Callable[[], float] = time.monotonic):
         path.parent.mkdir(parents=True, exist_ok=True)
         self.device_id = device_id
         self.wall_clock = wall_clock      # untrusted; stored for display only
+        self.mono = mono                  # trusted within this run only (Event.mono)
+        self.run_id = secrets.token_hex(4)
+        # Shared moments with peers: {peer actor: [(sync id, our monotonic time, long)]}, newest last (Event.marks).
+        self.contacts: dict[str, list[tuple[str, float, bool]]] = {}
         # One connection shared by API threads and the mic thread; the lock keeps
         # frontier-read + insert atomic so two local events can never get the same seq.
         self._lock = threading.RLock()
@@ -46,11 +54,12 @@ class EventStore:
         self._open()
 
     @classmethod
-    def open(cls, path: Path, name: str, wall_clock: Callable[[], float] = time.time) -> "EventStore":
+    def open(cls, path: Path, name: str, wall_clock: Callable[[], float] = time.time,
+             mono: Callable[[], float] = time.monotonic) -> "EventStore":
         """The app's way in: the ledger file of device `name`, writing as this file's own actor
         (identity.py). Refuses a file that belongs to another name."""
         identity.check_name(name)
-        s = cls(path, name, wall_clock)
+        s = cls(path, name, wall_clock, mono)
         with s._lock:
             owner, actor = s.get_meta("name"), s.get_meta("actor")
             if owner is not None and owner != name:
@@ -80,6 +89,31 @@ class EventStore:
             self.set_meta("actor", new)
             self.device_id = new
         return {"from": old, "to": new, "because": because}
+
+    # --- shared moments with peers (in memory: a monotonic clock means nothing after a restart) --------
+    @staticmethod
+    def _fresh(now: float, t: float, long: bool) -> bool:
+        return 0 <= now - t <= (LONG_MARK_WINDOW_S if long else MARK_WINDOW_S)
+
+    def record_contact(self, peer: str, sync_id: str, at: float | None = None, long: bool = False) -> None:
+        with self._lock:
+            now = self.mono()
+            keep = [c for c in self.contacts.get(peer, []) if self._fresh(now, c[1], c[2]) and c[0] != sync_id]
+            self.contacts[peer] = [*keep, (sync_id, now if at is None else at, long)]
+
+    def contact_age(self, peer: str, long: bool = False) -> float | None:
+        """Seconds since the newest shared moment with `peer` (long=True: the newest long one), or None."""
+        with self._lock:
+            ts = [t for _, t, lg in self.contacts.get(peer, []) if lg or not long]
+            return None if not ts else self.mono() - ts[-1]
+
+    def _marks(self, now: float) -> dict[str, list[tuple[str, float]]]:
+        out = {}
+        for peer, lst in self.contacts.items():
+            recent = [(s, round(now - t, 3)) for s, t, lg in lst if self._fresh(now, t, lg)]
+            if recent:
+                out[peer] = recent
+        return out
 
     def _open(self) -> None:
         self.db = sqlite3.connect(self.path, check_same_thread=False)
@@ -189,6 +223,7 @@ class EventStore:
             vc = self.frontier()
             seq = self._max_own_seq() + 1
             vc[self.device_id] = seq
+            now = self.mono()
             ev = Event(
                 id=f"{self.device_id}:{seq}",
                 device_id=self.device_id,
@@ -202,6 +237,8 @@ class EventStore:
                 postings=postings,
                 raw=raw,
                 supersedes=supersedes or [],
+                mono=(self.run_id, round(now, 3)),
+                marks=self._marks(now),
             )
             self._insert(ev)
         self._notify("local")

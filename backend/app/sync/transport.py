@@ -38,8 +38,8 @@ class LanPeer:
             raise ProtocolError(f"{self.url}{path} answered {type(out).__name__}, not an object")
         return out
 
-    def hello(self) -> dict:
-        return self._call("GET", "/sync/hello")
+    def hello(self, me: dict | None = None) -> dict:
+        return self._call("POST", "/sync/hello", me or {})
 
     def pull(self, have: Have, after: list | None, limit: int) -> dict:
         return self._call("POST", "/sync/pull", {"have": have, "after": after, "limit": limit})

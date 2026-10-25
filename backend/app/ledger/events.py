@@ -47,6 +47,12 @@ class Event(BaseModel):
     postings: list[Posting] = Field(default_factory=list)
     raw: str | None = None                    # transcript / OCR text it came from
     supersedes: list[str] = Field(default_factory=list)     # ids this event corrects or merges
+    # Time without trusting a wall clock (fusion.apart_s). mono: (run id, seconds) on the recording
+    # device's monotonic clock, comparable only within one run of one device. marks: for each peer
+    # actor, [(sync id, seconds since that sync)] for the syncs of the last minute; a sync is one
+    # moment both phones noted, so two phones' entries can be timed against it.
+    mono: tuple[str, float] | None = None
+    marks: dict[str, list[tuple[str, float]]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _balanced(self) -> "Event":

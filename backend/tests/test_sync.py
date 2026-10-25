@@ -133,6 +133,32 @@ def test_listeners_fire_on_local_entries_and_on_new_entries_from_peers(tmp_path)
     assert heard == ["ingest", "local"]
 
 
+def test_entries_carry_seconds_since_recent_syncs(tmp_path):
+    t = [100.0]
+    s = EventStore(tmp_path / "a.db", "a", mono=lambda: t[0])
+    s.record_contact("b", "s1")                           # a sync with b at monotonic 100
+    t[0] = 130.0
+    s.record_contact("b", "s2")
+    t[0] = 133.5
+    assert _sale(s, 10).marks == {"b": [("s1", 33.5), ("s2", 3.5)]}
+    t[0] = 175.0                                          # s1 is now 75 s old: outside the window
+    assert _sale(s, 10).marks == {"b": [("s2", 45.0)]}
+    t[0] = 500.0
+    assert _sale(s, 10).marks == {}
+    assert s.contact_age("b") == 370.0 and s.contact_age("c") is None
+
+
+def test_marks_survive_the_wire(tmp_path):
+    t = [10.0]
+    a = EventStore(tmp_path / "a.db", "a", mono=lambda: t[0])
+    a.record_contact("b", "s1")
+    t[0] = 12.25
+    ev = _sale(a, 10)
+    b = EventStore(tmp_path / "b.db", "b")
+    assert b.ingest([ev.model_validate_json(ev.model_dump_json())]).added == 1
+    assert b.all()[0] == ev and b.ingest([ev]).duplicates == 1
+
+
 def test_meta_survives_reopening(tmp_path):
     s = EventStore(tmp_path / "a.db", "a")
     assert s.get_meta("name") is None

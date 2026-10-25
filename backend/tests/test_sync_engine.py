@@ -21,15 +21,14 @@ class Wire:
         self.store, self.url, self.reachable, self.calls = store, url or f"local://{store.name}", True, 0
         self.instance = protocol.new_instance()
 
-    def _go(self, fn, *args):
+    def _go(self, fn, *args, **kw):
         if not self.reachable:
             raise protocol.Unreachable(f"{self.url} is out of range")
         self.calls += 1
-        return json.loads(json.dumps(fn(self.store, *json.loads(json.dumps(args)), **({"instance": self.instance}
-                                                                                       if fn is protocol.hello else {}))))
+        return json.loads(json.dumps(fn(self.store, *json.loads(json.dumps(args)), **json.loads(json.dumps(kw)))))
 
-    def hello(self):
-        return self._go(protocol.hello)
+    def hello(self, me=None):
+        return self._go(protocol.hello, me=me, instance=self.instance)
 
     def pull(self, have, after, limit):
         return self._go(protocol.pull, have, after, limit)
@@ -127,6 +126,25 @@ def test_a_device_listed_as_its_own_peer_is_refused_not_rotated_forever(tmp_path
     assert a.device_id == a.get_meta("actor")
 
 
+def test_a_sync_gives_both_phones_the_same_moment(tmp_path):
+    """Both phones note the same sync id, each on its own monotonic clock (they need not agree)."""
+    ta, tb = [10.0], [9000.0]
+    a = EventStore.open(tmp_path / "a.db", "phone-1", mono=lambda: ta[0])
+    b = EventStore.open(tmp_path / "b.db", "phone-2", mono=lambda: tb[0])
+    protocol.exchange(a, Wire(b))
+    (sid_a, at_a, long_a), = a.contacts[b.device_id]
+    (sid_b, at_b, long_b), = b.contacts[a.device_id]
+    assert sid_a == sid_b and (at_a, at_b) == (10.0, 9000.0) and long_a and long_b   # the first is also long
+    protocol.exchange(a, Wire(b), known_actor=b.device_id)          # moments ago: not another mark
+    assert len(a.contacts[b.device_id]) == len(b.contacts[a.device_id]) == 1
+    ta[0] += protocol.MARK_SPACING_S
+    tb[0] += protocol.MARK_SPACING_S
+    protocol.exchange(a, Wire(b), known_actor=b.device_id)
+    assert len(a.contacts[b.device_id]) == len(b.contacts[a.device_id]) == 2
+    assert a.contacts[b.device_id][1][2] is False                    # a minute hasn't passed: a short one
+    assert [c[0::2] for c in a.contacts[b.device_id]] == [c[0::2] for c in b.contacts[a.device_id]]
+
+
 def test_relay_through_a_third_phone(tmp_path):
     a, b, c = (_phone(tmp_path, n) for n in ("phone-1", "phone-2", "phone-3"))
     x = _sale(a, 40)
@@ -209,12 +227,12 @@ def test_rounds_never_overlap(tmp_path):
     inside, most = [0], [0]
     real = wires["phone-2"].hello
 
-    def slow_hello():
+    def slow_hello(me=None):
         inside[0] += 1
         most[0] = max(most[0], inside[0])
         time.sleep(0.05)
         inside[0] -= 1
-        return real()
+        return real(me)
 
     wires["phone-2"].hello = slow_hello
     ts = [threading.Thread(target=ea.run_once) for _ in range(4)]

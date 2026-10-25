@@ -32,8 +32,8 @@ from app.perception.asr import UnsupportedAudio
 from app.perception.vision import normalize as normalize_slip
 from app.pipeline import (
     ModelOutputInvalid, ModelUnavailable, asr_status, ollama_problem, correct, handle_audio_file, handle_text,
-    handle_utterance, heard, lexicon, recent_transcripts, record, resolve_conflict, separate, slip_reader,
-    start_preload, store, void)
+    NotTheSameTrade, handle_utterance, heard, lexicon, recent_transcripts, record, resolve_conflict, same,
+    separate, slip_reader, start_preload, store, void)
 from app.sync import protocol
 from app.sync.engine import SyncEngine
 from app.sync.transport import SYNC_KEY_HEADER, LanPeer
@@ -177,6 +177,7 @@ def ledger_summary(day: int | None = None):
         "duplicates": report.duplicates,
         "conflicts": report.conflicts,
         "possible_conflicts": report.possible_conflicts,
+        "possible_duplicates": report.possible_duplicates,
         "incomplete": incomplete(days.in_day(events, index)),   # that day's trades with no amount
         "frontier": store.frontier(),
     }
@@ -242,6 +243,19 @@ def ledger_separate(body: SeparateIn):
         return separate(body.ids)
     except KeyError as e:
         raise HTTPException(404, f"no event {e}") from e
+
+
+@app.post("/ledger/same")
+def ledger_same(body: SeparateIn):
+    """These entries are one trade recorded more than once (e.g. two phones, out of touch): count it once."""
+    if len(body.ids) < 2:
+        raise HTTPException(422, "need at least two ids")
+    try:
+        return same(body.ids)
+    except KeyError as e:
+        raise HTTPException(404, f"no event {e}") from e
+    except NotTheSameTrade as e:
+        raise HTTPException(422, str(e)) from e
 
 
 # --- inference ---------------------------------------------------------------
@@ -522,9 +536,22 @@ class PushIn(BaseModel):
     events: list[dict]                                       # validated one by one: one bad entry is refused alone
 
 
+class HelloIn(BaseModel):
+    name: str | None = Field(None, max_length=64)
+    actor: str | None = Field(None, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
+    sync_id: str | None = Field(None, max_length=64)
+    mark: bool = False                                       # note this moment as shared (Event.marks)
+    long: bool = False                                       # ...and keep it 10 minutes, not one
+
+
 @app.get("/sync/hello")
 def sync_hello():
     return protocol.hello(store)
+
+
+@app.post("/sync/hello")
+def sync_hello_from(body: HelloIn):
+    return protocol.hello(store, body.model_dump())
 
 
 @app.get("/sync/frontier")

@@ -334,12 +334,19 @@ def resolve_conflict(ids: list[str], amount_rupees: float) -> dict:
     conflict = next((c for c in fuse(store.all()).conflicts if sorted(c["ids"]) == sorted(ids)), None)
     if conflict is None:
         raise KeyError("no open conflict with these ids")
-    first = _by_id(conflict["ids"][0])
-    cand = CandidateEvent(kind=first.kind, source=Source.manual, confidence=1.0,
-                          party=conflict["party"], amount_rupees=amount_rupees,
+    claims = [_by_id(i) for i in conflict["ids"]]
+    # what was sold / paid comes from the claim the vendor confirmed (else the lower one, as booked)
+    chosen = next((e for e in claims if _gross(e) == round(amount_rupees * 100)), min(claims, key=_gross))
+    cand = CandidateEvent(kind=chosen.kind, source=Source.manual, confidence=1.0,
+                          party=conflict["party"], item=chosen.payload.get("item"), qty=chosen.payload.get("qty"),
+                          unit=chosen.payload.get("unit"), amount_rupees=amount_rupees,
                           raw="settled dispute: Rs{:g} vs Rs{:g} -> Rs{:g}".format(
                               *(c / 100 for c in conflict["claims_paise"]), amount_rupees))
     return {"events": record([cand], supersedes=sorted(ids))}
+
+
+def _gross(e: Event) -> int:
+    return sum(p.amount for p in e.postings if p.amount > 0)
 
 
 def void(event_id: str) -> dict:
@@ -365,6 +372,24 @@ def correct(event_id: str, changes: dict) -> dict:
     cand = CandidateEvent(kind=kind, source=Source.manual, confidence=1.0, flags=["corrected"],
                           raw=f"correction of {event_id}", **fields)
     return {"events": record([cand], supersedes=[event_id])}
+
+
+class NotTheSameTrade(ValueError):
+    """Entries a person called one trade, but their kind, customer or amount differ."""
+
+
+def same(ids: list[str]) -> dict:
+    """Vendor says: these entries are ONE trade heard / recorded more than once (fusion counts it once).
+    Only for entries that agree on kind, customer and amount; a different amount is a dispute to settle."""
+    evs = [_by_id(i) for i in ids]
+    looks = {(e.kind.value, (e.payload.get("party") or "").lower() or None, _gross(e)) for e in evs}
+    if len(looks) > 1:
+        raise NotTheSameTrade("these entries differ, so they can't be one trade: " + "; ".join(
+            f"{e.id}: {e.kind.value} Rs{_gross(e) / 100:g}{' for ' + str(e.payload.get('party')) if e.payload.get('party') else ''}"
+            for e in evs))
+    ev = store.append_local(kind=Kind.adjustment, source=Source.manual, postings=[],
+                            payload={"same": sorted(ids)}, raw=f"one trade: {', '.join(ids)}")
+    return {"events": [ev.model_dump(mode="json")]}
 
 
 def separate(ids: list[str]) -> dict:
