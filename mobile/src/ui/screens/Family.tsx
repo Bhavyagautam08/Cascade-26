@@ -3,6 +3,7 @@
 // until then the list of other phones is empty and the screen says so.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
+import { llm } from '../../app/llm';
 import { service } from '../../app/service';
 import { nameOf } from '../../core/identity';
 import { ledger, useNav } from '../common';
@@ -50,6 +51,7 @@ export function Family() {
           {frontier.map(([dev, n]) => <Pill key={dev} tone={dev === st.actor ? 'good' : 'muted'}>{`${nameOf(dev)} · ${n}`}</Pill>)}
         </View>
       </Card>
+      <ModelCard />
       <Card title={t.family.peers}>
         {st.peers.length === 0 ? <Muted>{t.family.noPeers}</Muted> : st.peers.map((p) => (
           <Row key={p.url}>
@@ -68,5 +70,23 @@ export function Family() {
         <ErrorLine error={error} />
       </Card>
     </Screen>
+  );
+}
+
+/** The on-phone language model: state, file, load time and the last answer's speed (measured, not guessed). */
+function ModelCard() {
+  const [st, setSt] = useState(llm.status);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => llm.subscribe(() => setSt(llm.status)), []);
+  return (
+    <Card title={t.family.model} tone={st.state === 'error' ? 'bad' : st.state === 'ready' ? 'good' : undefined}>
+      <Body style={{ fontWeight: '700' }}>{t.family.modelStates[st.state]}</Body>
+      <Text style={s.mono}>{st.file}</Text>
+      {st.loadSeconds != null ? <Muted>{t.family.modelLoad(st.loadSeconds)}</Muted> : null}
+      {st.last ? <Muted>{t.family.modelLast(st.last.promptTokens, st.last.promptSeconds, st.last.outTokens, st.last.outSeconds)}</Muted> : null}
+      {st.error ? <Text style={{ color: C.bad }}>{st.error}</Text> : null}
+      {st.state !== 'ready' ? <Button kind="plain" label={t.family.modelStart} disabled={st.state === 'loading'} onPress={() => llm.load().then(() => setError(null), (e) => setError((e as Error).message))} /> : null}
+      <ErrorLine error={error} />
+    </Card>
   );
 }

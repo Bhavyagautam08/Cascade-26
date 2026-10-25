@@ -3,11 +3,11 @@
   "name": "one sale heard by two phones",
   "events": [
    {
-    "id": "phone-1.rwuv58:1",
-    "device_id": "phone-1.rwuv58",
+    "id": "phone-1.rpxvuh:1",
+    "device_id": "phone-1.rpxvuh",
     "seq": 1,
     "vclock": {
-     "phone-1.rwuv58": 1
+     "phone-1.rpxvuh": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -35,11 +35,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "33984904",
+     "7115de04",
      103.0
     ],
     "marks": {
-     "phone-2.9gbmz6": [
+     "phone-2.vuapqc": [
       [
        "s1",
        3.0
@@ -48,11 +48,11 @@
     }
    },
    {
-    "id": "phone-2.9gbmz6:1",
-    "device_id": "phone-2.9gbmz6",
+    "id": "phone-2.vuapqc:1",
+    "device_id": "phone-2.vuapqc",
     "seq": 1,
     "vclock": {
-     "phone-2.9gbmz6": 1
+     "phone-2.vuapqc": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -80,11 +80,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "1457292d",
+     "eae50103",
      5004.5
     ],
     "marks": {
-     "phone-1.rwuv58": [
+     "phone-1.rpxvuh": [
       [
        "s1",
        4.5
@@ -95,7 +95,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.rwuv58:1+phone-2.9gbmz6:1",
+    "id": "fused:phone-1.rpxvuh:1+phone-2.vuapqc:1",
     "postings": [
      {
       "account": "cash",
@@ -111,8 +111,8 @@
   ],
   "duplicates": [
    [
-    "phone-1.rwuv58:1",
-    "phone-2.9gbmz6:1"
+    "phone-1.rpxvuh:1",
+    "phone-2.vuapqc:1"
    ]
   ],
   "conflicts": [],
@@ -136,11 +136,11 @@
   "name": "one utterance two amounts",
   "events": [
    {
-    "id": "phone-1.z47bfp:1",
-    "device_id": "phone-1.z47bfp",
+    "id": "phone-1.f3wshe:1",
+    "device_id": "phone-1.f3wshe",
     "seq": 1,
     "vclock": {
-     "phone-1.z47bfp": 1
+     "phone-1.f3wshe": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -168,11 +168,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "5ad11259",
+     "28ba5f15",
      52.0
     ],
     "marks": {
-     "phone-2.fbjspx": [
+     "phone-2.c6xce3": [
       [
        "s1",
        2.0
@@ -181,11 +181,11 @@
     }
    },
    {
-    "id": "phone-2.fbjspx:1",
-    "device_id": "phone-2.fbjspx",
+    "id": "phone-2.c6xce3:1",
+    "device_id": "phone-2.c6xce3",
     "seq": 1,
     "vclock": {
-     "phone-2.fbjspx": 1
+     "phone-2.c6xce3": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -213,11 +213,11 @@
     "raw": "7 plate poha de 150",
     "supersedes": [],
     "mono": [
-     "b83116be",
+     "08717f9b",
      903.0
     ],
     "marks": {
-     "phone-1.z47bfp": [
+     "phone-1.f3wshe": [
       [
        "s1",
        3.0
@@ -228,7 +228,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.z47bfp:1+phone-2.fbjspx:1",
+    "id": "fused:phone-1.f3wshe:1+phone-2.c6xce3:1",
     "postings": [
      {
       "account": "cash",
@@ -246,8 +246,8 @@
   "conflicts": [
    {
     "ids": [
-     "phone-1.z47bfp:1",
-     "phone-2.fbjspx:1"
+     "phone-1.f3wshe:1",
+     "phone-2.c6xce3:1"
     ],
     "party": null,
     "kind": "sale",
@@ -282,11 +282,11 @@
   "name": "udhaar two amounts",
   "events": [
    {
-    "id": "phone-1.v98bfm:1",
-    "device_id": "phone-1.v98bfm",
+    "id": "phone-1.x86nxn:1",
+    "device_id": "phone-1.x86nxn",
     "seq": 1,
     "vclock": {
-     "phone-1.v98bfm": 1
+     "phone-1.x86nxn": 1
     },
     "wall_time": 1792900000.0,
     "kind": "credit_paid",
@@ -314,11 +314,11 @@
     "raw": "sharma ji ka 40 jama",
     "supersedes": [],
     "mono": [
-     "5c1cc5ca",
+     "cf30647a",
      1.0
     ],
     "marks": {
-     "phone-2.9baeta": [
+     "phone-2.gphz45": [
       [
        "s1",
        1.0
@@ -327,11 +327,11 @@
     }
    },
    {
-    "id": "phone-2.9baeta:1",
-    "device_id": "phone-2.9baeta",
+    "id": "phone-2.gphz45:1",
+    "device_id": "phone-2.gphz45",
     "seq": 1,
     "vclock": {
-     "phone-2.9baeta": 1
+     "phone-2.gphz45": 1
     },
     "wall_time": 1792900000.0,
     "kind": "credit_paid",
@@ -359,11 +359,11 @@
     "raw": "sharma ji ka 60 jama",
     "supersedes": [],
     "mono": [
-     "9317a7c5",
+     "a24b2189",
      2.0
     ],
     "marks": {
-     "phone-1.v98bfm": [
+     "phone-1.x86nxn": [
       [
        "s1",
        2.0
@@ -374,7 +374,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.v98bfm:1+phone-2.9baeta:1",
+    "id": "fused:phone-1.x86nxn:1+phone-2.gphz45:1",
     "postings": [
      {
       "account": "cash",
@@ -400,8 +400,8 @@
   "conflicts": [
    {
     "ids": [
-     "phone-1.v98bfm:1",
-     "phone-2.9baeta:1"
+     "phone-1.x86nxn:1",
+     "phone-2.gphz45:1"
     ],
     "party": "sharma",
     "kind": "credit_paid",
@@ -437,11 +437,11 @@
   "name": "out of touch 40 vs 400",
   "events": [
    {
-    "id": "phone-1.paqab4:1",
-    "device_id": "phone-1.paqab4",
+    "id": "phone-1.qxag53:1",
+    "device_id": "phone-1.qxag53",
     "seq": 1,
     "vclock": {
-     "phone-1.paqab4": 1
+     "phone-1.qxag53": 1
     },
     "wall_time": 1792900000.0,
     "kind": "credit_paid",
@@ -469,17 +469,17 @@
     "raw": "sharma ji ka 40 jama",
     "supersedes": [],
     "mono": [
-     "c81b027e",
+     "4edfe2ff",
      1.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.ghb3t9:1",
-    "device_id": "phone-2.ghb3t9",
+    "id": "phone-2.paqwdd:1",
+    "device_id": "phone-2.paqwdd",
     "seq": 1,
     "vclock": {
-     "phone-2.ghb3t9": 1
+     "phone-2.paqwdd": 1
     },
     "wall_time": 1792900000.0,
     "kind": "credit_paid",
@@ -507,7 +507,7 @@
     "raw": "sharma ji ka 400 jama",
     "supersedes": [],
     "mono": [
-     "a6842270",
+     "cf43825d",
      2.0
     ],
     "marks": {}
@@ -515,7 +515,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.paqab4:1+phone-2.ghb3t9:1",
+    "id": "fused:phone-1.qxag53:1+phone-2.paqwdd:1",
     "postings": [
      {
       "account": "cash",
@@ -541,8 +541,8 @@
   "conflicts": [
    {
     "ids": [
-     "phone-1.paqab4:1",
-     "phone-2.ghb3t9:1"
+     "phone-1.qxag53:1",
+     "phone-2.paqwdd:1"
     ],
     "party": "sharma",
     "kind": "credit_paid",
@@ -578,11 +578,11 @@
   "name": "out of touch identical",
   "events": [
    {
-    "id": "phone-1.zuzraf:1",
-    "device_id": "phone-1.zuzraf",
+    "id": "phone-1.g3yesh:1",
+    "device_id": "phone-1.g3yesh",
     "seq": 1,
     "vclock": {
-     "phone-1.zuzraf": 1
+     "phone-1.g3yesh": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -610,17 +610,17 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "1df2615c",
+     "e8443935",
      5.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.8fzjbe:1",
-    "device_id": "phone-2.8fzjbe",
+    "id": "phone-2.rhrdcb:1",
+    "device_id": "phone-2.rhrdcb",
     "seq": 1,
     "vclock": {
-     "phone-2.8fzjbe": 1
+     "phone-2.rhrdcb": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -648,7 +648,7 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "a375b8aa",
+     "2d2f9ca2",
      6.0
     ],
     "marks": {}
@@ -656,7 +656,7 @@
   ],
   "effective": [
    {
-    "id": "phone-1.zuzraf:1",
+    "id": "phone-1.g3yesh:1",
     "postings": [
      {
       "account": "cash",
@@ -670,7 +670,7 @@
     "confidence": 0.75
    },
    {
-    "id": "phone-2.8fzjbe:1",
+    "id": "phone-2.rhrdcb:1",
     "postings": [
      {
       "account": "cash",
@@ -690,8 +690,8 @@
   "possible_duplicates": [
    {
     "ids": [
-     "phone-1.zuzraf:1",
-     "phone-2.8fzjbe:1"
+     "phone-1.g3yesh:1",
+     "phone-2.rhrdcb:1"
     ],
     "kind": "sale",
     "item": "poha",
@@ -699,8 +699,8 @@
     "qty": 7.0,
     "amount_paise": 14000,
     "devices": [
-     "phone-1.zuzraf",
-     "phone-2.8fzjbe"
+     "phone-1.g3yesh",
+     "phone-2.rhrdcb"
     ],
     "counted_as": "two trades",
     "why": "the two phones were out of touch, so one trade heard twice can't be told from two trades"
@@ -724,11 +724,11 @@
   "name": "out of touch identical, then same",
   "events": [
    {
-    "id": "phone-1.zuzraf:1",
-    "device_id": "phone-1.zuzraf",
+    "id": "phone-1.g3yesh:1",
+    "device_id": "phone-1.g3yesh",
     "seq": 1,
     "vclock": {
-     "phone-1.zuzraf": 1
+     "phone-1.g3yesh": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -756,17 +756,17 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "1df2615c",
+     "e8443935",
      5.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.8fzjbe:1",
-    "device_id": "phone-2.8fzjbe",
+    "id": "phone-2.rhrdcb:1",
+    "device_id": "phone-2.rhrdcb",
     "seq": 1,
     "vclock": {
-     "phone-2.8fzjbe": 1
+     "phone-2.rhrdcb": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -794,18 +794,18 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "a375b8aa",
+     "2d2f9ca2",
      6.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.zuzraf:2",
-    "device_id": "phone-1.zuzraf",
+    "id": "phone-1.g3yesh:2",
+    "device_id": "phone-1.g3yesh",
     "seq": 2,
     "vclock": {
-     "phone-1.zuzraf": 2,
-     "phone-2.8fzjbe": 1
+     "phone-1.g3yesh": 2,
+     "phone-2.rhrdcb": 1
     },
     "wall_time": 1792900000.0,
     "kind": "adjustment",
@@ -813,15 +813,15 @@
     "confidence": 1.0,
     "payload": {
      "same": [
-      "phone-1.zuzraf:1",
-      "phone-2.8fzjbe:1"
+      "phone-1.g3yesh:1",
+      "phone-2.rhrdcb:1"
      ]
     },
     "postings": [],
     "raw": null,
     "supersedes": [],
     "mono": [
-     "1df2615c",
+     "e8443935",
      5.0
     ],
     "marks": {}
@@ -829,7 +829,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.zuzraf:1+phone-2.8fzjbe:1",
+    "id": "fused:phone-1.g3yesh:1+phone-2.rhrdcb:1",
     "postings": [
      {
       "account": "cash",
@@ -843,15 +843,15 @@
     "confidence": 0.75
    },
    {
-    "id": "phone-1.zuzraf:2",
+    "id": "phone-1.g3yesh:2",
     "postings": [],
     "confidence": 1.0
    }
   ],
   "duplicates": [
    [
-    "phone-1.zuzraf:1",
-    "phone-2.8fzjbe:1"
+    "phone-1.g3yesh:1",
+    "phone-2.rhrdcb:1"
    ]
   ],
   "conflicts": [],
@@ -875,11 +875,11 @@
   "name": "out of touch identical, then separate",
   "events": [
    {
-    "id": "phone-1.zuzraf:1",
-    "device_id": "phone-1.zuzraf",
+    "id": "phone-1.g3yesh:1",
+    "device_id": "phone-1.g3yesh",
     "seq": 1,
     "vclock": {
-     "phone-1.zuzraf": 1
+     "phone-1.g3yesh": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -907,17 +907,17 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "1df2615c",
+     "e8443935",
      5.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.8fzjbe:1",
-    "device_id": "phone-2.8fzjbe",
+    "id": "phone-2.rhrdcb:1",
+    "device_id": "phone-2.rhrdcb",
     "seq": 1,
     "vclock": {
-     "phone-2.8fzjbe": 1
+     "phone-2.rhrdcb": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -945,18 +945,18 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "a375b8aa",
+     "2d2f9ca2",
      6.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.zuzraf:2",
-    "device_id": "phone-1.zuzraf",
+    "id": "phone-1.g3yesh:2",
+    "device_id": "phone-1.g3yesh",
     "seq": 2,
     "vclock": {
-     "phone-1.zuzraf": 2,
-     "phone-2.8fzjbe": 1
+     "phone-1.g3yesh": 2,
+     "phone-2.rhrdcb": 1
     },
     "wall_time": 1792900000.0,
     "kind": "adjustment",
@@ -964,26 +964,26 @@
     "confidence": 1.0,
     "payload": {
      "same": [
-      "phone-1.zuzraf:1",
-      "phone-2.8fzjbe:1"
+      "phone-1.g3yesh:1",
+      "phone-2.rhrdcb:1"
      ]
     },
     "postings": [],
     "raw": null,
     "supersedes": [],
     "mono": [
-     "1df2615c",
+     "e8443935",
      5.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.8fzjbe:2",
-    "device_id": "phone-2.8fzjbe",
+    "id": "phone-2.rhrdcb:2",
+    "device_id": "phone-2.rhrdcb",
     "seq": 2,
     "vclock": {
-     "phone-1.zuzraf": 2,
-     "phone-2.8fzjbe": 2
+     "phone-1.g3yesh": 2,
+     "phone-2.rhrdcb": 2
     },
     "wall_time": 1792900000.0,
     "kind": "adjustment",
@@ -991,15 +991,15 @@
     "confidence": 1.0,
     "payload": {
      "separate": [
-      "phone-1.zuzraf:1",
-      "phone-2.8fzjbe:1"
+      "phone-1.g3yesh:1",
+      "phone-2.rhrdcb:1"
      ]
     },
     "postings": [],
     "raw": null,
     "supersedes": [],
     "mono": [
-     "a375b8aa",
+     "2d2f9ca2",
      6.0
     ],
     "marks": {}
@@ -1007,7 +1007,7 @@
   ],
   "effective": [
    {
-    "id": "phone-1.zuzraf:1",
+    "id": "phone-1.g3yesh:1",
     "postings": [
      {
       "account": "cash",
@@ -1021,7 +1021,7 @@
     "confidence": 0.75
    },
    {
-    "id": "phone-2.8fzjbe:1",
+    "id": "phone-2.rhrdcb:1",
     "postings": [
      {
       "account": "cash",
@@ -1035,12 +1035,12 @@
     "confidence": 0.75
    },
    {
-    "id": "phone-1.zuzraf:2",
+    "id": "phone-1.g3yesh:2",
     "postings": [],
     "confidence": 1.0
    },
    {
-    "id": "phone-2.8fzjbe:2",
+    "id": "phone-2.rhrdcb:2",
     "postings": [],
     "confidence": 1.0
    }
@@ -1067,11 +1067,11 @@
   "name": "two identical sales heard by both",
   "events": [
    {
-    "id": "phone-1.mtfdt9:1",
-    "device_id": "phone-1.mtfdt9",
+    "id": "phone-1.vn4trn:1",
+    "device_id": "phone-1.vn4trn",
     "seq": 1,
     "vclock": {
-     "phone-1.mtfdt9": 1
+     "phone-1.vn4trn": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1099,11 +1099,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "26c6c7d6",
+     "4aa91b51",
      1.0
     ],
     "marks": {
-     "phone-2.878syr": [
+     "phone-2.ee2vgm": [
       [
        "s1",
        1.0
@@ -1112,11 +1112,11 @@
     }
    },
    {
-    "id": "phone-1.mtfdt9:2",
-    "device_id": "phone-1.mtfdt9",
+    "id": "phone-1.vn4trn:2",
+    "device_id": "phone-1.vn4trn",
     "seq": 2,
     "vclock": {
-     "phone-1.mtfdt9": 2
+     "phone-1.vn4trn": 2
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1144,11 +1144,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "26c6c7d6",
+     "4aa91b51",
      25.0
     ],
     "marks": {
-     "phone-2.878syr": [
+     "phone-2.ee2vgm": [
       [
        "s1",
        25.0
@@ -1157,11 +1157,11 @@
     }
    },
    {
-    "id": "phone-2.878syr:1",
-    "device_id": "phone-2.878syr",
+    "id": "phone-2.ee2vgm:1",
+    "device_id": "phone-2.ee2vgm",
     "seq": 1,
     "vclock": {
-     "phone-2.878syr": 1
+     "phone-2.ee2vgm": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1189,11 +1189,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "662714a3",
+     "100f6f8a",
      2.0
     ],
     "marks": {
-     "phone-1.mtfdt9": [
+     "phone-1.vn4trn": [
       [
        "s1",
        2.0
@@ -1202,11 +1202,11 @@
     }
    },
    {
-    "id": "phone-2.878syr:2",
-    "device_id": "phone-2.878syr",
+    "id": "phone-2.ee2vgm:2",
+    "device_id": "phone-2.ee2vgm",
     "seq": 2,
     "vclock": {
-     "phone-2.878syr": 2
+     "phone-2.ee2vgm": 2
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1234,11 +1234,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "662714a3",
+     "100f6f8a",
      26.5
     ],
     "marks": {
-     "phone-1.mtfdt9": [
+     "phone-1.vn4trn": [
       [
        "s1",
        26.5
@@ -1249,7 +1249,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.mtfdt9:1+phone-2.878syr:1",
+    "id": "fused:phone-1.vn4trn:1+phone-2.ee2vgm:1",
     "postings": [
      {
       "account": "cash",
@@ -1263,7 +1263,7 @@
     "confidence": 0.75
    },
    {
-    "id": "fused:phone-1.mtfdt9:2+phone-2.878syr:2",
+    "id": "fused:phone-1.vn4trn:2+phone-2.ee2vgm:2",
     "postings": [
      {
       "account": "cash",
@@ -1279,12 +1279,12 @@
   ],
   "duplicates": [
    [
-    "phone-1.mtfdt9:1",
-    "phone-2.878syr:1"
+    "phone-1.vn4trn:1",
+    "phone-2.ee2vgm:1"
    ],
    [
-    "phone-1.mtfdt9:2",
-    "phone-2.878syr:2"
+    "phone-1.vn4trn:2",
+    "phone-2.ee2vgm:2"
    ]
   ],
   "conflicts": [],
@@ -1308,11 +1308,11 @@
   "name": "one order two items",
   "events": [
    {
-    "id": "phone-1.rraakn:1",
-    "device_id": "phone-1.rraakn",
+    "id": "phone-1.e2gmas:1",
+    "device_id": "phone-1.e2gmas",
     "seq": 1,
     "vclock": {
-     "phone-1.rraakn": 1
+     "phone-1.e2gmas": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1340,11 +1340,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "cc8b37a7",
+     "4fa53129",
      1.0
     ],
     "marks": {
-     "phone-2.kc4pnx": [
+     "phone-2.mv4ux2": [
       [
        "s1",
        1.0
@@ -1353,11 +1353,11 @@
     }
    },
    {
-    "id": "phone-1.rraakn:2",
-    "device_id": "phone-1.rraakn",
+    "id": "phone-1.e2gmas:2",
+    "device_id": "phone-1.e2gmas",
     "seq": 2,
     "vclock": {
-     "phone-1.rraakn": 2
+     "phone-1.e2gmas": 2
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1387,11 +1387,11 @@
     "raw": "5 cup chai de",
     "supersedes": [],
     "mono": [
-     "cc8b37a7",
+     "4fa53129",
      1.0
     ],
     "marks": {
-     "phone-2.kc4pnx": [
+     "phone-2.mv4ux2": [
       [
        "s1",
        1.0
@@ -1400,11 +1400,11 @@
     }
    },
    {
-    "id": "phone-2.kc4pnx:1",
-    "device_id": "phone-2.kc4pnx",
+    "id": "phone-2.mv4ux2:1",
+    "device_id": "phone-2.mv4ux2",
     "seq": 1,
     "vclock": {
-     "phone-2.kc4pnx": 1
+     "phone-2.mv4ux2": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1434,11 +1434,11 @@
     "raw": "5 cup chai de",
     "supersedes": [],
     "mono": [
-     "7d272ed3",
+     "32ba0cc9",
      1.5
     ],
     "marks": {
-     "phone-1.rraakn": [
+     "phone-1.e2gmas": [
       [
        "s1",
        1.5
@@ -1447,11 +1447,11 @@
     }
    },
    {
-    "id": "phone-2.kc4pnx:2",
-    "device_id": "phone-2.kc4pnx",
+    "id": "phone-2.mv4ux2:2",
+    "device_id": "phone-2.mv4ux2",
     "seq": 2,
     "vclock": {
-     "phone-2.kc4pnx": 2
+     "phone-2.mv4ux2": 2
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1479,11 +1479,11 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "7d272ed3",
+     "32ba0cc9",
      1.5
     ],
     "marks": {
-     "phone-1.rraakn": [
+     "phone-1.e2gmas": [
       [
        "s1",
        1.5
@@ -1494,7 +1494,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.rraakn:1+phone-2.kc4pnx:2",
+    "id": "fused:phone-1.e2gmas:1+phone-2.mv4ux2:2",
     "postings": [
      {
       "account": "cash",
@@ -1508,7 +1508,7 @@
     "confidence": 0.75
    },
    {
-    "id": "fused:phone-1.rraakn:2+phone-2.kc4pnx:1",
+    "id": "fused:phone-1.e2gmas:2+phone-2.mv4ux2:1",
     "postings": [
      {
       "account": "cash",
@@ -1524,12 +1524,12 @@
   ],
   "duplicates": [
    [
-    "phone-1.rraakn:1",
-    "phone-2.kc4pnx:2"
+    "phone-1.e2gmas:1",
+    "phone-2.mv4ux2:2"
    ],
    [
-    "phone-2.kc4pnx:1",
-    "phone-1.rraakn:2"
+    "phone-2.mv4ux2:1",
+    "phone-1.e2gmas:2"
    ]
   ],
   "conflicts": [],
@@ -1553,11 +1553,11 @@
   "name": "voice then sms on two phones",
   "events": [
    {
-    "id": "phone-1.ycwttr:1",
-    "device_id": "phone-1.ycwttr",
+    "id": "phone-1.5u9h3g:1",
+    "device_id": "phone-1.5u9h3g",
     "seq": 1,
     "vclock": {
-     "phone-1.ycwttr": 1
+     "phone-1.5u9h3g": 1
     },
     "wall_time": 1792900000.0,
     "kind": "credit_paid",
@@ -1585,11 +1585,11 @@
     "raw": "sharma ji ka 40 jama",
     "supersedes": [],
     "mono": [
-     "e7d8f9c0",
+     "2ea69e4e",
      10.0
     ],
     "marks": {
-     "phone-2.86633w": [
+     "phone-2.r2u6f3": [
       [
        "s1",
        10.0
@@ -1598,12 +1598,12 @@
     }
    },
    {
-    "id": "phone-2.86633w:1",
-    "device_id": "phone-2.86633w",
+    "id": "phone-2.r2u6f3:1",
+    "device_id": "phone-2.r2u6f3",
     "seq": 1,
     "vclock": {
-     "phone-1.ycwttr": 1,
-     "phone-2.86633w": 1
+     "phone-1.5u9h3g": 1,
+     "phone-2.r2u6f3": 1
     },
     "wall_time": 1792900000.0,
     "kind": "credit_paid",
@@ -1631,11 +1631,11 @@
     "raw": "sharma ji ka 40 jama",
     "supersedes": [],
     "mono": [
-     "73eaa891",
+     "b07b0857",
      160.0
     ],
     "marks": {
-     "phone-1.ycwttr": [
+     "phone-1.5u9h3g": [
       [
        "s1",
        160.0
@@ -1646,7 +1646,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.ycwttr:1+phone-2.86633w:1",
+    "id": "fused:phone-1.5u9h3g:1+phone-2.r2u6f3:1",
     "postings": [
      {
       "account": "cash",
@@ -1662,8 +1662,8 @@
   ],
   "duplicates": [
    [
-    "phone-1.ycwttr:1",
-    "phone-2.86633w:1"
+    "phone-1.5u9h3g:1",
+    "phone-2.r2u6f3:1"
    ]
   ],
   "conflicts": [],
@@ -1687,11 +1687,11 @@
   "name": "echo, quiet stall, cross-modal",
   "events": [
    {
-    "id": "phone-1.gc4zh6:1",
-    "device_id": "phone-1.gc4zh6",
+    "id": "phone-1.fskxb7:1",
+    "device_id": "phone-1.fskxb7",
     "seq": 1,
     "vclock": {
-     "phone-1.gc4zh6": 1
+     "phone-1.fskxb7": 1
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1719,17 +1719,17 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "dee0509d",
+     "6612235e",
      1.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.gc4zh6:2",
-    "device_id": "phone-1.gc4zh6",
+    "id": "phone-1.fskxb7:2",
+    "device_id": "phone-1.fskxb7",
     "seq": 2,
     "vclock": {
-     "phone-1.gc4zh6": 2
+     "phone-1.fskxb7": 2
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1757,17 +1757,17 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "dee0509d",
+     "6612235e",
      3.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.gc4zh6:3",
-    "device_id": "phone-1.gc4zh6",
+    "id": "phone-1.fskxb7:3",
+    "device_id": "phone-1.fskxb7",
     "seq": 3,
     "vclock": {
-     "phone-1.gc4zh6": 3
+     "phone-1.fskxb7": 3
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1795,17 +1795,17 @@
     "raw": "7 plate poha de 140",
     "supersedes": [],
     "mono": [
-     "dee0509d",
+     "6612235e",
      200.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.gc4zh6:4",
-    "device_id": "phone-1.gc4zh6",
+    "id": "phone-1.fskxb7:4",
+    "device_id": "phone-1.fskxb7",
     "seq": 4,
     "vclock": {
-     "phone-1.gc4zh6": 4
+     "phone-1.fskxb7": 4
     },
     "wall_time": 1792900000.0,
     "kind": "sale",
@@ -1833,7 +1833,7 @@
     "raw": "7 plate poha becha 140",
     "supersedes": [],
     "mono": [
-     "dee0509d",
+     "6612235e",
      201.0
     ],
     "marks": {}
@@ -1841,7 +1841,7 @@
   ],
   "effective": [
    {
-    "id": "fused:phone-1.gc4zh6:1+phone-1.gc4zh6:2",
+    "id": "fused:phone-1.fskxb7:1+phone-1.fskxb7:2",
     "postings": [
      {
       "account": "cash",
@@ -1855,7 +1855,7 @@
     "confidence": 0.75
    },
    {
-    "id": "fused:phone-1.gc4zh6:3+phone-1.gc4zh6:4",
+    "id": "fused:phone-1.fskxb7:3+phone-1.fskxb7:4",
     "postings": [
      {
       "account": "cash",
@@ -1871,12 +1871,12 @@
   ],
   "duplicates": [
    [
-    "phone-1.gc4zh6:1",
-    "phone-1.gc4zh6:2"
+    "phone-1.fskxb7:1",
+    "phone-1.fskxb7:2"
    ],
    [
-    "phone-1.gc4zh6:3",
-    "phone-1.gc4zh6:4"
+    "phone-1.fskxb7:3",
+    "phone-1.fskxb7:4"
    ]
   ],
   "conflicts": [],
@@ -1900,11 +1900,11 @@
   "name": "days",
   "events": [
    {
-    "id": "phone-1.ew3h28:1",
-    "device_id": "phone-1.ew3h28",
+    "id": "phone-1.sww86j:1",
+    "device_id": "phone-1.sww86j",
     "seq": 1,
     "vclock": {
-     "phone-1.ew3h28": 1
+     "phone-1.sww86j": 1
     },
     "wall_time": 1792900000.0,
     "kind": "purchase",
@@ -1932,17 +1932,17 @@
     "raw": "10 kilo tamatar liya 300",
     "supersedes": [],
     "mono": [
-     "c94858c3",
+     "aa29616d",
      1.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.ew3h28:2",
-    "device_id": "phone-1.ew3h28",
+    "id": "phone-1.sww86j:2",
+    "device_id": "phone-1.sww86j",
     "seq": 2,
     "vclock": {
-     "phone-1.ew3h28": 2
+     "phone-1.sww86j": 2
     },
     "wall_time": 1792900000.0,
     "kind": "day_start",
@@ -1956,17 +1956,17 @@
     "raw": "start of day 1",
     "supersedes": [],
     "mono": [
-     "c94858c3",
+     "aa29616d",
      1.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-1.ew3h28:3",
-    "device_id": "phone-1.ew3h28",
+    "id": "phone-1.sww86j:3",
+    "device_id": "phone-1.sww86j",
     "seq": 3,
     "vclock": {
-     "phone-1.ew3h28": 3
+     "phone-1.sww86j": 3
     },
     "wall_time": 1792900000.0,
     "kind": "stock_count",
@@ -1985,18 +1985,18 @@
     "raw": "4 kilo tamatar bacha",
     "supersedes": [],
     "mono": [
-     "c94858c3",
+     "aa29616d",
      2.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.6fzuhh:1",
-    "device_id": "phone-2.6fzuhh",
+    "id": "phone-2.9px44v:1",
+    "device_id": "phone-2.9px44v",
     "seq": 1,
     "vclock": {
-     "phone-1.ew3h28": 3,
-     "phone-2.6fzuhh": 1
+     "phone-1.sww86j": 3,
+     "phone-2.9px44v": 1
     },
     "wall_time": 1792900000.0,
     "kind": "day_start",
@@ -2010,18 +2010,18 @@
     "raw": "start of day 2",
     "supersedes": [],
     "mono": [
-     "469bd15a",
+     "c80bb686",
      0.0
     ],
     "marks": {}
    },
    {
-    "id": "phone-2.6fzuhh:2",
-    "device_id": "phone-2.6fzuhh",
+    "id": "phone-2.9px44v:2",
+    "device_id": "phone-2.9px44v",
     "seq": 2,
     "vclock": {
-     "phone-1.ew3h28": 3,
-     "phone-2.6fzuhh": 2
+     "phone-1.sww86j": 3,
+     "phone-2.9px44v": 2
     },
     "wall_time": 1792900000.0,
     "kind": "expense",
@@ -2049,7 +2049,7 @@
     "raw": "gas ka 300 kharcha",
     "supersedes": [],
     "mono": [
-     "469bd15a",
+     "c80bb686",
      3.0
     ],
     "marks": {}
@@ -2057,7 +2057,7 @@
   ],
   "effective": [
    {
-    "id": "phone-1.ew3h28:1",
+    "id": "phone-1.sww86j:1",
     "postings": [
      {
       "account": "inventory:tomato",
@@ -2071,7 +2071,7 @@
     "confidence": 0.75
    },
    {
-    "id": "phone-2.6fzuhh:2",
+    "id": "phone-2.9px44v:2",
     "postings": [
      {
       "account": "expense:gas",
@@ -2085,17 +2085,17 @@
     "confidence": 0.75
    },
    {
-    "id": "phone-1.ew3h28:2",
+    "id": "phone-1.sww86j:2",
     "postings": [],
     "confidence": 1.0
    },
    {
-    "id": "phone-1.ew3h28:3",
+    "id": "phone-1.sww86j:3",
     "postings": [],
     "confidence": 0.75
    },
    {
-    "id": "phone-2.6fzuhh:1",
+    "id": "phone-2.9px44v:1",
     "postings": [],
     "confidence": 1.0
    }
@@ -2121,7 +2121,7 @@
     "index": 1,
     "date": "2026-10-25",
     "started_by": [
-     "phone-1.ew3h28"
+     "phone-1.sww86j"
     ],
     "clock_suspect": false,
     "events": 1
@@ -2130,7 +2130,7 @@
     "index": 2,
     "date": "2026-10-25",
     "started_by": [
-     "phone-2.6fzuhh"
+     "phone-2.9px44v"
     ],
     "clock_suspect": false,
     "events": 1

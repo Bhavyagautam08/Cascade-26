@@ -5,6 +5,7 @@ import { checkName } from '../core/identity';
 import { Ledger } from '../core/ledger';
 import { Lexicon, type LexiconData } from '../core/lexicon';
 import { EventStore, type Clocks } from '../core/store';
+import { phoneExtractor } from './llm';
 import { SqlitePersistence } from './sqlite';
 
 declare const performance: { now(): number }; // React Native's global (monotonic, since the app started)
@@ -43,6 +44,7 @@ class Service {
       store.setMeta('lexicon', JSON.stringify(data)),
     );
     this.ledger = new Ledger(store, lexicon);
+    this.ledger.extractor = phoneExtractor(lexicon); // loads Qwen on first use; unavailable -> rules, with the reason
     this.sync = new SyncEngine(store, [], `${store.deviceId}-${store.runId}`, 5, 1, (e) => console.error('sync bug', e));
     store.listeners.push(() => this.changed());
     this.changed();

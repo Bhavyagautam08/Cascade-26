@@ -217,6 +217,13 @@ def main():
         }
         inf["recipe"]["out"] = inference.recipe_per_plate(inf["recipe"]["burn"], inf["recipe"]["plates"])
     (OUT / "inference.json").write_text(json.dumps(inf, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    # the exact system prompt the laptop sends the model (extractor.py), for the app to reproduce byte for byte
+    from app.perception import extractor
+    (OUT / "prompts.json").write_text(json.dumps({
+        "lexicon": LEX, "extract_system": extractor.SYSTEM.format(lexicon=json.dumps(LEX, ensure_ascii=False)),
+        "extract_schema": extractor.LLMOutput.model_json_schema(),
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"wrote {len(SENTENCES)} rule cases, {len(SMS)} sms cases, {len(out)} fusion scenarios, "
           f"inference over {len(inf['events'])} demo entries / {n_days} days to {OUT}")
 

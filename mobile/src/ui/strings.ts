@@ -258,6 +258,11 @@ export const hi = {
     key: 'Parivaar ki chaabi',
     keySet: 'rakhi hai',
     keyMissing: 'nahi rakhi',
+    model: 'Is phone ka model',
+    modelStates: { off: 'Band (pehli baar padhte waqt chalu hoga)', loading: 'Chalu ho raha hai…', ready: 'Chalu', error: 'Nahi chala' } as Record<string, string>,
+    modelLoad: (s: number) => `${s} second mein chalu hua`,
+    modelLast: (pt: number, ps: number, ot: number, os: number) => `Pichhla jawab: ${pt} token padhe ${ps.toFixed(1)} s mein, ${ot} token likhe ${os.toFixed(1)} s mein`,
+    modelStart: 'Model abhi chalu karo',
   },
 
   more: {
