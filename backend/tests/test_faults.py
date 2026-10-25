@@ -355,6 +355,26 @@ def _until(cond, seconds=20):
     return True
 
 
+def _all_in_sync(url):
+    st = httpx.get(url + "/sync/status").json()
+    return all(p["state"] == "ok" for p in st["peers"])
+
+
+def test_two_real_phones_hearing_one_sale_count_it_once_everywhere(three_devices):
+    fam = three_devices
+    a, b, c = fam.urls
+    assert _until(lambda: all(_all_in_sync(u) for u in fam.urls))           # shared moments exist now
+    for u in (a, b):                                                          # both phones hear it
+        httpx.post(u + "/ingest/text", json={"text": "7 plate poha de 140", "engine": "rules"}).raise_for_status()
+    assert _until(lambda: _ids(a) == _ids(b) == _ids(c) and len(_ids(a)) == 2)
+    for u in fam.urls:
+        s = httpx.get(u + "/ledger/summary").json()
+        assert len(s["duplicates"]) == 1 and s["possible_duplicates"] == [] and s["conflicts"] == []
+        assert s["balances_paise"]["cash"] == 14000
+    evs = httpx.get(a + "/events").json()
+    assert all(e["marks"] for e in evs)                                       # timed by sync moments
+
+
 def test_three_servers_sync_by_themselves_and_a_restarted_phone_catches_up(three_devices):
     fam = three_devices
     a, b, c = fam.urls
