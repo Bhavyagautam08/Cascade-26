@@ -292,13 +292,22 @@ class SlipConfirm(BaseModel):
 
 @app.post("/ingest/slip/confirm")
 def confirm_slip(body: SlipConfirm):
-    """Post confirmed slip lines as purchases. Lines without an amount are recorded too (no postings,
-    listed under `incomplete`) instead of disappearing."""
+    """Post confirmed slip lines. Nothing disappears:
+    - a line with a price -> purchase (books money);
+    - a line whose price was there but unreadable (other lines are priced, or the line was read with low
+      confidence) -> purchase without postings, listed under `incomplete` for the vendor to fix;
+    - a price-less list -> one order per line (pipeline.as_recorded), recorded but books nothing."""
+    any_priced = any(l.get("amount_rupees") is not None for l in body.lines)
+
+    def flags(l: dict) -> list[str]:
+        if l.get("amount_rupees") is not None:
+            return []
+        return ["amount_unreadable"] if any_priced or float(l.get("confidence", 1.0)) < 0.6 else []
+
     cands = [
         CandidateEvent(kind=Kind.purchase, source=Source.slip, confidence=float(l.get("confidence", 1.0)),
                        item=l.get("item") or None, qty=l.get("qty"), unit=l.get("unit"),
-                       amount_rupees=l.get("amount_rupees"), party=body.supplier,
-                       flags=[] if l.get("amount_rupees") is not None else ["amount_unreadable"], raw=str(l))
+                       amount_rupees=l.get("amount_rupees"), party=body.supplier, flags=flags(l), raw=str(l))
         for l in body.lines
     ]
     return {"events": record(cands)}

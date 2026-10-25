@@ -20,7 +20,7 @@ class Extraction(BaseModel):
 
 class LLMEvent(BaseModel):
     """What the model is asked to produce for one trade."""
-    kind: Literal["purchase", "sale", "credit_given", "credit_paid", "expense", "stock_count"]
+    kind: Literal["purchase", "sale", "credit_given", "credit_paid", "expense", "stock_count", "order"]
     item: str | None = None
     qty: float | None = None
     unit: str | None = None
@@ -43,12 +43,18 @@ Event kinds:
 - credit_paid: a customer paid back money they owed (jama, chukaya). party = the customer.
 - expense: the vendor paid for gas, rent, transport (kharcha, bhara).
 - stock_count: the vendor counted what is left (bacha, bache). qty = what is left.
+- order: items asked for or ordered with no price said (chahiye, bhej do, a list of items with
+  quantities). One order event per item, with its qty and unit.
 
 Rules:
-- One event per trade; a sentence can hold several trades. Chatter is not a transaction:
+- One event per trade; a sentence can hold several trades. A list of items with quantities is a
+  trade (one order event per item), even without a price. Chatter is not a transaction:
   return is_transaction=false and no events.
 - item, unit and party are normalised with the lexicon (e.g. tamatar -> tomato, "sharma ji" -> sharma).
-  A party belongs only to the trade in the same clause.
+  Only map a word that is itself in the lexicon; otherwise keep the item words as said
+  (e.g. "brown bread" stays "brown bread", never a similar lexicon item). A party belongs only to
+  the trade in the same clause.
+- Spoken numbers come from the lexicon's numbers (e.g. sau = 100, so "sau gram" is 100 g = 0.1 kg).
 - qty is the number right before a unit word (kilo, plate, cup, packet...), converted with the
   lexicon's unit factor. unit is the lexicon's unit (kg, l, plate, packet).
 - amount_rupees is the money actually said for that trade. If no money was said, use null.
@@ -62,6 +68,8 @@ text: "gupta ji ka 25 jama, aur 3 cup chai de"
 {{"is_transaction": true, "events": [{{"kind": "credit_paid", "item": null, "qty": null, "unit": null, "amount_rupees": 25, "party": "gupta", "confidence": 0.9}}, {{"kind": "sale", "item": "tea", "qty": 3, "unit": "plate", "amount_rupees": null, "party": null, "confidence": 0.8}}]}}
 text: "ramesh ka 45 udhaar likh"
 {{"is_transaction": true, "events": [{{"kind": "credit_given", "item": null, "qty": null, "unit": null, "amount_rupees": 45, "party": "ramesh", "confidence": 0.85}}]}}
+text: "bhai do kilo besan aur paanch sau gram jeera chahiye"
+{{"is_transaction": true, "events": [{{"kind": "order", "item": "gram flour", "qty": 2, "unit": "kg", "amount_rupees": null, "party": null, "confidence": 0.85}}, {{"kind": "order", "item": "cumin", "qty": 0.5, "unit": "kg", "amount_rupees": null, "party": null, "confidence": 0.85}}]}}
 text: "baarish ho rahi hai, dukaan jaldi band karenge"
 {{"is_transaction": false, "events": []}}
 

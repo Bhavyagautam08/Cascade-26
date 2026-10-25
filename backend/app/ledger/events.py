@@ -23,6 +23,7 @@ class Kind(str, Enum):
     credit_paid = "credit_paid"      # customer paid back (jama)
     expense = "expense"              # gas, rent, transport...
     stock_count = "stock_count"      # observed remaining stock
+    order = "order"                  # items asked for / bought with no price yet: recorded, no money moves
     adjustment = "adjustment"        # unclassified money (direction set), voids, "not a duplicate" markers
 
 

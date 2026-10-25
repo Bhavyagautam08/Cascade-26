@@ -147,9 +147,18 @@ def start_preload() -> None:
 
 
 # --- recording -------------------------------------------------------------------------------
+def as_recorded(c: CandidateEvent) -> CandidateEvent:
+    """Team rule: every trade is recorded. A purchase with an amount moves money; a purchase without
+    one is kept as an order (item, quantity, who) so it is never lost, and books nothing. Exception:
+    a price that existed but couldn't be read stays a purchase, listed as incomplete for the vendor."""
+    if c.kind == Kind.purchase and c.amount_rupees is None and "amount_unreadable" not in c.flags:
+        return c.model_copy(update={"kind": Kind.order, "flags": [*c.flags, "no_amount"]})
+    return c
+
+
 def record(cands: list[CandidateEvent], supersedes: list[str] | None = None) -> list[dict]:
     created = []
-    for c in cands:
+    for c in map(as_recorded, cands):
         ev = store.append_local(
             kind=c.kind, source=c.source, postings=postings_for(c),
             payload=c.model_dump(exclude={"kind", "source", "raw", "confidence"}),
@@ -210,22 +219,25 @@ def handle_text(text: str, source: Source, engine: str = "auto", heard_confidenc
     used = "rules"
 
     txn = sms.parse(text)
+    said = text if txn is not None else rules.spoken_numbers(text, lexicon.data)   # "soo gram" -> "100 gram"
+    if said != text:
+        result["normalized_text"] = said
     if txn is not None:
         cands, used = [_from_bank_sms(txn, source, text)], "bank_sms"
     elif engine in ("auto", "llm"):
         try:
             ex = extractor()
-            out = _model_call("LLM", lambda: ex.from_text(text, source))
+            out = _model_call("LLM", lambda: ex.from_text(said, source))
             cands, used = out.events, ex.name
             if not settings.demo:
-                result["cross_check"] = cross_check(text, cands)
+                result["cross_check"] = cross_check(said, cands)
         except (ModelUnavailable, ModelOutputInvalid) as e:
             if engine == "llm":
                 raise
             result["fallback_reason"] = str(e)
             log.warning("LLM fallback to rules: %s", e)
     if cands is None:
-        parsed = rules.parse_detailed(text, lexicon.data, source)
+        parsed = rules.parse_detailed(said, lexicon.data, source)
         cands, result["unparsed"] = parsed.events, parsed.unparsed
 
     for c in cands:

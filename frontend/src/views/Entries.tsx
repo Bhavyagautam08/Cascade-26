@@ -21,7 +21,7 @@ export default function Entries(d: Data & { selected?: string }) {
 
   const match = (e: LedgerEvent) =>
     filter === "all" ||
-    (filter === "trade" && ["purchase", "sale", "expense", "stock_count"].includes(e.kind)) ||
+    (filter === "trade" && ["purchase", "sale", "expense", "stock_count", "order"].includes(e.kind)) ||
     (filter === "udhaar" && (e.kind === "credit_given" || e.kind === "credit_paid")) ||
     (filter === "check" && e.kind !== "adjustment" && !st.superseded.has(e.id) && (e.confidence < 0.6 || st.disputed.has(e.id))) ||
     (filter === "corrections" && (e.kind === "adjustment" || e.supersedes.length > 0 || st.superseded.has(e.id)));

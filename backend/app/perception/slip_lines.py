@@ -76,7 +76,7 @@ def parse_line(text: str) -> ParsedLine | None:
             amount = _num(nums[-1])
             rest = BARE_NUM.sub(" ", rest)
 
-    item = re.sub(r"[()\[\]{}:=₹/\\-]+", " ", rest)
+    item = re.sub(r"[()\[\]{}:=₹/\\\-–—_]+", " ", rest)   # incl. en/em dashes: "Paneer — 500g"
     item = re.sub(r"\b(rs|inr|rupees?)\b\.?", " ", item, flags=re.I)
     item = re.sub(r"\s+", " ", item).strip(" .,").lower() or None
     return ParsedLine(item=item, qty=qty, unit=unit, amount_rupees=amount, notes=notes, is_total=is_total)
@@ -92,6 +92,9 @@ def parse_slip(lines: list[str]) -> tuple[str | None, float | None, list[tuple[i
     for i, text in enumerate(lines):
         p = parse_line(text)
         if p is None:
+            bare = bare_amount(text)      # "565/-" under the items, with no "Total" word
+            if bare is not None and items and total is None:
+                total = bare
             continue
         if p.is_total:
             total = p.amount_rupees if p.amount_rupees is not None else total
@@ -101,6 +104,13 @@ def parse_slip(lines: list[str]) -> tuple[str | None, float | None, list[tuple[i
             continue
         items.append((i, p))
     return supplier, total, items
+
+
+def bare_amount(text: str) -> float | None:
+    """A line that is only money ("565/-", "Rs 565", "= 565"): how bills often write the total.
+    A plain number without a money mark is not enough (it could be a date or a stray count)."""
+    m = MONEY.fullmatch(text.strip())
+    return _num(m.group(1) or m.group(2)) if m else None
 
 
 def _looks_like_heading(text: str, lines: list[str], i: int) -> bool:

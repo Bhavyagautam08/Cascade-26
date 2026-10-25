@@ -69,6 +69,54 @@ def test_line_confidence_is_driven_by_the_least_certain_digit():
     assert confs[0] < 0.15 and confs[1] > 0.95
 
 
+def test_bare_total_with_money_mark_and_em_dash_items():
+    # qwen3-vl:4b-instruct's transcription of eval sample 004 (prices in a right-hand column)
+    lines = ["Panera — 500g 320/-", "Tata Salt — 75g 5/-", "chilly sauce — 250 ml (1 Bottle) 35/-", "565/-"]
+    _, total, items = parse_slip(lines)
+    assert total == 565
+    assert [(p.item, p.qty, p.unit, p.amount_rupees) for _, p in items] == [
+        ("panera", 500, "g", 320), ("tata salt", 75, "g", 5), ("chilly sauce", 250, "ml", 35)]
+
+
+def test_plain_number_line_is_not_taken_as_total():
+    assert parse_slip(["Milk (2kg)", "25"])[1] is None      # a stray number, no money mark
+
+
+def test_consistency_flags_missing_prices_and_bad_totals():
+    from app.perception.vision import check_consistency
+    s = check_consistency(Slip(total_rupees=100, lines=[
+        SlipLine(item="a", amount_rupees=60, confidence=1.0), SlipLine(item="b", amount_rupees=None, confidence=1.0)]))
+    assert s.lines[1].confidence <= 0.5 and "price missing" in s.lines[1].notes[0]
+    s = check_consistency(Slip(total_rupees=100, lines=[
+        SlipLine(item="a", amount_rupees=60, confidence=1.0), SlipLine(item="b", amount_rupees=30, confidence=1.0)]))
+    assert s.warnings and all(l.confidence <= 0.5 for l in s.lines)          # 90 != 100
+    s = check_consistency(Slip(total_rupees=90, lines=[
+        SlipLine(item="a", amount_rupees=60, confidence=1.0), SlipLine(item="b", amount_rupees=30, confidence=1.0)]))
+    assert not s.warnings and all(l.confidence == 1.0 for l in s.lines)
+
+
+def test_purchase_without_amount_is_recorded_as_an_order():
+    from app.ledger.events import CandidateEvent, Kind, Source
+    from app.pipeline import as_recorded
+    o = as_recorded(CandidateEvent(kind=Kind.purchase, source=Source.slip, confidence=0.9, item="rice", qty=0.2, unit="kg"))
+    assert o.kind == Kind.order and "no_amount" in o.flags
+    p = as_recorded(CandidateEvent(kind=Kind.purchase, source=Source.slip, confidence=0.9, item="rice", amount_rupees=40))
+    assert p.kind == Kind.purchase
+
+
+@pytest.mark.parametrize("said, written", [
+    ("soo gram mirchi powder", "100 gram mirchi powder"),          # Whisper's spelling of "sau" (audio 101)
+    ("dhai sau gram achar", "250 gram achar"),
+    ("bhai teen kilo tamatar liya ek sau assi mein", "bhai 3 kilo tamatar liya 180 mein"),
+    ("aadha kilo tomato", "0.5 kilo tomato"),                       # aadha = 0.5 in the lexicon
+    ("5 plate poha de do", "5 plate poha de do"),                   # "do" = give: no unit follows
+    ("teen chaar kilo pyaz", "teen 4 kilo pyaz"),                   # two numbers are not summed into one
+])
+def test_spoken_numbers_become_digits_only_before_units(said, written):
+    from app.perception.rules import spoken_numbers
+    assert spoken_numbers(said, LEX) == written
+
+
 def test_whisper_hotwords_are_local_names_without_units():
     from app.perception.lexicon import Lexicon
     words = Lexicon(Path(__file__).parent.parent / "data" / "lexicon.json").hotwords().split()

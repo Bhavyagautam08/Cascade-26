@@ -100,3 +100,14 @@ def test_concurrent_local_appends_never_lose_events(tmp_path):
     [t.start() for t in threads]
     [t.join() for t in threads]
     assert sorted(e.seq for e in s.all()) == list(range(1, 201))
+
+
+def test_slip_confirm_priced_unreadable_and_order_lines():
+    priced = client.post("/ingest/slip/confirm", json={"supplier": None, "lines": [
+        {"item": "paneer", "qty": 0.5, "unit": "kg", "amount_rupees": 320, "confidence": 1.0},
+        {"item": "oil", "qty": 0.1, "unit": "l", "amount_rupees": None, "confidence": 1.0}]}).json()["events"]
+    assert [e["kind"] for e in priced] == ["purchase", "purchase"]          # missing price on a priced bill
+    assert "amount_unreadable" in priced[1]["payload"]["flags"]
+    listed = client.post("/ingest/slip/confirm", json={"supplier": None, "lines": [
+        {"item": "rice", "qty": 0.2, "unit": "kg", "amount_rupees": None, "confidence": 1.0}]}).json()["events"]
+    assert listed[0]["kind"] == "order" and listed[0]["postings"] == []      # a price-less list: recorded, books nothing

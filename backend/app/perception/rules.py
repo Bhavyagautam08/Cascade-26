@@ -58,6 +58,47 @@ def _tokens(clause: str) -> list[str]:
     return re.findall(r"₹|[a-z']+|\d+(?:\.\d+)?|[\w.]+", clause)
 
 
+_SAY_AFTER = {"mein", "me", "main", "rupay", "rupaye", "rupee", "rupees", "rs"}
+
+
+def spoken_numbers(text: str, lex: dict) -> str:
+    """Write spoken numbers as digits where a unit or money word follows, before any parsing:
+    "soo gram mirchi" -> "100 gram mirchi", "dhai sau gram" -> "250 gram", "ek sau assi mein" -> "180 mein".
+
+    The LLM mis-read "soo gram" as 0.5 kg (eval audio 101) even with the lexicon in its prompt. Number
+    words are also verbs and fillers ("de do" = give), so a word is converted only when a unit or money
+    word comes right after the number phrase.
+    """
+    numwords = {k: float(v) for k, v in lex.get("numbers", {}).items() if " " not in k}
+    mult = {**_MULTIPLIERS, **{k: float(v) for k, v in lex.get("numbers", {}).items() if v in (100, 1000) and " " not in k}}
+    units = {k.split()[0] for k in lex.get("units", {})} | _SAY_AFTER
+    toks = list(re.finditer(r"\S+", text))
+    word = lambda k: toks[k].group(0).lower().strip(".,;!?()")  # noqa: E731
+    spans: list[tuple[int, int, str]] = []
+    i = 0
+    while i < len(toks):
+        j, val, cur = i, 0.0, None
+        while j < len(toks):                 # "ek | sau | assi", "dhai | sau", "soo"
+            w = word(j)
+            if w in mult and cur is not None:
+                cur *= mult[w]
+            elif w in numwords and (cur is None or cur >= 100):   # "teen chaar" is two numbers, not one
+                val, cur = val + (cur or 0.0), numwords[w]
+            else:
+                break
+            j += 1
+        if cur is not None and j < len(toks) and word(j) in units:
+            spans.append((toks[i].start(), toks[j - 1].end(), f"{val + cur:g}"))
+            i = j
+        else:
+            i += 1
+    out, pos = [], 0
+    for start, end, digits in spans:
+        out += [text[pos:start], digits]
+        pos = end
+    return "".join(out) + text[pos:]
+
+
 def numbers_in(text: str, numwords: dict[str, float]) -> set[float]:
     """Every number literally present in text (digits, number words, "do sau"), for cross-checking."""
     out: set[float] = set()
@@ -193,7 +234,7 @@ def parse_detailed(text: str, lex: dict, source: Source = Source.manual) -> Pars
             amount = qty * float(prices[item])
             confidence = min(confidence, CONF_PRICED_FROM_LIST)
             flags.append("priced_from_list")
-        if amount is None and kind != Kind.stock_count:   # a stock count has no amount by nature
+        if amount is None and kind not in (Kind.stock_count, Kind.order):   # these have no amount by nature
             confidence = min(confidence, CONF_NO_AMOUNT)
         if "ambiguous_amount" in flags:
             confidence = CONF_AMBIGUOUS

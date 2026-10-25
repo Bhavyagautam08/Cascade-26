@@ -35,10 +35,41 @@ class Slip(BaseModel):
     total_rupees: float | None = None
     rotation: int = 0                # degrees counter-clockwise applied to make the photo upright
     text: str | None = None          # full transcription
+    warnings: list[str] = []         # slip-level problems the vendor must look at
 
 
-TRANSCRIBE = ("Transcribe the handwritten text in this image exactly as written, one line per line of the "
-              "page. Keep numbers and units exactly as written. Do not translate, explain or add anything.")
+DOUBTFUL = 0.5   # confidence given to a line that fails a consistency check; the UI flags < 0.6
+
+
+def check_consistency(slip: Slip) -> Slip:
+    """Catch what token confidence cannot: a value the model never read has no low-confidence token.
+
+    - If most lines carry a price, a line without one probably lost it -> flag that line.
+    - If the prices don't add up to the written total, something was misread -> flag every line.
+    """
+    lines = [l.model_copy() for l in slip.lines]
+    warnings = list(slip.warnings)
+    priced = [l for l in lines if l.amount_rupees is not None]
+    if priced and len(priced) < len(lines):
+        for l in lines:
+            if l.amount_rupees is None:
+                l.confidence = min(l.confidence, DOUBTFUL)
+                l.notes = [*l.notes, "price missing (other lines have one)"]
+    if slip.total_rupees is not None and priced:
+        s = sum(l.amount_rupees for l in priced)
+        if abs(s - slip.total_rupees) > 1:
+            warnings.append(f"line prices add up to {s:g}, the slip's total says {slip.total_rupees:g}")
+            for l in lines:
+                l.confidence = min(l.confidence, DOUBTFUL)
+    return slip.model_copy(update={"lines": lines, "warnings": warnings})
+
+
+# "edge to edge" matters: with a plain "transcribe" prompt the model dropped a right-hand price column
+# (8 of 10 prices on eval sample 004); this wording recovers all 10 and invents none on price-less lists.
+TRANSCRIBE = ("Transcribe the handwritten text in this image exactly as written. Copy each line completely, "
+              "from the left edge of the page to the right edge, including any numbers or prices written far "
+              "to the right of the line (for example 320/-), and any total at the bottom. Keep numbers and "
+              "units exactly as written. Do not translate, explain or add anything that is not written.")
 PROBE_TOKENS = 48        # enough to read 3-4 lines when choosing the rotation
 READ_TOKENS = 1024
 PROBE_SIZE = 896         # px, long side; the model resizes internally anyway
@@ -140,4 +171,5 @@ class SlipReader:
         lines = [SlipLine(item=p.item or "?", qty=p.qty, unit=p.unit, amount_rupees=p.amount_rupees,
                           confidence=confs[i] if i < len(confs) else 0.5, text=text_lines[i].strip(), notes=p.notes)
                  for i, p in parsed]
-        return Slip(supplier=supplier, lines=lines, total_rupees=total, rotation=rotation, text=content.strip())
+        return check_consistency(Slip(supplier=supplier, lines=lines, total_rupees=total, rotation=rotation,
+                                      text=content.strip()))

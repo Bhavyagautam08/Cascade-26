@@ -1,0 +1,18 @@
+{
+  "verified_by": null,
+  "notes": "DRAFT read by Claude from the photo - check every line. Prices are written as '320/-'. The total 565/- is under a line, with no 'Total' word; the ten prices add up to 565.",
+  "supplier": null,
+  "total_rupees": 565,
+  "lines": [
+    {"item": "paneer", "qty": 500, "unit": "g", "amount_rupees": 320},
+    {"item": "red chilly powder", "qty": 100, "unit": "g", "amount_rupees": 30},
+    {"item": "tata salt", "qty": 75, "unit": "g", "amount_rupees": 5},
+    {"item": "chilly sauce", "qty": 250, "unit": "ml", "amount_rupees": 35, "note": "(1 Bottle)"},
+    {"item": "soya sauce", "qty": 250, "unit": "ml", "amount_rupees": 35, "note": "(1 Bottle)"},
+    {"item": "vinegar", "qty": 100, "unit": "ml", "amount_rupees": 30},
+    {"item": "capsicum", "qty": 500, "unit": "g", "amount_rupees": 50, "note": "written: Shimla Mirch"},
+    {"item": "onion", "qty": 250, "unit": "g", "amount_rupees": 20, "note": "written: Pyaaz"},
+    {"item": "tomato", "qty": 200, "unit": "g", "amount_rupees": 20, "note": "written: Tamattar"},
+    {"item": "oil", "qty": 100, "unit": "ml", "amount_rupees": 20}
+  ]
+}

@@ -55,7 +55,9 @@
     "milk": "milk",
     "oil": "oil",
     "sooji": "semolina",
-    "dal": "dal"
+    "dal": "dal",
+    "shimla mirch": "capsicum",
+    "capsicum": "capsicum"
   },
   "units": {
     "kilo": {
@@ -175,7 +177,12 @@
     "gina": "stock_count",
     "kharcha": "expense",
     "kharch": "expense",
-    "bhara": "expense"
+    "bhara": "expense",
+    "chahiye": "order",
+    "chahie": "order",
+    "chaiye": "order",
+    "bhej do": "order",
+    "mangwa": "order"
   },
   "numbers": {
     "ek": 1,
@@ -206,7 +213,11 @@
     "assi": 80,
     "nabbe": 90,
     "chaalees": 40,
-    "pachas": 50
+    "pachas": 50,
+    "soo": 100,
+    "dedh sau": 150,
+    "dhai sau": 250,
+    "saadhe teen sau": 350
   },
   "prices": {
     "poha": 20,

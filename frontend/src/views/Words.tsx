@@ -14,8 +14,8 @@ const SECTIONS: Record<Section, { label: string; key: string; keyHint: string; v
   perishable: { label: "Spoils fast", key: "Item", keyHint: "capsicum", value: "", valueHint: "", help: "Waste of these leans towards spoilage." },
 };
 const UNIT_KINDS = ["kg", "l", "plate", "packet"];
-const KINDS = ["purchase", "sale", "credit_given", "credit_paid", "expense"];
-const KIND_WORDS: Record<string, string> = { purchase: "bought", sale: "sold", credit_given: "udhaar given", credit_paid: "udhaar repaid", expense: "expense" };
+const KINDS = ["purchase", "sale", "credit_given", "credit_paid", "expense", "order"];
+const KIND_WORDS: Record<string, string> = { purchase: "bought", sale: "sold", credit_given: "udhaar given", credit_paid: "udhaar repaid", expense: "expense", order: "ordered" };
 
 function show(section: Section, v: unknown) {
   if (section === "units" && v && typeof v === "object") {

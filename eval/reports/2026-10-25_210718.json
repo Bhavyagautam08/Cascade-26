@@ -1,0 +1,85 @@
+{
+  "health": {
+    "device_id": "phone-1",
+    "model_mode": "real",
+    "llm_model": "qwen3-vl:4b-instruct",
+    "whisper_model": "small",
+    "whisper_source": "small",
+    "asr": {
+      "loaded": "small (cuda, en)",
+      "source": "C:\\Users\\LENOVO\\.cache\\huggingface\\hub\\models--Systran--faster-whisper-small\\snapshots\\536b0662742c02347bc0e980a01041f333bce120",
+      "fallback": false,
+      "error": null,
+      "warm": true
+    },
+    "ollama_models": [
+      "qwen3-vl:4b-instruct"
+    ],
+    "ollama_error": null,
+    "llm_ready": true,
+    "llm_problem": null,
+    "mic_listening": false,
+    "mic": null,
+    "hostile_clock": "off",
+    "peers": [],
+    "sync_auth": false,
+    "events": 9
+  },
+  "audio": [
+    {
+      "sample": "101_whatsapp-192506.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 10.7,
+      "heard": "kya chahiya aapko bhai? bhai sahab ek kilo pyaj, ek kilo bindi, aadhar kilo tomato soo grama mirchi powder, soo grama tata salt, soo grama dhaniya, dhaishu grama achar yeh sab chahiyey hain",
+      "heard_conf": 0.53,
+      "events": [
+        "order onion 1.0kg RsNone",
+        "order okra 1.0kg RsNone",
+        "order tomato 0.5kg RsNone",
+        "order chilli powder 0.5kg RsNone",
+        "order salt 0.5kg RsNone",
+        "order coriander 0.5kg RsNone",
+        "order pickle 0.5kg RsNone"
+      ],
+      "note": "no answer key yet: output shown, not scored"
+    },
+    {
+      "sample": "102_whatsapp-192915.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 8.1,
+      "heard": "bhai sahab kya chahiye phir aap khaw? 2 liter milk chahiye, 1 kilo mawa chahiye, 200 gm rice, 750 gm sugar chahiye on prasaya mahal vaninda essence ki dabhi chahiye, 100 gm, badaam chahiye, 70 gm, kaju chahiye and pista achu chahiye, 50 gm, kesar 8 gm chahiye, boh damenge chahiye",
+      "heard_conf": 0.46,
+      "events": [
+        "order milk 2.0l RsNone",
+        "order mawa 1.0kg RsNone",
+        "order rice 0.2kg RsNone",
+        "order sugar 0.75kg RsNone",
+        "order almonds 0.1kg RsNone",
+        "order cashew 0.05kg RsNone",
+        "order pistachio 0.05kg RsNone",
+        "order saffron 0.008kg RsNone"
+      ],
+      "note": "no answer key yet: output shown, not scored"
+    },
+    {
+      "sample": "103_whatsapp-193044.wav",
+      "asr": "small (cuda, en)",
+      "engine": "qwen3-vl:4b-instruct",
+      "secs": 7.2,
+      "heard": "ke chahiye tana bhai bhai sahab 1 kilo baking soda bhi bhi chho 2.5 kilo refined sugar bhi chho 700 milliter vinegar aur 1 dozen manda 250 gram cocoa powder chahi jea 250 milliter malatanget kodab ko chahi jea aur 250 milliter malchi chahi jea",
+      "heard_conf": 0.47,
+      "events": [
+        "order baking soda 1.0kg RsNone",
+        "order refined flour 2.5kg RsNone",
+        "order vinegar 0.7l RsNone",
+        "order eggs 12.0dozen RsNone",
+        "order cocoa powder 0.25kg RsNone",
+        "order milk 0.25l RsNone",
+        "order milk 0.25l RsNone"
+      ],
+      "note": "no answer key yet: output shown, not scored"
+    }
+  ]
+}
