@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     voice_min_clarity: float = 0.25        # heard less clearly than this: shown, not booked until the vendor says so
 
     peers: str = ""  # comma-separated base URLs of other devices
+    # Sync with the peers every this many seconds, and right after any new entry (see sync/engine.py).
+    # 0 = only when asked (Sync now). Short on purpose: it bounds how far apart two phones' entries can be.
+    sync_interval_s: float = 5.0
     # Shared secret of the family's devices. When set, /sync/* requires it (X-Sync-Key header).
     sync_key: str = ""
     # The UI endpoints (ingest, ledger edits, lexicon) answer only this laptop unless this is true.

@@ -1,8 +1,10 @@
 """HTTP API for the local UI and for peer-to-peer sync. Runs entirely on localhost / LAN.
 
 Access:
-- /sync/* (except /sync/now) is for the family's other devices and needs X-Sync-Key when SYNC_KEY is set.
-- Everything else is for this laptop's UI and answers loopback callers only, unless ALLOW_REMOTE_UI=true.
+- /sync/hello, /sync/frontier, /sync/pull, /sync/push are for the family's other devices and need
+  X-Sync-Key when SYNC_KEY is set.
+- Everything else (including /sync/now and /sync/status) is for this laptop's UI and answers loopback
+  callers only, unless ALLOW_REMOTE_UI=true.
   (The Vite dev server proxies the UI's calls, so they arrive from localhost.)
 
 Errors: 503 = a model is unavailable, 502 = a model answered outside its schema, 422 = bad input,
@@ -17,7 +19,7 @@ import httpx
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app import inventory as inv
 from app.config import settings
@@ -32,10 +34,14 @@ from app.pipeline import (
     ModelOutputInvalid, ModelUnavailable, asr_status, ollama_problem, correct, handle_audio_file, handle_text,
     handle_utterance, heard, lexicon, recent_transcripts, record, resolve_conflict, separate, slip_reader,
     start_preload, store, void)
-from app.sync.transport import SYNC_KEY_HEADER, LanTransport
+from app.sync import protocol
+from app.sync.engine import SyncEngine
+from app.sync.transport import SYNC_KEY_HEADER, LanPeer
 
 mic = None
 LOOPBACK = {"127.0.0.1", "::1", "localhost"}
+PEER_PATHS = {"/sync/hello", "/sync/frontier", "/sync/pull", "/sync/push"}
+sync_engine = SyncEngine(store, [LanPeer(u, settings.sync_key) for u in settings.peer_urls], settings.sync_interval_s)
 
 
 def get_mic():
@@ -53,7 +59,9 @@ async def lifespan(_: FastAPI):
         start_preload()
     if settings.mic_enabled:
         get_mic().start()
+    sync_engine.start()
     yield
+    sync_engine.stop()
     if mic:
         mic.stop()
 
@@ -66,7 +74,7 @@ app.add_middleware(CORSMiddleware, allow_origin_regex=r"https?://(localhost|127\
 @app.middleware("http")
 async def access_control(request: Request, call_next):
     path = request.url.path
-    if path.startswith("/sync/") and path != "/sync/now":
+    if path in PEER_PATHS:
         if settings.sync_key and not hmac.compare_digest(request.headers.get(SYNC_KEY_HEADER, ""), settings.sync_key):
             return JSONResponse({"detail": "sync key missing or wrong"}, status_code=401)
     elif not settings.allow_remote_ui and (request.client is None or request.client.host not in LOOPBACK):
@@ -502,42 +510,48 @@ def add_lexicon(entry: LexiconEntry):
     return lexicon.data
 
 
-# --- sync --------------------------------------------------------------------
-class Frontier(BaseModel):
-    frontier: dict[str, int]
+# --- sync (protocol in sync/protocol.py, background rounds in sync/engine.py) -------------------------
+class PullIn(BaseModel):
+    have: dict[str, list[tuple[int, int]]] | None = None    # seq ranges held per actor
+    frontier: dict[str, int] | None = None                  # the older, gap-free form: [1, n] per actor
+    after: tuple[str, int] | None = None                     # cursor: the last entry of the previous page
+    limit: int = Field(protocol.PAGE, ge=1, le=protocol.MAX_PAGE)
 
 
-class EventBatch(BaseModel):
-    events: list[Event]
+class PushIn(BaseModel):
+    events: list[dict]                                       # validated one by one: one bad entry is refused alone
+
+
+@app.get("/sync/hello")
+def sync_hello():
+    return protocol.hello(store)
 
 
 @app.get("/sync/frontier")
 def sync_frontier():
-    return {"device_id": settings.device_id, "frontier": store.frontier()}
+    return {**protocol.hello(store), "device_id": store.device_id}
 
 
 @app.post("/sync/pull")
-def sync_pull(body: Frontier):
-    return {"events": [e.model_dump(mode="json") for e in store.missing_for(body.frontier)]}
+def sync_pull(body: PullIn):
+    if body.have is None and body.frontier is None:
+        raise HTTPException(422, "send have (or frontier)")
+    have = body.have if body.have is not None else {d: [(1, n)] for d, n in body.frontier.items() if n > 0}
+    return protocol.pull(store, have, body.after, body.limit)
 
 
 @app.post("/sync/push")
-def sync_push(body: EventBatch):
-    res = store.ingest(body.events)
-    return {"added": res.added, "duplicates": res.duplicates, "rejected": res.rejected}
+def sync_push(body: PushIn):
+    return protocol.push(store, body.events)
 
 
 @app.post("/sync/now")
 def sync_now():
-    """Exchange events with every configured peer (simulates a brief Bluetooth reconnect).
-    `added` = new events received here; `pushed` = new events the peer accepted."""
-    results = {}
-    for url in settings.peer_urls:
-        try:
-            r = LanTransport(url, settings.sync_key).exchange(store)
-            results[url] = {"added": r["pulled"], **r}
-        except httpx.HTTPStatusError as e:
-            results[url] = {"error": f"{e.response.status_code}: {e.response.text[:200]}"}
-        except httpx.HTTPError as e:
-            results[url] = {"error": f"unreachable: {type(e).__name__}: {e}"}
-    return results
+    """One round with every peer now. Per peer: pulled (= added) / pushed / refused entries, or the error."""
+    return sync_engine.run_once()
+
+
+@app.get("/sync/status")
+def sync_status():
+    """Auto-sync state and each peer's last outcome (seconds ago by the monotonic clock)."""
+    return sync_engine.status()

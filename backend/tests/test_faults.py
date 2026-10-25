@@ -286,34 +286,93 @@ def _free_port() -> int:
         return sck.getsockname()[1]
 
 
-@pytest.fixture
-def two_devices(tmp_path):
-    ports = [_free_port(), _free_port()]
-    procs = []
-    for i, port in enumerate(ports):
-        env = {**os.environ, "DEVICE_ID": f"phone-{i + 1}", "DB_PATH": str(tmp_path / f"p{i}.db"),
-               "PEERS": f"http://127.0.0.1:{ports[1 - i]}", "SYNC_KEY": "family-secret", "MODEL_MODE": "demo",
-               "ALLOW_REMOTE_UI": "false", "WHISPER_PRELOAD": "false", "MIC_ENABLED": "false",
-               "LEXICON_PATH": str(tmp_path / "lexicon.json")}
+class Family:
+    """Real backend processes on this laptop, one per phone, each with its own ledger file."""
+
+    def __init__(self, tmp_path, n: int, interval_s: float):
+        self.tmp, self.interval = tmp_path, interval_s
+        self.ports = [_free_port() for _ in range(n)]
+        self.urls = [f"http://127.0.0.1:{p}" for p in self.ports]
+        self.procs: list[subprocess.Popen | None] = [None] * n
         (tmp_path / "lexicon.json").write_text(json.dumps(LEX), encoding="utf-8")
-        procs.append(subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(port)],
-                                      cwd=Path(__file__).parent.parent, env=env,
-                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
-    urls = [f"http://127.0.0.1:{p}" for p in ports]
-    deadline = time.time() + 60
-    for u in urls:
+        for i in range(n):
+            self.start(i)
+
+    def start(self, i: int):
+        peers = ",".join(u for j, u in enumerate(self.urls) if j != i)
+        env = {**os.environ, "DEVICE_ID": f"phone-{i + 1}", "DB_PATH": str(self.tmp / f"p{i}.db"),
+               "PEERS": peers, "SYNC_KEY": "family-secret", "MODEL_MODE": "demo", "SYNC_INTERVAL_S": str(self.interval),
+               "ALLOW_REMOTE_UI": "false", "WHISPER_PRELOAD": "false", "MIC_ENABLED": "false",
+               "LEXICON_PATH": str(self.tmp / "lexicon.json")}
+        self.procs[i] = subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(self.ports[i])],
+                                         cwd=Path(__file__).parent.parent, env=env,
+                                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        deadline = time.time() + 60
         while True:
             try:
-                httpx.get(u + "/health", timeout=1).raise_for_status()
-                break
+                httpx.get(self.urls[i] + "/health", timeout=1).raise_for_status()
+                return
             except httpx.HTTPError:
-                if time.time() > deadline:
+                if time.time() > deadline or self.procs[i].poll() is not None:
                     raise
                 time.sleep(0.3)
-    yield urls
-    for p in procs:
-        p.terminate()
-        p.wait(10)
+
+    def kill(self, i: int):
+        self.procs[i].terminate()
+        self.procs[i].wait(10)
+        self.procs[i] = None
+
+    def close(self):
+        for i, p in enumerate(self.procs):
+            if p:
+                self.kill(i)
+
+
+@pytest.fixture
+def two_devices(tmp_path):
+    fam = Family(tmp_path, 2, interval_s=0)      # manual sync only: the test counts what one /sync/now moves
+    yield fam.urls
+    fam.close()
+
+
+@pytest.fixture
+def three_devices(tmp_path):
+    fam = Family(tmp_path, 3, interval_s=0.5)
+    yield fam
+    fam.close()
+
+
+def _ids(url):
+    return {e["id"] for e in httpx.get(url + "/events").json()}
+
+
+def _until(cond, seconds=20):
+    deadline = time.time() + seconds
+    while not cond():
+        if time.time() > deadline:
+            return False
+        time.sleep(0.2)
+    return True
+
+
+def test_three_servers_sync_by_themselves_and_a_restarted_phone_catches_up(three_devices):
+    fam = three_devices
+    a, b, c = fam.urls
+    httpx.post(a + "/ingest/text", json={"text": "pandey ji ka 60 udhaar", "engine": "rules"}).raise_for_status()
+    assert _until(lambda: _ids(a) == _ids(b) == _ids(c) and len(_ids(a)) == 1)       # nobody pressed sync
+    fam.kill(1)                                                      # phone-2 switched off
+    httpx.post(a + "/ingest/text", json={"text": "5 cup chai de", "engine": "rules"}).raise_for_status()
+    httpx.post(c + "/ingest/text", json={"text": "2 kilo pyaz laya 80", "engine": "rules"}).raise_for_status()
+    assert _until(lambda: _ids(a) == _ids(c) and len(_ids(a)) == 3)
+    assert _until(lambda: {p["url"]: p for p in httpx.get(a + "/sync/status").json()["peers"]}[b]["state"] == "unreachable")
+    fam.start(1)                                                     # back on, from its ledger file
+    assert _until(lambda: _ids(b) == _ids(a) and len(_ids(b)) == 3)
+    books = [httpx.get(u + "/ledger/summary").json()["balances_paise"] for u in (a, b, c)]
+    assert books[0] == books[1] == books[2]
+    st = httpx.get(b + "/sync/status").json()
+    assert st["auto"] and st["running"] and st["name"] == "phone-2"
+    assert all(p["state"] == "ok" and p["last_error"] is None for p in st["peers"])
+    assert len({httpx.get(u + "/health").json()["actor"] for u in fam.urls}) == 3
 
 
 def test_two_servers_sync_and_converge(two_devices):

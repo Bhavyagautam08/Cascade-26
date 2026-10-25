@@ -1,48 +1,51 @@
-"""How devices exchange events. Sync logic doesn't care whether bytes travel over LAN or Bluetooth.
+"""How sync messages travel: HTTP on the family's local Wi-Fi / hotspot. The conversation itself is in
+protocol.py and doesn't care what carries it.
 
-Protocol (two messages, works over any transport):
-  1. A sends its frontier {device_id: highest seq held without gaps}
-  2. B replies with every event A hasn't seen; A does the same in reverse
 Every request carries the family's shared SYNC_KEY (X-Sync-Key), so other laptops on the hotspot can't
-read or write the ledger.
+read or write the ledger. Failures are sorted for the status page: can't reach it (Unreachable), it said
+no (PeerRefused), it said something we don't understand (ProtocolError).
 """
-from typing import Protocol
-
 import httpx
 
-from app.ledger.events import Event
-from app.ledger.store import EventStore
+from app.ledger.store import Have
+from app.sync.protocol import PeerRefused, ProtocolError, Unreachable
 
 SYNC_KEY_HEADER = "X-Sync-Key"
+CONNECT_TIMEOUT_S = 2.0     # a phone that isn't on the hotspot costs at most this per round
+READ_TIMEOUT_S = 20.0       # a page of entries from a slow phone
 
 
-class Transport(Protocol):
-    def exchange(self, store: EventStore) -> dict: ...
+class LanPeer:
+    """A peer is another device running this backend, reachable over the local network."""
 
+    def __init__(self, url: str, sync_key: str = ""):
+        self.url = url.rstrip("/")
+        self._client = httpx.Client(timeout=httpx.Timeout(READ_TIMEOUT_S, connect=CONNECT_TIMEOUT_S),
+                                    headers={SYNC_KEY_HEADER: sync_key} if sync_key else {})
 
-class LanTransport:
-    """Peer is another device running this backend, reachable over local Wi-Fi."""
+    def _call(self, method: str, path: str, body: dict | None = None) -> dict:
+        try:
+            r = self._client.request(method, self.url + path, json=body)
+        except httpx.TransportError as e:
+            raise Unreachable(f"can't reach {self.url}: {type(e).__name__}: {e}") from e
+        if r.status_code >= 400:
+            raise PeerRefused(f"{r.status_code}: {r.text[:200]}")
+        try:
+            out = r.json()
+        except ValueError as e:
+            raise ProtocolError(f"{self.url}{path} did not answer JSON: {r.text[:120]!r}") from e
+        if not isinstance(out, dict):
+            raise ProtocolError(f"{self.url}{path} answered {type(out).__name__}, not an object")
+        return out
 
-    def __init__(self, base_url: str, sync_key: str = "", timeout: float = 5):
-        self.base_url = base_url
-        self.headers = {SYNC_KEY_HEADER: sync_key} if sync_key else {}
-        self.timeout = timeout
+    def hello(self) -> dict:
+        return self._call("GET", "/sync/hello")
 
-    def exchange(self, store: EventStore) -> dict:
-        """-> {"pulled": new events we received, "pushed": new events they accepted, "rejected": [...]}"""
-        with httpx.Client(timeout=self.timeout, headers=self.headers) as client:
-            r = client.post(f"{self.base_url}/sync/pull", json={"frontier": store.frontier()})
-            r.raise_for_status()
-            got = store.ingest([Event.model_validate(e) for e in r.json()["events"]])
+    def pull(self, have: Have, after: list | None, limit: int) -> dict:
+        return self._call("POST", "/sync/pull", {"have": have, "after": after, "limit": limit})
 
-            r = client.get(f"{self.base_url}/sync/frontier")
-            r.raise_for_status()
-            missing = [e.model_dump(mode="json") for e in store.missing_for(r.json()["frontier"])]
-            r = client.post(f"{self.base_url}/sync/push", json={"events": missing})
-            r.raise_for_status()
-            sent = r.json()
-        return {"pulled": got.added, "pushed": sent.get("added", 0),
-                "rejected": got.rejected + sent.get("rejected", [])}
+    def push(self, events: list[dict]) -> dict:
+        return self._call("POST", "/sync/push", {"events": events})
 
-
-# TODO(stage 6, stretch): BluetoothTransport using `bleak` with the same exchange() contract.
+    def close(self) -> None:
+        self._client.close()
