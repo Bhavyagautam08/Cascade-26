@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 from app import inventory as inv
 from app.config import settings
-from app.ledger import inference
+from app.ledger import days, inference
 from app.ledger.doubleentry import balances, incomplete, trial_balance_ok
 from app.ledger.events import CandidateEvent, Event, Kind, Source
 from app.ledger.fusion import fuse
@@ -129,7 +129,16 @@ def health():
 # --- ledger ------------------------------------------------------------------
 @app.get("/events")
 def list_events():
-    return [e.model_dump(mode="json") for e in causal_order(store.all())]
+    """Every event, in causal order, with the business day it belongs to."""
+    events = store.all()
+    of = days.day_of_events(events)
+    return [{**e.model_dump(mode="json"), "day": of[e.id]} for e in causal_order(events)]
+
+
+@app.get("/days")
+def list_days():
+    events = store.all()
+    return {"current": days.current_day(events), "days": days.list_days(events)}
 
 
 @app.get("/ledger/balances")
@@ -140,17 +149,26 @@ def ledger_balances():
 
 
 @app.get("/ledger/summary")
-def ledger_summary():
+def ledger_summary(day: int | None = None):
+    """Profit and incomplete trades for one business day (default: the current one). Balances, udhaar and
+    disputes are cumulative: the books and debts carry across days."""
     events = store.all()
     report = fuse(events)
+    known = {d["index"]: d for d in days.list_days(events)}
+    current = days.current_day(events)
+    index = current if day is None else day
+    if index not in known:
+        raise HTTPException(404, f"no business day {index}; days are {sorted(known)}")
     return {
+        "day": {**known[index], "current": index == current},
         "balanced": trial_balance_ok(report.effective),
         "balances_paise": balances(report.effective),
-        "profit": inference.profit_range(report.effective),
+        "receivables": inference.receivables(report.effective),
+        "profit": inference.day_profit(report.effective, index),
         "duplicates": report.duplicates,
         "conflicts": report.conflicts,
         "possible_conflicts": report.possible_conflicts,
-        "incomplete": incomplete(events),          # trades with no amount: not in the books at all
+        "incomplete": incomplete(days.in_day(events, index)),   # that day's trades with no amount
         "frontier": store.frontier(),
     }
 
@@ -363,21 +381,27 @@ def confirm_slip(body: SlipConfirm):
 
 
 # --- morning inventory ("Start Your Day") ------------------------------------
-def _inventory_draft(rec_id: str, transcript: str, **extra) -> dict:
+def _inventory_draft(rec_id: str, transcript: str, mode: inv.Mode, **extra) -> dict:
     from app.pipeline import _model_call, extractor
     if settings.demo:
-        raise ModelUnavailable("morning inventory needs the language model (MODEL_MODE=real); type the items in instead")
+        raise ModelUnavailable("the stock count needs the language model (MODEL_MODE=real); type the items in instead")
     ex = _model_call("LLM", extractor)
     lexicon.reload_if_changed()
-    items = _model_call("LLM", lambda: inv.extract(ex.client, ex.model, transcript, lexicon.data))
-    return inv.Draft(recording_id=rec_id, transcript=transcript, items=items,
-                     open_questions=sum(1 for i in items if i.question),
-                     already_saved=bool(inv.saved(store.all(), rec_id)), reader=ex.name, **extra).model_dump()
+    items = _model_call("LLM", lambda: inv.extract(ex.client, ex.model, transcript, lexicon.data, mode))
+    return {**inv.Draft(recording_id=rec_id, transcript=transcript, items=items,
+                        open_questions=sum(1 for i in items if i.question),
+                        already_saved=bool(inv.saved(store.all(), rec_id)), reader=ex.name, **extra).model_dump(),
+            "mode": mode}
+
+
+def _rec_id(mode: str, data: bytes) -> str:
+    return f"{mode}:{inv.recording_id(data)}"      # the same words in the morning and evening are two counts
 
 
 @app.post("/inventory/voice")
-async def inventory_voice(file: UploadFile = File(...)):
-    """A morning recording -> transcript -> draft inventory table (nothing saved yet)."""
+async def inventory_voice(file: UploadFile = File(...), mode: inv.Mode = "opening"):
+    """A recording -> transcript -> draft table (nothing saved yet). mode=opening: the morning inventory;
+    mode=closing: the evening count of what is left."""
     from app.pipeline import _model_call, asr
     data = await file.read()
     if len(data) < 1000:
@@ -388,11 +412,13 @@ async def inventory_voice(file: UploadFile = File(...)):
     if t is None:
         raise HTTPException(422, "no speech was heard in the recording - try again closer to the mic, "
                                  "or type the items instead")
-    return _inventory_draft(inv.recording_id(data), t.text, heard_confidence=round(t.confidence, 2), asr=model.name)
+    return _inventory_draft(_rec_id(mode, data), t.text, mode, heard_confidence=round(t.confidence, 2),
+                            asr=model.name)
 
 
 class InventoryText(BaseModel):
     text: str
+    mode: inv.Mode = "opening"
 
 
 @app.post("/inventory/text")
@@ -400,7 +426,7 @@ def inventory_text(body: InventoryText):
     """Typed fallback (or a transcript corrected by hand) -> the same draft table."""
     if not body.text.strip():
         raise HTTPException(422, "nothing to read")
-    return _inventory_draft(inv.recording_id(body.text.strip().lower().encode()), body.text.strip())
+    return _inventory_draft(_rec_id(body.mode, body.text.strip().lower().encode()), body.text.strip(), body.mode)
 
 
 class InventoryConfirm(BaseModel):
@@ -409,13 +435,14 @@ class InventoryConfirm(BaseModel):
     items: list[inv.InventoryItem]
     replace: bool = False          # explicit "yes, replace what I saved earlier today"
     typed: bool = False
+    mode: inv.Mode = "opening"
 
 
 @app.post("/inventory/confirm")
 def inventory_confirm(body: InventoryConfirm):
     try:
         return inv.confirm(store, body.recording_id, body.transcript, body.items,
-                           Source.manual if body.typed else Source.voice, body.replace)
+                           Source.manual if body.typed else Source.voice, body.replace, body.mode)
     except inv.NeedsAnswers as e:
         raise HTTPException(422, {"message": str(e), "items": [i.model_dump() for i in e.items]}) from e
     except inv.WouldOverwrite as e:
@@ -425,8 +452,12 @@ def inventory_confirm(body: InventoryConfirm):
 
 @app.get("/inventory/today")
 def inventory_today():
-    return {"day": inv.today(),
-            "events": [e.model_dump(mode="json") for e in causal_order(inv.todays_inventory(store.all()))]}
+    """This business day's morning inventory and evening count."""
+    events = store.all()
+    day = days.current_day(events)
+    dump = lambda evs: [e.model_dump(mode="json") for e in causal_order(evs)]  # noqa: E731
+    return {"day": day, "opening": dump(inv.todays_inventory(events, "opening")),
+            "closing": dump(inv.todays_inventory(events, "closing"))}
 
 
 class NewDay(BaseModel):
@@ -435,17 +466,16 @@ class NewDay(BaseModel):
 
 @app.post("/day/new")
 def new_day(body: NewDay):
-    """Start a fresh book for the day. The old one is kept as a dated file next to it, never deleted.
-    Note: syncing with a family phone that still holds the old entries brings them back - start the new
-    day on every phone."""
+    """Open the next business day (ledger/days.py). Nothing is deleted: earlier days stay in the ledger
+    and remain viewable; today's views start empty. The marker syncs, so the family's phones follow."""
     if not body.confirm:
         raise HTTPException(422, "send confirm=true to start a new day")
     from app import pipeline
-    old = len(store.all())
-    backup = store.archive(time.strftime("%Y%m%d-%H%M%S"))
+    marker = days.start_day(store)
     pipeline.recent_transcripts.clear()
     pipeline._recent_voice.clear()
-    return {"archived_events": old, "backup_file": backup.name if backup else None, "events": len(store.all())}
+    index = marker.payload["index"]
+    return {"day": next(d for d in days.list_days(store.all()) if d["index"] == index)}
 
 
 # --- lexicon (Lexicon Drop) --------------------------------------------------

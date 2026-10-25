@@ -40,23 +40,6 @@ class EventStore:
         )
         self.db.commit()
 
-    def archive(self, label: str) -> Path | None:
-        """Start a new book: the current file is renamed to <name>-<label>.db (kept, never deleted) and an
-        empty one takes its place. Same object, so every holder of this store sees the new day."""
-        with self._lock:
-            empty = self.db.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 0
-            self.db.close()
-            backup = None
-            if not empty:
-                backup = self.path.with_name(f"{self.path.stem}-{label}{self.path.suffix}")
-                n = 1
-                while backup.exists():
-                    backup = self.path.with_name(f"{self.path.stem}-{label}-{n}{self.path.suffix}")
-                    n += 1
-                self.path.rename(backup)
-            self._open()
-            return backup
-
     # --- reading -------------------------------------------------------------
     def all(self) -> list[Event]:
         with self._lock:

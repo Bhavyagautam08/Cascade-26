@@ -25,6 +25,7 @@ class Kind(str, Enum):
     stock_count = "stock_count"      # observed remaining stock
     order = "order"                  # items asked for / bought with no price yet: recorded, no money moves
     opening_stock = "opening_stock"  # stock already on hand at the start of the day (morning inventory)
+    day_start = "day_start"          # "start a new day": opens a business day (see ledger/days.py)
     adjustment = "adjustment"        # unclassified money (direction set), voids, "not a duplicate" markers
 
 

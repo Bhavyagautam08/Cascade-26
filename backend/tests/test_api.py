@@ -131,13 +131,13 @@ def test_too_unclear_speech_is_shown_not_booked():
     assert client.get("/mic/recent").json()[-1]["held"]
 
 
-def test_new_day_archives_the_book_and_starts_empty():
-    from pathlib import Path
-    from app.pipeline import store
-    client.post("/ingest/text", json={"text": "3 kilo aloo liya 90 mein", "engine": "rules"})
+def test_new_day_keeps_every_entry_and_clears_the_listening_feed():
+    old = client.post("/ingest/text", json={"text": "3 kilo aloo liya 90 mein", "engine": "rules"}).json()["events"][0]
+    client.post("/mic/simulate", json={"text": "2 kilo pyaz laya 60", "confidence": 0.9})
     assert client.post("/day/new", json={}).status_code == 422          # needs explicit confirmation
     r = client.post("/day/new", json={"confirm": True}).json()
-    assert r["events"] == 0 and r["archived_events"] > 0
-    assert (Path(store.path).parent / r["backup_file"]).exists()        # old book kept, not deleted
-    assert client.get("/events").json() == [] and client.get("/mic/recent").json() == []
-    assert len(client.post("/ingest/text", json={"text": "2 kilo pyaz liya 60 mein", "engine": "rules"}).json()["events"]) == 1
+    evs = {e["id"]: e for e in client.get("/events").json()}
+    assert old["id"] in evs and evs[old["id"]]["day"] < r["day"]["index"]   # kept, filed under its own day
+    assert client.get("/mic/recent").json() == []
+    new = client.post("/ingest/text", json={"text": "2 kilo pyaz liya 60 mein", "engine": "rules"}).json()["events"][0]
+    assert {e["id"]: e for e in client.get("/events").json()}[new["id"]]["day"] == r["day"]["index"]

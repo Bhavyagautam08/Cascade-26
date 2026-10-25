@@ -160,7 +160,22 @@ def test_api_confirm_duplicate_and_overwrite():
     unclear = c.post("/inventory/confirm", json={**body, "recording_id": "api-rec-3",
                                                  "items": [{**body["items"][0], "item": "x", "status": "unclear"}]})
     assert unclear.status_code == 422 and unclear.json()["detail"]["items"][0]["question"]
-    assert any(e["payload"]["item"] == "api-tomato" for e in c.get("/inventory/today").json()["events"])
+    assert any(e["payload"]["item"] == "api-tomato" for e in c.get("/inventory/today").json()["opening"])
+
+
+def test_api_evening_count_is_saved_as_closing_and_listed_separately():
+    from app.main import app
+    c = TestClient(app)
+    c.post("/day/new", json={"confirm": True})
+    body = {"recording_id": "closing:api-1", "transcript": "2 kilo tamatar bacha hai", "mode": "closing",
+            "items": [{"item": "tomato", "qty": 2, "unit": "kg", "status": "closing"}]}
+    r = c.post("/inventory/confirm", json=body).json()
+    assert r["events"][0]["kind"] == "stock_count" and r["events"][0]["payload"]["closing"]
+    today = c.get("/inventory/today").json()
+    assert [e["payload"]["qty"] for e in today["closing"]] == [2] and today["opening"] == []
+    bad = c.post("/inventory/confirm", json={**body, "recording_id": "closing:api-2",
+                                             "items": [{"item": "milk", "qty": None, "status": "closing"}]})
+    assert bad.status_code == 422 and "How much milk" in bad.json()["detail"]["items"][0]["question"]
 
 
 def test_api_empty_recording_and_no_model_are_clear_errors():
@@ -170,3 +185,40 @@ def test_api_empty_recording_and_no_model_are_clear_errors():
     assert empty.status_code == 422 and "empty" in empty.json()["detail"]
     typed = c.post("/inventory/text", json={"text": SPEC})                  # demo mode has no language model
     assert typed.status_code == 503 and "type the items" in typed.json()["detail"]
+
+
+# --- business days (A2) and the evening count (A1) --------------------------------------------------
+def test_overwrite_guard_is_per_business_day_not_per_clock_date(tmp_path):
+    from app.ledger import days
+    s = EventStore(tmp_path / "a.db", "phone-1")
+    inv.confirm(s, "d1-open", "", [_item("tomato", qty=5)], Source.voice)
+    days.start_day(s)                                                        # next business day
+    r = inv.confirm(s, "d2-open", "", [_item("tomato", qty=3)], Source.voice)   # same item, new day: allowed
+    assert not r["duplicate"] and [e.payload["qty"] for e in inv.todays_inventory(s.all())] == [3]
+
+
+def test_evening_count_records_whats_left_as_closing_stock_counts(tmp_path):
+    s = EventStore(tmp_path / "a.db", "phone-1")
+    left = [InventoryItem(item="tomato", qty=2, unit="kg", status="closing", confidence=1.0)]
+    r = inv.confirm(s, "close-1", "2 kilo tamatar bacha hai", left, Source.voice, mode="closing")
+    e = r["events"][0]
+    assert e["kind"] == "stock_count" and e["payload"]["closing"] is True and e["postings"] == []
+    assert inv.confirm(s, "close-1", "", left, Source.voice, mode="closing")["duplicate"]
+    with pytest.raises(inv.WouldOverwrite):                                  # second count of the same item today
+        inv.confirm(s, "close-2", "", [InventoryItem(item="tomato", qty=1.5, unit="kg", status="closing")],
+                    Source.voice, mode="closing")
+    assert [x.payload["qty"] for x in inv.todays_inventory(s.all(), mode="closing")] == [2]
+    assert inv.todays_inventory(s.all(), mode="opening") == []               # morning and evening kept apart
+
+
+def test_evening_count_asks_only_what_a_count_needs(tmp_path):
+    t = said("tamatar 2 kilo bacha hai, dhaniya bhi hai")
+    counted = check(_LLMItem(said="tamatar 2 kilo bacha hai", item="tomato", qty=2, unit="kilo", status="unclear"),
+                    t, LEX, mode="closing")
+    vague = check(_LLMItem(said="dhaniya bhi hai", item="coriander", qty=None, unit=None, status="opening"),
+                  t, LEX, mode="closing")
+    assert (counted.status, counted.question, counted.qty, counted.unit) == ("closing", None, 2, "kg")
+    assert "cost_missing" not in counted.flags                               # a count has no price
+    assert vague.question and "How much coriander" in vague.question
+    with pytest.raises(inv.NeedsAnswers):
+        inv.confirm(EventStore(tmp_path / "a.db", "phone-1"), "c", "", [vague], Source.voice, mode="closing")

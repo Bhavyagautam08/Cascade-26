@@ -31,11 +31,14 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.ledger import days
 from app.ledger.doubleentry import postings_for
 from app.ledger.events import CandidateEvent, Event, Kind, Source
 from app.perception import rules
 
-Status = Literal["opening", "purchased", "unclear"]
+HeardStatus = Literal["opening", "purchased", "unclear"]   # what the morning words can say
+Status = Literal["opening", "purchased", "unclear", "closing"]   # "closing" = counted at the end of the day
+Mode = Literal["opening", "closing"]                     # morning inventory | evening count
 
 
 class InventoryItem(BaseModel):
@@ -69,7 +72,7 @@ class _LLMItem(BaseModel):
     qty: float | None = None
     unit: str | None = None
     total_cost: float | None = None
-    status: Status
+    status: HeardStatus
 
 
 class _LLMOut(BaseModel):
@@ -94,7 +97,24 @@ text: "mere paas 3 kilo pyaz hai 90 rupaye ka, aur aaj subah 2 litre doodh liya 
 
 Lexicon: {lexicon}"""
 
+CLOSING_PROMPT = """At the end of the day a street vendor says how much stock is LEFT, in Hindi/English/Hinglish.
+Return one entry per item mentioned. For each item:
+- said: the exact words about this item.
+- item: the item name, normalised with the lexicon if the word is in it (tamatar -> tomato), else as said.
+- qty and unit: the number and unit word exactly as said, NOT converted ("500 gram" -> 500, "gram").
+  A count of things with no unit ("20 puriyan") -> qty 20, unit "piece". "khatam" / nothing left -> qty 0.
+  No number said -> null.
+- total_cost: null. status: "opening".
+Never invent a number. Spoken numbers come from the lexicon (sau = 100).
+
+Example:
+text: "shaam ko 2 kilo pyaz bacha hai, doodh khatam, aur mirchi thodi si hai"
+{{"items": [{{"said": "2 kilo pyaz bacha hai", "item": "onion", "qty": 2, "unit": "kilo", "total_cost": null, "status": "opening"}}, {{"said": "doodh khatam", "item": "milk", "qty": 0, "unit": null, "total_cost": null, "status": "opening"}}, {{"said": "mirchi thodi si hai", "item": "chilli", "qty": null, "unit": null, "total_cost": null, "status": "opening"}}]}}
+
+Lexicon: {lexicon}"""
+
 COUNT_UNITS = {"piece", "pieces", "pc", "pcs", "nag", "number"}
+_NONE_LEFT = {"khatam", "nahi", "nahin", "zero", "nothing"}
 
 # Held-or-bought must come from the words, not from the model's guess. Measured: the model called
 # "mere paas 5 kilo tamatar hain, jo 200 rupaye ke khareede the" (have; bought earlier) "purchased",
@@ -126,31 +146,51 @@ def recording_id(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()[:24]
 
 
-def extract(client, model: str, transcript: str, lex: dict) -> list[InventoryItem]:
+def extract(client, model: str, transcript: str, lex: dict, mode: Mode = "opening") -> list[InventoryItem]:
     """Transcript -> checked inventory items (never guesses; flags and questions instead)."""
     import json
     said_text = rules.spoken_numbers(transcript, lex)
+    prompt = PROMPT if mode == "opening" else CLOSING_PROMPT
     r = client.chat(
         model=model,
-        messages=[{"role": "system", "content": PROMPT.format(lexicon=json.dumps(lex, ensure_ascii=False))},
+        messages=[{"role": "system", "content": prompt.format(lexicon=json.dumps(lex, ensure_ascii=False))},
                   {"role": "user", "content": f"text: {said_text}"}],
         format=_LLMOut.model_json_schema(), options={"temperature": 0, "num_predict": 1536}, think=False)
     out = _LLMOut.model_validate_json(r.message.content)
-    return [check(i, said_text, lex) for i in out.items]
+    return [check(i, said_text, lex, mode) for i in out.items]
 
 
-def check(raw: _LLMItem, transcript: str, lex: dict) -> InventoryItem:
-    """Hold the model to the words actually said, convert units, compute unit cost, ask what's missing."""
+def _questions(name: str, qty: float | None, unit: str | None, status: str) -> list[str]:
+    q = []
+    if qty is None:
+        q.append(f"How much {name} is there?")
+    elif unit is None and qty != 0:                     # zero needs no unit: nothing left is nothing left
+        q.append(f"{qty:g} of {name} - kilo, litre, or pieces?")
+    if status == "unclear":
+        q.append(f"Did you buy the {name} this morning, or was it already with you?")
+    return q
+
+
+def check(raw: _LLMItem, transcript: str, lex: dict, mode: Mode = "opening") -> InventoryItem:
+    """Hold the model to the words actually said, convert units, compute unit cost, ask what's missing.
+    Evening counts (mode="closing") only need what is left: no price, no held-or-bought question."""
     numwords = lex.get("numbers", {})
     heard = rules.numbers_in(transcript, numwords) | rules.numbers_in(raw.said, numwords)
+    if mode == "closing" and _NONE_LEFT & set(re.findall(r"[a-z]+", raw.said.lower())):
+        heard |= {0.0}                                  # "doodh khatam" says zero without a digit
     flags: list[str] = []
-    questions: list[str] = []
     name = (raw.item or raw.said).strip().lower()
 
     qty = raw.qty
-    if qty is not None and not any(math.isclose(qty, h, rel_tol=1e-6) for h in heard):
+    if qty is not None and not any(math.isclose(qty, h, rel_tol=1e-6, abs_tol=1e-9) for h in heard):
         flags.append(f"quantity_not_heard:{qty:g}")
         qty = None
+    if mode == "closing":
+        unit, qty = _unit(raw.unit, qty, lex, flags)
+        return InventoryItem(item=name, said=raw.said, qty=qty, unit=unit, status="closing",
+                             confidence=1.0 if not flags and qty is not None else 0.5, flags=flags,
+                             question=" ".join(_questions(name, qty, unit, "closing")) or None)
+    questions: list[str] = []
     cost = raw.total_cost
     if cost is not None and not any(math.isclose(cost, h, rel_tol=1e-6) for h in heard):
         flags.append(f"cost_not_heard:{cost:g}")
@@ -163,24 +203,11 @@ def check(raw: _LLMItem, transcript: str, lex: dict) -> InventoryItem:
             cost = money[0]
             flags.append("cost_from_words")
 
-    unit = (raw.unit or "").strip().lower() or None
-    units = {k.lower(): v for k, v in lex.get("units", {}).items()}
-    if unit in units:
-        u = units[unit]
-        unit, qty = u["unit"], (round(qty * u["factor"], 6) if qty is not None else None)
-    elif unit in COUNT_UNITS:
-        unit = "piece"
-    elif unit is not None:
-        flags.append(f"unknown_unit:{unit}")          # kept as said, not converted
-    if qty is None:
-        questions.append(f"How much {name} is there?")
-    elif unit is None:
-        questions.append(f"{qty:g} of {name} - kilo, litre, or pieces?")
+    unit, qty = _unit(raw.unit, qty, lex, flags)
     status = status_from_words(raw.said)
     if status != raw.status:
         flags.append(f"status_from_words:{raw.status}->{status}")
-    if status == "unclear":
-        questions.append(f"Did you buy the {name} this morning, or was it already with you?")
+    questions += _questions(name, qty, unit, status)
     if cost is None:
         flags.append("cost_missing")                   # allowed, but visible: nothing is assumed
 
@@ -191,17 +218,27 @@ def check(raw: _LLMItem, transcript: str, lex: dict) -> InventoryItem:
                          question=" ".join(questions) or None)
 
 
-def recheck(item: InventoryItem) -> InventoryItem:
+def _unit(said_unit: str | None, qty: float | None, lex: dict, flags: list[str]) -> tuple[str | None, float | None]:
+    """Spoken unit -> canonical unit via the lexicon, converting the quantity with it."""
+    unit = (said_unit or "").strip().lower() or None
+    units = {k.lower(): v for k, v in lex.get("units", {}).items()}
+    if unit in units:
+        u = units[unit]
+        return u["unit"], (round(qty * u["factor"], 6) if qty is not None else None)
+    if unit in COUNT_UNITS:
+        return "piece", qty
+    if unit is not None:
+        flags.append(f"unknown_unit:{unit}")          # kept as said, not converted
+    return unit, qty
+
+
+def recheck(item: InventoryItem, mode: Mode = "opening") -> InventoryItem:
     """After the vendor edits a row: recompute unit cost and what is still open."""
-    questions = []
-    if item.qty is None:
-        questions.append(f"How much {item.item} is there?")
-    elif not item.unit:
-        questions.append(f"{item.qty:g} of {item.item} - kilo, litre, or pieces?")
-    if item.status == "unclear":
-        questions.append(f"Did you buy the {item.item} this morning, or was it already with you?")
-    unit_cost = round(item.total_cost / item.qty, 4) if item.total_cost is not None and item.qty else None
-    return item.model_copy(update={"unit_cost": unit_cost, "question": " ".join(questions) or None})
+    status = "closing" if mode == "closing" else item.status
+    questions = _questions(item.item, item.qty, item.unit or None, status)
+    unit_cost = (round(item.total_cost / item.qty, 4)
+                 if mode == "opening" and item.total_cost is not None and item.qty else None)
+    return item.model_copy(update={"unit_cost": unit_cost, "status": status, "question": " ".join(questions) or None})
 
 
 # --- saving ------------------------------------------------------------------------------------------
@@ -217,54 +254,55 @@ class WouldOverwrite(ValueError):
         super().__init__("already saved today: " + ", ".join(e["item"] for e in existing))
 
 
-INVENTORY_KINDS = (Kind.opening_stock, Kind.purchase, Kind.order)
-
-
-def today() -> str:
-    return dt.date.today().isoformat()
-
-
 def saved(events: list[Event], rec_id: str) -> list[Event]:
     superseded = {s for e in events for s in e.supersedes}
     return [e for e in events if e.payload.get("recording_id") == rec_id and e.id not in superseded]
 
 
-def todays_inventory(events: list[Event], day: str | None = None) -> list[Event]:
-    day = day or today()
+def todays_inventory(events: list[Event], mode: Mode = "opening", day: int | None = None) -> list[Event]:
+    """The morning inventory (mode="opening") or the evening count ("closing") saved in a business day
+    (default: the current one). Days come from day markers, never from a phone's clock."""
+    day = days.current_day(events) if day is None else day
     superseded = {s for e in events for s in e.supersedes}
-    return [e for e in events if e.kind in INVENTORY_KINDS and e.payload.get("inventory_day") == day
-            and e.id not in superseded]
+    return [e for e in days.in_day(events, day)
+            if e.payload.get("inventory") == mode and e.id not in superseded]
 
 
 def confirm(store, rec_id: str, transcript: str, items: list[InventoryItem], source: Source,
-            replace: bool = False) -> dict:
+            replace: bool = False, mode: Mode = "opening") -> dict:
     from app.pipeline import as_recorded
 
-    events = store.all()
-    already = saved(events, rec_id)
-    if already:                                       # same recording saved before: no duplicates
-        return {"duplicate": True, "events": [e.model_dump(mode="json") for e in already]}
+    with store._lock:                               # check-then-write atomically (two taps of Save)
+        events = store.all()
+        already = saved(events, rec_id)
+        if already:                                   # same recording saved before: no duplicates
+            return {"duplicate": True, "events": [e.model_dump(mode="json") for e in already]}
 
-    items = [recheck(i) for i in items]
-    open_ = [i for i in items if i.question or not i.item.strip()]
-    if open_:
-        raise NeedsAnswers(open_)
+        items = [recheck(i, mode) for i in items]
+        open_ = [i for i in items if i.question or not i.item.strip()]
+        if open_:
+            raise NeedsAnswers(open_)
 
-    day = today()
-    clash = [e for e in todays_inventory(events, day) if e.payload.get("item") in {i.item for i in items}]
-    if clash and not replace:
-        raise WouldOverwrite([{"id": e.id, "item": e.payload.get("item"), "qty": e.payload.get("qty"),
-                               "unit": e.payload.get("unit"), "kind": e.kind.value} for e in clash])
+        clash = [e for e in todays_inventory(events, mode) if e.payload.get("item") in {i.item for i in items}]
+        if clash and not replace:
+            raise WouldOverwrite([{"id": e.id, "item": e.payload.get("item"), "qty": e.payload.get("qty"),
+                                   "unit": e.payload.get("unit"), "kind": e.kind.value} for e in clash])
 
-    created = []
-    for i in items:
-        kind = Kind.opening_stock if i.status == "opening" else Kind.purchase
-        cand = as_recorded(CandidateEvent(kind=kind, source=source, confidence=1.0, item=i.item, qty=i.qty,
-                                          unit=i.unit, amount_rupees=i.total_cost, flags=list(i.flags)))
-        payload = {**cand.model_dump(exclude={"kind", "source", "raw", "confidence"}),
-                   "unit_cost": i.unit_cost, "recording_id": rec_id, "inventory_day": day, "said": i.said}
-        replaced = [e.id for e in clash if e.payload.get("item") == i.item]
-        ev = store.append_local(kind=cand.kind, source=source, postings=postings_for(cand), payload=payload,
-                                confidence=1.0, raw=transcript, supersedes=replaced)
-        created.append(ev.model_dump(mode="json"))
-    return {"duplicate": False, "events": created, "replaced": [e.id for e in clash]}
+        created = []
+        for i in items:
+            replaced = [e.id for e in clash if e.payload.get("item") == i.item]
+            common = {"recording_id": rec_id, "inventory": mode, "said": i.said}
+            if mode == "closing":                     # what is left: a stock count, no money moves
+                payload = {"item": i.item, "qty": i.qty, "unit": i.unit, "closing": True, "flags": i.flags, **common}
+                ev = store.append_local(kind=Kind.stock_count, source=source, postings=[], payload=payload,
+                                        confidence=1.0, raw=transcript, supersedes=replaced)
+            else:
+                kind = Kind.opening_stock if i.status == "opening" else Kind.purchase
+                cand = as_recorded(CandidateEvent(kind=kind, source=source, confidence=1.0, item=i.item, qty=i.qty,
+                                                  unit=i.unit, amount_rupees=i.total_cost, flags=list(i.flags)))
+                payload = {**cand.model_dump(exclude={"kind", "source", "raw", "confidence"}),
+                           "unit_cost": i.unit_cost, **common}
+                ev = store.append_local(kind=cand.kind, source=source, postings=postings_for(cand), payload=payload,
+                                        confidence=1.0, raw=transcript, supersedes=replaced)
+            created.append(ev.model_dump(mode="json"))
+        return {"duplicate": False, "events": created, "replaced": [e.id for e in clash]}

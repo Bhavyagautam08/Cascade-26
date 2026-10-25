@@ -104,34 +104,60 @@ def _ordered(events: list[Event]) -> list[Event]:
     return causal_order(events)
 
 
+COUNT_KINDS = (Kind.stock_count, Kind.opening_stock)     # a morning inventory is a count too
+
+
 def wastage_from_ledger(events: list[Event], perishable: list[str] | None = None) -> dict:
-    """Burn per ingredient between consecutive stock counts (previous count + bought - this count),
-    regressed on plates sold in the same period. Needs at least (dishes + 1) count periods per
-    ingredient; otherwise says so instead of guessing. Wall time is never used: periods are causal.
+    """What each ingredient lost between consecutive stock counts: previous count + bought - this count.
+
+    Each period between two counts is one of:
+    - trading: plates were sold in it, or it stays inside one business day (morning -> evening). Its burn
+      is regressed on the plates sold to learn grams per plate (recipe) and a steady waste per period.
+    - overnight: it crosses into another business day with nothing sold (evening count -> next morning).
+      Its burn is reported as an overnight change, not mixed into the recipe.
+    - excluded: a purchase in another unit than the counts (packets vs kg) - shown, never summed.
+    A day with no morning count simply starts from the last count before it (a real count, labelled).
+    Needs at least (dishes + 1) trading periods; otherwise says so. Wall time is never used.
     """
+    from app.ledger.days import day_of_events
     perishable_set = set(perishable or [])
+    day_of = day_of_events(events)
     ev = [e for e in _ordered(events) if e.payload.get("item")]
-    dishes = sorted({e.payload["item"] for e in ev if e.kind == Kind.sale and e.payload.get("qty")})
-    counts_kinds = (Kind.stock_count, Kind.opening_stock)     # a morning inventory is a count too
-    counted = sorted({e.payload["item"] for e in ev
-                      if e.kind in counts_kinds and e.payload.get("qty") is not None})
+    dishes = sorted({e.payload["item"] for e in ev if e.kind == Kind.sale and e.payload.get("qty")
+                     and e.payload.get("unit") == "plate"})
+    counted = sorted({e.payload["item"] for e in ev if e.kind in COUNT_KINDS and e.payload.get("qty") is not None})
     out: dict = {"dishes": dishes, "ingredients": {}}
     for ing in counted:
         counts = [i for i, e in enumerate(ev)
-                  if e.kind in counts_kinds and e.payload["item"] == ing and e.payload.get("qty") is not None]
-        burn, plates = [], []
+                  if e.kind in COUNT_KINDS and e.payload["item"] == ing and e.payload.get("qty") is not None]
+        unit = next((ev[i].payload.get("unit") for i in counts if ev[i].payload.get("unit")), None)
+        rows, overnight = [], []
         for a, b in zip(counts, counts[1:]):
-            between = ev[a + 1:b + 1]
-            bought = sum(e.payload.get("qty") or 0 for e in between
-                         if e.kind == Kind.purchase and e.payload["item"] == ing)
-            burn.append(ev[a].payload["qty"] + bought - ev[b].payload["qty"])
-            plates.append([sum(e.payload.get("qty") or 0 for e in between
-                               if e.kind == Kind.sale and e.payload["item"] == d) for d in dishes])
-        res: dict = {"periods": len(burn), "burn": burn}
+            start, end, between = ev[a], ev[b], ev[a + 1:b + 1]
+            buys = [e for e in between if e.kind == Kind.purchase and e.payload["item"] == ing]
+            plates = {d: sum(e.payload.get("qty") or 0 for e in between if e.kind == Kind.sale
+                             and e.payload["item"] == d and e.payload.get("unit") == "plate") for d in dishes}
+            row = {"from_day": day_of.get(start.id), "to_day": day_of.get(end.id), "start_qty": start.payload["qty"],
+                   "start_kind": start.kind.value, "end_qty": end.payload["qty"], "plates": plates,
+                   "bought": sum(e.payload.get("qty") or 0 for e in buys), "burn": None, "note": None}
+            other_units = sorted({e.payload.get("unit") for e in buys if e.payload.get("unit") not in (unit, None)})
+            if other_units or any(e.payload.get("qty") is None for e in buys):
+                row.update(kind="excluded", note=f"bought in {', '.join(other_units) or 'an unknown quantity'}, "
+                                                 f"counted in {unit}: not summed")
+            else:
+                row["burn"] = round(row["start_qty"] + row["bought"] - row["end_qty"], 6)
+                crosses = row["from_day"] != row["to_day"]
+                row["kind"] = "overnight" if crosses and not any(plates.values()) else "trading"
+                if row["kind"] == "overnight":
+                    overnight.append({"from_day": row["from_day"], "to_day": row["to_day"], "change": row["burn"]})
+            rows.append(row)
+        trading = [r for r in rows if r["kind"] == "trading"]
+        burn = [r["burn"] for r in trading]
+        res: dict = {"unit": unit, "rows": rows, "overnight": overnight, "periods": len(burn), "burn": burn}
         if not dishes or len(burn) < len(dishes) + 1:
-            res["status"] = f"need {len(dishes) + 1} stock-count periods, have {len(burn)}"
+            res["status"] = f"need {len(dishes) + 1} trading periods (morning and evening counts), have {len(burn)}"
         else:
-            fit = recipe_per_plate(np.array(burn)[:, None], np.array(plates))
+            fit = recipe_per_plate(np.array(burn)[:, None], np.array([[r["plates"][d] for d in dishes] for r in trading]))
             unexplained = max(0.0, float(np.sum(fit["unexplained_per_day"])))
             res.update(status="ok",
                        usage_per_dish={d: fit["usage_per_plate"][k][0] for k, d in enumerate(dishes)},
@@ -165,8 +191,59 @@ def _certain_postings(e: Event) -> list[Posting]:
     return [p for i, p in enumerate(e.postings) if i != idx]
 
 
+def receivables(events: list[Event]) -> dict[str, float]:
+    """Udhaar owed per customer (rupees), the certain part only (disputed halves wait in suspense).
+    Pass the whole ledger for the udhaar book: a debt carries across days."""
+    owed: dict[str, int] = defaultdict(int)
+    for e in events:
+        for p in _certain_postings(e):
+            if p.account.startswith("receivable:"):
+                owed[p.account] += p.amount
+    return {k.split(":", 1)[1]: v / 100.0 for k, v in owed.items() if v}
+
+
+CARRIED = "stock_count (opening = last count of an earlier day)"
+
+
+def day_profit(events: list[Event], index: int) -> dict:
+    """Profit of one business day from the fused ledger.
+
+    The day's own entries, plus, for an item counted today (evening count) but not in today's morning
+    inventory, its last count from an earlier day as today's opening stock - a real count, valued at the
+    item's average known purchase price. Without any known price it is not valued; cogs_method says so.
+    """
+    from app.ledger.days import day_of_events
+    of = day_of_events(events)
+    ordered = _ordered(events)
+    today = [e for e in ordered if of[e.id] == index]
+
+    def known_price(item: str, unit: str | None) -> float | None:
+        """Average paise per unit over every priced purchase / opening stock of this item, any day."""
+        paid = [(p.amount, e.payload["qty"]) for e in ordered if e.kind in (Kind.purchase, Kind.opening_stock)
+                and e.payload.get("item") == item and e.payload.get("qty") and e.payload.get("unit") == unit
+                for p in e.postings if p.account == f"inventory:{item}" and p.amount > 0]
+        return sum(a for a, _ in paid) / sum(q for _, q in paid) if paid else None
+
+    carried: dict[str, tuple[float, float | None, float, str]] = {}
+    morning = [e for e in today if e.kind == Kind.opening_stock and e.payload.get("qty") is not None]
+    for e in morning:                     # "mere paas 6 kilo poha hai": a count said without a price
+        if not any(p.amount > 0 for p in e.postings):
+            item = e.payload["item"]
+            carried[item] = (float(e.payload["qty"]), known_price(item, e.payload.get("unit")), e.confidence, "morning")
+    evening = {e.payload.get("item") for e in today if e.kind == Kind.stock_count and e.payload.get("item")}
+    for item in sorted(evening - {e.payload["item"] for e in morning}):
+        prev = [e for e in ordered if of[e.id] < index and e.kind in COUNT_KINDS and e.payload.get("item") == item
+                and e.payload.get("qty") is not None]
+        if prev:
+            last = prev[-1]
+            carried[item] = (float(last.payload["qty"]), known_price(item, last.payload.get("unit")),
+                             last.confidence, "earlier_day")
+    return profit_range(today, carried=carried)
+
+
 def profit_range(events: list[Event], collect_alpha: float = 8.0, collect_beta: float = 2.0,
-                 unsold_fraction: tuple[float, float] = (0.0, 0.3), samples: int = 2000) -> dict:
+                 unsold_fraction: tuple[float, float] = (0.0, 0.3), samples: int = 2000,
+                 carried: dict[str, tuple[float, float | None, float, str]] | None = None) -> dict:
     """Accrual profit (rupees) as a range, from the *effective* (fused) events.
 
     profit = revenue - cost of stock actually used - expenses - receivables unlikely to be paid
@@ -205,6 +282,13 @@ def profit_range(events: list[Event], collect_alpha: float = 8.0, collect_beta: 
                 expenses.append((p.amount, e.confidence))
             elif p.account.startswith("receivable:"):
                 receivable[p.account] += p.amount
+    unvalued: set[str] = set()
+    from_earlier = {i for i, c in (carried or {}).items() if c[3] == "earlier_day"}
+    for item, (qty, price, conf, _) in (carried or {}).items():   # opening stock with no price on it (day_profit)
+        if price is None:
+            unvalued.add(item)
+        else:
+            buys[item].insert(0, (-1, int(round(qty * price)), conf, qty))
 
     rev = noisy([a for a, _ in revenue], [c for _, c in revenue])
     exp = noisy([a for a, _ in expenses], [c for _, c in expenses])
@@ -221,10 +305,14 @@ def profit_range(events: list[Event], collect_alpha: float = 8.0, collect_beta: 
             used = noisy([r[1] for r in before], [r[2] for r in before]) - counted_value
             cogs += np.clip(used, 0, None)
             cogs += noisy([r[1] for r in after], [r[2] for r in after]) * (1 - rng.uniform(*unsold_fraction, samples))
-            method[item] = "stock_count"
+            method[item] = CARRIED if item in from_earlier and item not in unvalued else "stock_count"
         else:
             cogs += noisy([r[1] for r in rows], [r[2] for r in rows]) * (1 - rng.uniform(*unsold_fraction, samples))
             method[item] = "assumed_unsold_fraction" if not count else "assumed (purchases have no quantity)"
+        if item in unvalued:
+            method[item] += "; opening stock has no price known, so cost of goods is understated"
+    for item in unvalued - set(method):
+        method[item] = "not valued: opening stock with no price known for it"
     outstanding = float(sum(v for v in receivable.values() if v > 0))
     collect_p = rng.beta(collect_alpha, collect_beta, size=samples)
     bad_debt = outstanding * (1 - collect_p)
