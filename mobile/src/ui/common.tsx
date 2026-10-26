@@ -6,6 +6,7 @@ import { service } from '../app/service';
 import type { Event, Kind, Source } from '../core/events';
 import type { Conflict, FusionReport } from '../core/fusion';
 import { nameOf } from '../core/identity';
+import type { Ledger } from '../core/ledger';
 import { closestItem, itemLabel } from '../core/spelling';
 import { Actions, Button, C, Card, Conf, ErrorLine, Field, Input, KindTag, LevelMeter, MicButton, Muted, Pill, Row, Segmented, StatusDot, cap, fmtQty, inr, paise, s } from './kit';
 import { t } from './strings';
@@ -169,8 +170,13 @@ const parseAmount = (x: string, field: string): number | null => {
 export function ReviewItem({ e }: { e: Event }) {
   const nav = useNav();
   const [error, setError] = useState<string | null>(null);
+  const p = e.payload as Record<string, any>;
   const [price, setPrice] = useState('');
+  const [qty, setQty] = useState(p.qty != null ? String(p.qty) : '');
+  const [unit, setUnit] = useState(p.unit ?? '');
   const noPrice = e.postings.length === 0 && ['purchase', 'sale', 'credit_given', 'credit_paid', 'expense', 'order'].includes(e.kind);
+  const hasItem = !!p.item; // udhaar has no quantity
+  const missingQty = hasItem && p.qty == null;
   return (
     <View style={{ gap: 8, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.line }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -180,12 +186,26 @@ export function ReviewItem({ e }: { e: Event }) {
       </View>
       {e.raw ? <Text style={s.muted} numberOfLines={3}>{t.review.said(e.raw)}</Text> : null}
       <Conf value={e.confidence} />
-      {noPrice ? (
-        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-          <Input style={{ flex: 1 }} keyboardType="decimal-pad" placeholder={t.review.price} value={price} onChangeText={setPrice} accessibilityLabel={t.review.price} />
-          <Button small label={t.review.setPrice} disabled={!price.trim()} onPress={() => tryRun(() => {
-            const amount = parseAmount(price, t.review.price);
-            ledger().correct(e.id, { amount_rupees: amount, kind: e.kind === 'order' ? 'purchase' : e.kind });
+      {noPrice || missingQty ? (
+        <View style={{ gap: 8 }}>
+          {hasItem ? (
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Field label={t.entry.qty}><Input keyboardType="decimal-pad" placeholder="?" value={qty} onChangeText={setQty} accessibilityLabel={t.entry.qty} /></Field>
+              <Field label={t.entry.unit}><Input autoCapitalize="none" placeholder="kg" value={unit} onChangeText={setUnit} accessibilityLabel={t.entry.unit} /></Field>
+            </View>
+          ) : null}
+          {noPrice ? <Field label={t.review.price}><Input keyboardType="decimal-pad" placeholder="₹" value={price} onChangeText={setPrice} accessibilityLabel={t.review.price} /></Field> : null}
+          <Button small icon="✓" label={t.review.setPrice} disabled={(noPrice && !price.trim()) || (missingQty && !qty.trim())} onPress={() => tryRun(() => {
+            const changes: Parameters<Ledger['correct']>[1] = {};
+            if (hasItem) {
+              changes.qty = parseAmount(qty, t.entry.qty);
+              changes.unit = unit.trim() || null;
+            }
+            if (noPrice) {
+              changes.amount_rupees = parseAmount(price, t.review.price);
+              changes.kind = e.kind === 'order' ? 'purchase' : e.kind;
+            }
+            ledger().correct(e.id, changes);
           }, setError)} />
         </View>
       ) : null}

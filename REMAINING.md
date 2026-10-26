@@ -38,12 +38,25 @@ Updated 2026-10-26. Work folder: `C:\dev\Cascade\Cascade-app` (git worktree on b
   (for the Adreno GPU path), `qwen3-vl-4b-instruct-mmproj.gguf`, `ggml-small.bin`, `ggml-silero-v5.1.2.bin`.
   **Uninstalling the app deletes them** (install with `-r` keeps them).
 
+## Parchi crash (fixed 2026-10-26)
+
+- **Cause** (phone tombstones): SIGSEGV null pointer in `lm_ggml_gallocr_alloc_graph` ← `clip_image_batch_encode`:
+  with the Q4_0 file present the model ran on the Adreno GPU (OpenCL) and the vision encoder defaulted to the GPU
+  too; OpenCL could not allocate the image encoder's graph and llama.cpp dereferenced null. Every slip crashed.
+- **Fix:** vision encoder on the CPU (`use_gpu: false`). Also measured that the GPU path is unusably slow for text
+  here (no answer in 5 min; slip answer 0.84 tok/s), so the model now runs on the CPU only (`devices: ['CPU']`;
+  llama.rn's `n_gpu_layers` is iOS-only), Q4_0, read into RAM (`use_mmap: false`; mmap through /sdcard FUSE was
+  the old >6 min/sentence). Measured: typed sentence 98 s cold / 27 s warm; the grocery slip (eval sample 004)
+  108 s, all 10 lines and the ₹565 total right, no crash. Jaanch can switch setups to re-measure.
+- **Crash guard:** each native model call is recorded; if Android reports the last run ended in a native crash
+  inside one, the GPU is turned off and the vendor is told (swiping the app away does not count).
+
 ## Remaining, in order
 
 1. **Two-phone sync on real hardware:** needs a second phone with the app, both on one Wi-Fi/hotspot (the 12R's
    Wi-Fi was off during this test). Then: same chaabi → Phone dhoondo → entries on both.
-2. **GPU speed of the Q4_0 model:** Aur → Phone ki technical jaanch → Devices, Text test. If it reports GPU and a
-   sentence takes seconds, the model can read typed/heard trades and slips; until then word rules do (instant).
+2. **Slip speed (108 s):** most of it is the CPU image encoder + prompt (82 s). Options to try: a smaller image
+   (fewer image tokens), more threads, or a smaller vision model; measure each in Jaanch.
 3. **Whisper with Hindi numbers:** English-mode Whisper writes "teen" as "tin", "sau" as "so". The vendor can teach
    such words under Dukaan ke shabd → Ginti; a Hindi-script Whisper + transliteration would be the real fix.
 4. **How clearly speech was heard** isn't measured on the phone (whisper.rn gives no word probabilities), so the

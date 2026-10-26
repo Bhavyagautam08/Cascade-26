@@ -38,6 +38,19 @@ export class SqlitePersistence implements Persistence {
     }
   }
 
+  /** Delete every entry and setting (the vendor starts over). The model files are not touched. */
+  wipe(): void {
+    this.db.executeSync('BEGIN TRANSACTION');
+    try {
+      this.db.executeSync('DELETE FROM events');
+      this.db.executeSync('DELETE FROM meta');
+      this.db.executeSync('COMMIT');
+    } catch (err) {
+      this.db.executeSync('ROLLBACK');
+      throw err;
+    }
+  }
+
   setMeta(key: string, value: string): void {
     this.db.executeSync('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)', [key, value]);
   }

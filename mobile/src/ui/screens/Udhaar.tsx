@@ -70,8 +70,8 @@ export function Udhaar() {
       </Card>
 
       <Card title={t.udhaar.newTitle}>
-        <Field label={t.udhaar.name}><Input value={name} onChangeText={(x) => { setName(x); setSaved(null); }} placeholder="Sharma ji" accessibilityLabel={t.udhaar.name} /></Field>
-        <Field label={t.udhaar.amount}><Input value={amount} onChangeText={(x) => { setAmount(x); setSaved(null); }} keyboardType="decimal-pad" placeholder="60" accessibilityLabel={t.udhaar.amount} /></Field>
+        <Field label={t.udhaar.name}><Input value={name} onChangeText={(x) => { setName(x); setSaved(null); }} placeholder={t.udhaar.namePlaceholder} accessibilityLabel={t.udhaar.name} /></Field>
+        <Field label={t.udhaar.amount}><Input value={amount} onChangeText={(x) => { setAmount(x); setSaved(null); }} keyboardType="decimal-pad" placeholder="₹" accessibilityLabel={t.udhaar.amount} /></Field>
         <Actions>
           <Button icon="📕" label={t.udhaar.give} kind="warn" onPress={() => write('given')} />
           <Button icon="💰" label={t.udhaar.got} onPress={() => write('paid')} />
@@ -121,7 +121,7 @@ export function Party({ party }: { party: string }) {
             { text: t.today.yes, onPress: () => act('paid', d.owes) },
           ])} />
         ) : null}
-        <Field label={t.udhaar.amount}><Input value={amount} onChangeText={(x) => { setAmount(x); setSaved(null); }} keyboardType="decimal-pad" placeholder="50" accessibilityLabel={t.udhaar.amount} /></Field>
+        <Field label={t.udhaar.amount}><Input value={amount} onChangeText={(x) => { setAmount(x); setSaved(null); }} keyboardType="decimal-pad" placeholder="₹" accessibilityLabel={t.udhaar.amount} /></Field>
         <Actions>
           <Button small icon="💰" label={t.udhaar.paidSome} onPress={() => tryRun(() => act('paid', amountOf(amount)), setError)} />
           <Button small kind="warn" icon="📕" label={t.udhaar.gaveMore} onPress={() => tryRun(() => act('given', amountOf(amount)), setError)} />

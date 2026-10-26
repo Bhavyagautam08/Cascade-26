@@ -28,6 +28,7 @@ export function soundKey(word: string): string {
 
 const MIN_WORD = 4; // shorter words ("do", "mila", "tel") are too easy to confuse
 const MIN_FUZZY = 5; // a differing letter is allowed only from this length on
+const MIN_FUZZY2 = 7; // two differing letters only for long words ("tomattas" -> tomato, "pancera" -> paneer)
 
 /** Single-word item names the shop uses, each with the ledger item it means. */
 function itemWords(lex: LexiconData): Map<string, string> {
@@ -67,7 +68,8 @@ export function closestItem(word: string, lex: LexiconData): string | null {
     const ck = soundKey(candidate);
     if (ck.length < MIN_WORD - 1) continue;
     const d = levenshtein(key, ck);
-    if (d > (key.length >= MIN_FUZZY ? 1 : 0)) continue; // "achha" (acha) must not become "achaar"
+    const allowed = key.length >= MIN_FUZZY2 && ck.length >= MIN_FUZZY ? 2 : key.length >= MIN_FUZZY ? 1 : 0;
+    if (d > allowed) continue; // "achha" (acha) must not become "achaar"
     const raw = levenshtein(w, candidate);
     if (!best.length || d < best[0].d) best = [{ word: candidate, d, raw }];
     else if (d === best[0].d) best.push({ word: candidate, d, raw });

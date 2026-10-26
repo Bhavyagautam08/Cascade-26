@@ -153,12 +153,7 @@
       "factor": 1.0
     }
   },
-  "aliases": {
-    "sharma ji": "sharma",
-    "sharma uncle": "sharma",
-    "chhotu": "chhotu",
-    "pandey ji": "pandey"
-  },
+  "aliases": {},
   "verbs": {
     "liya": "purchase",
     "laya": "purchase",
@@ -221,10 +216,7 @@
     "dhai sau": 250,
     "saadhe teen sau": 350
   },
-  "prices": {
-    "poha": 20,
-    "tea": 10
-  },
+  "prices": {},
   "perishable": [
     "tomato",
     "coriander",

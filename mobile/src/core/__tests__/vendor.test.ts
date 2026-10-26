@@ -34,9 +34,12 @@ describe('item spelling', () => {
     ['daal', 'dal'],
     ['dhania', 'dhaniya'],
     ['mirch', 'mirchi'],
+    // read off the real grocery slip (eval/samples/slips/004) by Qwen on the phone
+    ['tomattas', 'tamatar'],
+    ['pyaza', 'pyaz'],
   ])('%s -> %s', (heard, shop) => expect(closestItem(heard, lex)).toBe(shop));
 
-  test.each(['mila', 'bhai', 'bhaiya', 'maine', 'paisa', 'garmi', 'bahut', 'dalo', 'achha', 'kitna'])('common word %s is left alone', (w) => {
+  test.each(['mila', 'bhai', 'bhaiya', 'maine', 'paisa', 'garmi', 'bahut', 'dalo', 'achha', 'kitna', 'chahiye', 'chalega', 'kharidna', 'dukaan', 'rupaye', 'sabzi', 'khatam', 'thoda', 'pakka', 'bilkul', 'zyada', 'kamaai', 'grahak', 'udhaari', 'samaan'])('common word %s is left alone', (w) => {
     expect(closestItem(w, lex)).toBeNull();
   });
 
@@ -155,6 +158,18 @@ describe('udhaar', () => {
     expect(balances(counted(L))['receivable:sharma']).toBe(0);
     const h = L.udhaarHistory('sharma');
     expect(h.map((x) => [x.event.kind, x.paise])).toEqual([['credit_given', 12000], ['credit_paid', -5000], ['credit_paid', -7000]]);
+  });
+
+  test('one customer, however named; no customers ship with the app', async () => {
+    const L = makeLedger();
+    expect(L.lexicon.data.aliases).toEqual({});
+    expect(['Sharma ji', 'sharma', 'Sharmaji', 'SHARMA  Uncle', 'sharma ji.'].map((n) => L.partyKey(n))).toEqual(['sharma', 'sharma', 'sharma', 'sharma', 'sharma']);
+    expect(L.partyKey('Fauji')).toBe('fauji');
+    expect(L.partyKey('bhai')).toBe('bhai');
+    const [e] = (await L.handleText('sharma ji ka 60 udhaar likh', 'manual', { engine: 'rules' })).events;
+    expect(e.payload.party).toBe('sharma');
+    L.udhaarPaid('Sharma', 60);
+    expect(balances(counted(L))['receivable:sharma'] ?? 0).toBe(0);
   });
 
   test('a wrong udhaar entry is withdrawn and the balance follows', () => {

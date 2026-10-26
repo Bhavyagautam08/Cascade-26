@@ -117,6 +117,41 @@ class DeviceModule(ctx: ReactApplicationContext) : ReactContextBaseJavaModule(ct
     promise.resolve(reactApplicationContext.stopService(Intent(reactApplicationContext, ListenService::class.java)))
   }
 
+  /** Why Android ended this app's previous run (a native crash, killed for memory, swiped away...). */
+  @ReactMethod
+  fun lastExit(promise: Promise) {
+    if (Build.VERSION.SDK_INT < 30) {
+      promise.resolve(null)
+      return
+    }
+    try {
+      val am = reactApplicationContext.getSystemService(android.app.ActivityManager::class.java)
+      val info = am.getHistoricalProcessExitReasons(reactApplicationContext.packageName, 0, 1).firstOrNull()
+      if (info == null) {
+        promise.resolve(null)
+        return
+      }
+      val reason = when (info.reason) {
+        android.app.ApplicationExitInfo.REASON_CRASH_NATIVE -> "crash_native"
+        android.app.ApplicationExitInfo.REASON_CRASH -> "crash"
+        android.app.ApplicationExitInfo.REASON_ANR -> "anr"
+        android.app.ApplicationExitInfo.REASON_LOW_MEMORY -> "low_memory"
+        android.app.ApplicationExitInfo.REASON_SIGNALED -> "signaled"
+        android.app.ApplicationExitInfo.REASON_USER_REQUESTED -> "user_requested"
+        android.app.ApplicationExitInfo.REASON_EXIT_SELF -> "exit_self"
+        else -> "other_${info.reason}"
+      }
+      promise.resolve(Arguments.createMap().apply {
+        putString("reason", reason)
+        putString("description", info.description ?: "")
+        putDouble("timestamp", info.timestamp.toDouble())
+        putDouble("pssKb", info.pss.toDouble())
+      })
+    } catch (e: Exception) {
+      promise.reject("NO_EXIT_INFO", "could not read why the app last stopped: ${e.message}", e)
+    }
+  }
+
   /** Private IPv4 addresses of the interfaces that are up (Wi-Fi, or this phone's own hotspot), with their prefix. */
   @ReactMethod
   fun localAddresses(promise: Promise) {

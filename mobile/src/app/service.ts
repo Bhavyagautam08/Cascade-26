@@ -6,7 +6,7 @@ import { Ledger } from '../core/ledger';
 import { Lexicon, type LexiconData } from '../core/lexicon';
 import { EventStore, type Clocks } from '../core/store';
 import { parsePeerAddress } from '../core/syncTcp';
-import { phoneExtractor } from './llm';
+import { llm, phoneExtractor } from './llm';
 import { SqlitePersistence } from './sqlite';
 import { device } from './device';
 import { listener } from './mic';
@@ -144,6 +144,7 @@ class Service {
     if (syncKey !== undefined) this.db.setMeta('sync_key', syncKey);
     this.sync?.stop();
     this.syncServer?.stop();
+    llm.useGuard({ get: (k) => this.pref(k) || null, set: (k, v) => this.setPref(k, v ?? '') }, () => device.lastExit());
     const store = EventStore.open(this.db, name, clocks);
     const saved = store.getMeta('lexicon');
     const lexicon = new Lexicon(saved ? (JSON.parse(saved) as LexiconData) : (JSON.parse(JSON.stringify(defaultLexicon)) as LexiconData), (data) =>
@@ -167,6 +168,21 @@ class Service {
     this.autoFind();
     // the vendor left the mic on: keep hearing the day after the app is reopened
     if (this.pref('listening') === 'on') void listener.start(() => this.ledger!).catch(() => {});
+  }
+
+  /** Start over: stop listening and syncing, delete all entries and settings; the setup screen comes back. */
+  async reset() {
+    await listener.stop();
+    if (this.findTimer) clearInterval(this.findTimer);
+    this.findTimer = null;
+    this.sync?.stop();
+    this.syncServer?.stop();
+    this.sync = null;
+    this.syncServer = null;
+    this.ledger = null;
+    this.discovery = { scanning: false, done: 0, total: 0, found: [], error: null, at: null };
+    this.db.wipe();
+    this.changed();
   }
 
   async setListening(on: boolean) {

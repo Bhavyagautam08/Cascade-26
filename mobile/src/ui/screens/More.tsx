@@ -1,12 +1,14 @@
 // Aur: the less frequent screens (all entries, the full khaata, shop words, family phones).
-import React, { useMemo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Alert, Pressable, Text, View } from 'react-native';
+import { service } from '../../app/service';
 import { ledger, useNav, type Page } from '../common';
-import { C, Card, Screen, s, useLedgerVersion } from '../kit';
+import { Button, C, Card, ErrorLine, Muted, Screen, s, useLedgerVersion } from '../kit';
 import { t } from '../strings';
 
 export function More() {
   const v = useLedgerVersion();
+  const [error, setError] = useState<string | null>(null);
   const nav = useNav();
   const sum = useMemo(() => ledger().summary(), [v]);
   const decisions = sum.conflicts.length + sum.possible_duplicates.length;
@@ -34,6 +36,14 @@ export function More() {
           </Card>
         </Pressable>
       ))}
+      <Card title={t.more.resetTitle} tone="bad">
+        <Muted>{t.more.resetNote}</Muted>
+        <Button kind="danger" icon="🗑" label={t.more.reset} onPress={() => Alert.alert(t.more.reset, t.more.resetConfirm, [
+          { text: t.today.no, style: 'cancel' },
+          { text: t.more.reset, style: 'destructive', onPress: () => service.reset().catch((e) => setError((e as Error).message)) },
+        ])} />
+        <ErrorLine error={error} />
+      </Card>
     </Screen>
   );
 }

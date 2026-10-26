@@ -3,8 +3,10 @@
 import { NativeModules } from 'react-native';
 
 export type LocalAddress = { address: string; prefix: number; interface: string };
+export type LastExit = { reason: string; description: string; timestamp: number; pssKb: number } | null;
 
 type DeviceT = {
+  lastExit(): Promise<LastExit>;
   startListening(): Promise<boolean>;
   stopListening(): Promise<boolean>;
   localAddresses(): Promise<LocalAddress[]>;

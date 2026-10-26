@@ -1,26 +1,25 @@
 // Likho: every way a trade comes in. Ported from frontend/src/views/Record.tsx.
 // Likho (type), Bolo (the always-on mic + one recorded trade), Parchi (slip photo). Bolo's single recording
 // and Parchi are shown for review before anything is written to the ledger.
-import ImageResizer from '@bam.tech/react-native-image-resizer';
 import { launchCamera, launchImageLibrary, type Asset } from 'react-native-image-picker';
 import React, { useEffect, useRef, useState } from 'react';
 import { AppState, Image, Linking, Text, View } from 'react-native';
-import { files } from '../../app/files';
 import { llm } from '../../app/llm';
 import { clipRecorder, MicBlocked } from '../../app/mic';
+import { readSlipPhoto } from '../../app/slipReader';
 import type { Event, Source } from '../../core/events';
-import { checkSlipConsistency, lineConfidences, normalizeSlip, parseSlip, type Slip } from '../../core/slip';
+import { checkSlipConsistency, type Slip } from '../../core/slip';
 import type { SpellingFix } from '../../core/spelling';
 import { AskKind, EntryRow, MicPanel, confirmRemove, itemKey, itemName, ledger, useClip, useNav } from '../common';
 import { Actions, Body, Button, C, Card, ErrorLine, Field, Input, LevelMeter, MicButton, More, Muted, Pill, Row, Screen, Segmented, s } from '../kit';
 import { t } from '../strings';
 
+// sentence shapes the reader understands (no real customers: a name is shown as "Ramesh" only as an example)
 const EXAMPLES = [
-  'Bhai 3 kilo tamatar liya 180 mein… Sharma ji ka 40 jama kar, aur 7 plate poha de.',
-  'pandey ji ka 60 udhaar likh',
-  '5 cup chai de',
-  '2 peti kanda liya 300',
-  'Rs.140 credited to your a/c XX1234 from CHHOTU via UPI',
+  '3 kilo tamatar liya 180 mein, aur 2 kilo aloo liya 60 mein',
+  'Ramesh ka 60 udhaar likh',
+  'Ramesh ka 40 jama kar',
+  '5 cup chai becha 50 mein',
   'aaj bahut garmi hai bhai',
 ];
 
@@ -28,7 +27,6 @@ type Mode = 'type' | 'voice' | 'slip';
 type Result = { text: string; source: Source; events: Event[]; unparsed: string[]; engine: string; fallback: string | null; normalized?: string; spelling: SpellingFix[] };
 type SlipDraftLine = { item: string; readAs: string | null; qty: string; unit: string; amount: string; confidence: number; text: string; notes: string[] };
 type SlipDraft = { supplier: string; total: string; rotation: number; text: string; warnings: string[]; lines: SlipDraftLine[] };
-const SLIP_READ_TOKENS = 512;
 const MAX_CLIP_SECONDS = 60;
 
 export function Record() {
@@ -108,20 +106,6 @@ function asDraft(slip: Slip): SlipDraft {
   };
 }
 
-function imagePath(path: string): string {
-  return path.startsWith('file://') ? path.slice(7) : path;
-}
-
-async function makeSlipImage(uri: string, degreesCounterClockwise: number, size: number): Promise<string> {
-  const image = await ImageResizer.createResizedImage(uri, size, size, 'JPEG', 90, -degreesCounterClockwise, null, false, { onlyScaleDown: true });
-  return image.path;
-}
-
-async function removeTempImage(path: string) {
-  const deleted = await files.deleteFile(imagePath(path));
-  if (!deleted) console.warn(`could not delete temporary slip image: ${path}`);
-}
-
 function numericField(value: string, name: string): number | null {
   if (!value.trim()) return null;
   const number = Number(value.replace(/,/g, ''));
@@ -173,42 +157,9 @@ function SlipIt() {
     setError(null);
     setSaved(null);
     try {
-      const path = await makeSlipImage(photo, 0, 1280);
-      let answer;
-      try {
-        answer = await llm.image(path, SLIP_READ_TOKENS, 1);
-      } finally {
-        await removeTempImage(path);
-      }
-      const textLines = answer.content.split('\n');
-      const parsed = parseSlip(textLines);
-      if (!parsed.lines.length) {
-        if (stopped.current) {
-          setDraft({ supplier: '', total: '', rotation: 0, text: answer.content, warnings: [], lines: [emptyLine()] });
-          return;
-        }
-        throw new Error('photo se koi item line nahi padh paaya; roshni/saaf photo ke saath phir koshish karein, ya "Line khud likho"');
-      }
-      const confidence = lineConfidences(answer.content, answer.probabilities);
-      const warnings = ['photo ki disha apne aap nahi pehchaani jaati; har line photo se milaa kar dekhein'];
-      if (answer.truncated || stopped.current) warnings.push('padhai beech mein ruki; kuch line chhoot sakti hain. Chhooti line jodkar har line jaanchein.');
-      const slip = normalizeSlip(checkSlipConsistency({
-        supplier: parsed.supplier,
-        lines: parsed.lines.map(({ index, line }) => ({
-          item: line.item ?? '?',
-          qty: line.qty,
-          unit: line.unit,
-          amount_rupees: line.amount_rupees,
-          confidence: line.item ? (confidence[index] ?? 0.5) : 0.5,
-          text: textLines[index]?.trim() ?? '',
-          notes: line.item ? line.notes : [...line.notes, 'maal ka naam saaf nahi; save se pehle theek karein'],
-        })),
-        total_rupees: parsed.total_rupees,
-        rotation: 0,
-        text: answer.content.trim(),
-        warnings,
-      }), ledger().lexicon.data);
-      setDraft(asDraft(slip));
+      const slip = await readSlipPhoto(photo, ledger().lexicon.data, () => stopped.current);
+      const draft = asDraft(slip);
+      setDraft(draft.lines.length ? draft : { ...draft, lines: [emptyLine()] });
     } catch (e) {
       console.error('Parchi photo reading failed', e);
       setError(e instanceof Error ? e.message : String(e));
@@ -271,6 +222,7 @@ function SlipIt() {
     <>
       <Card title={t.record.slipTitle}>
         <Muted>{t.record.slipNote}</Muted>
+        {llm.status.notice ? <Text style={[s.body, { color: C.warn }]}>{llm.status.notice}</Text> : null}
         <Actions>
           <Button icon="📷" label={t.record.slipCamera} onPress={() => choosePhoto(true)} disabled={busy} />
           <Button icon="🖼️" label={t.record.slipGallery} kind="plain" onPress={() => choosePhoto(false)} disabled={busy} />

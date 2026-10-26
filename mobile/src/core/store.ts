@@ -32,6 +32,10 @@ export class MemoryPersistence implements Persistence {
   events: Event[] = [];
   meta: Record<string, string> = {};
   failNext: Error | null = null; // tests: make the next save fail
+  wipe() {
+    this.events = [];
+    this.meta = {};
+  }
   loadEvents() {
     return this.events.map((e) => JSON.parse(JSON.stringify(e)));
   }

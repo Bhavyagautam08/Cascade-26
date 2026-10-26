@@ -34,12 +34,14 @@ function boot(): boolean {
 }
 
 export default function App() {
-  const [ready, setReady] = useState(boot);
+  const [booted] = useState(boot);
+  useLedgerVersion(); // a reset closes the ledger: the setup screen comes back
+  const ready = booted && !!service.ledger;
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top', 'bottom']}>
-        {ready ? <Main /> : <Setup onDone={() => setReady(true)} />}
+        {ready || service.ledger ? <Main /> : <Setup onDone={() => service.changed()} />}
       </SafeAreaView>
     </SafeAreaProvider>
   );

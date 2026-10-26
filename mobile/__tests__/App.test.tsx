@@ -13,7 +13,7 @@ jest.mock('../src/app/files', () => ({
   files: { externalFilesDir: '/test', cacheDir: '/cache', fileSize: async () => -1, deleteFile: async () => true, writeWav: async (p: string) => p },
 }));
 jest.mock('../src/app/device', () => ({
-  device: { startListening: async () => true, stopListening: async () => true, localAddresses: async () => [] },
+  device: { startListening: async () => true, stopListening: async () => true, localAddresses: async () => [], lastExit: async () => null },
 }));
 jest.mock('llama.rn', () => ({ initLlama: jest.fn(), getBackendDevicesInfo: jest.fn(async () => []) }));
 jest.mock('whisper.rn', () => ({ initWhisper: jest.fn(), initWhisperVad: jest.fn() }), { virtual: true });
@@ -132,8 +132,21 @@ test('udhaar: write it, take part, then clear it from the customer page; the led
   expect(balances(counted())['receivable:sharma'] ?? 0).toBe(0);
 });
 
+test('a heard sale with no quantity or price: both are typed in from Aaj', async () => {
+  await press('Aaj');
+  await act(async () => {
+    await service.ledger!.handleText('pyaz becha', 'voice', { engine: 'rules', heardConfidence: 0.4 });
+  });
+  await type('Maatra', '2');
+  await type('Ikai (kg, litre…)', 'kg');
+  await type('Daam ₹', '40');
+  await press('Rakho');
+  const sale = counted().find((e) => e.kind === 'sale' && e.payload.item === 'onion')!;
+  expect(sale.payload).toMatchObject({ qty: 2, unit: 'kg', amount_rupees: 40 });
+  expect(sale.postings).toEqual([{ account: 'cash', amount: 4000 }, { account: 'revenue:sales', amount: -4000 }]);
+});
+
 test('stock: the morning list is read without the model and saved; a saved line can be removed', async () => {
-  await press('Wapas');
   await press('Stock');
   await type('Subah / shaam ka stock', 'mere paas 5 kilo tamatar hain 200 rupaye ke');
   await press('Model se stock padhein');
@@ -147,4 +160,16 @@ test('stock: the morning list is read without the model and saved; a saved line 
   await press('Hatao');
   spy.mockRestore();
   expect(counted().filter((e) => e.kind === 'opening_stock')).toHaveLength(0);
+});
+
+test('start fresh: everything is deleted and the setup screen comes back', async () => {
+  await press('Aur');
+  const spy = answerAlerts('Sab hisaab mitao');
+  await press('Sab hisaab mitao');
+  spy.mockRestore();
+  expect(service.ledger).toBeNull();
+  expect(texts()).toContain('Is phone ka naam');
+  await press('Shuru karein');
+  expect(service.ledger!.store.all()).toHaveLength(0);
+  expect(texts()).toContain('Pehla din abhi shuru nahi hua');
 });

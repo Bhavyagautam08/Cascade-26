@@ -2,6 +2,7 @@
 // (copied over USB, checksums verified), run by llama.cpp through llama.rn. Same prompt, same JSON schema,
 // same settings (core/prompts.generated.ts). Loading is slow (seconds) and reported, never hidden.
 import { initLlama, type LlamaContext, type NativeCompletionTokenProb } from 'llama.rn';
+import type { LastExit } from './device';
 import { files } from './files';
 import type { Source } from '../core/events';
 import { parseExtraction, stripAssistantMarkers } from '../core/extract';
@@ -33,6 +34,7 @@ export type LlmState = {
   gpu: boolean | null; // what llama.cpp reports after loading, not what we asked for
   device: string | null;
   last: { promptTokens: number; promptSeconds: number; outTokens: number; outSeconds: number; cachedTokens?: number; wallSeconds?: number } | null;
+  notice: string | null; // something the vendor should know (the app closed during a model call last time)
 };
 
 /** What one model call cost, from llama.cpp's own timings plus the wall clock around the call. */
@@ -48,12 +50,67 @@ function measured(r: any, t0: number): NonNullable<LlmState['last']> {
   };
 }
 
+export type ModelSetup = { file: string; gpu: boolean; mmap: boolean; threads: number };
+export const DEFAULT_SETUP: ModelSetup = { file: QWEN_GPU, gpu: false, mmap: false, threads: 4 };
+
+/** Saved settings that survive the app being killed (the app's meta table). */
+export type CrashGuard = { get(key: string): string | null; set(key: string, value: string | null): void };
+
 class Llm {
   private ctx: LlamaContext | null = null;
   private loading: Promise<LlamaContext> | null = null;
   private multimodalLoading: Promise<void> | null = null;
-  status: LlmState = { state: 'off', error: null, file: `${MODEL_DIR}/${QWEN}`, loadSeconds: null, last: null, gpu: null, device: null };
+  status: LlmState = { state: 'off', error: null, file: `${MODEL_DIR}/${QWEN}`, loadSeconds: null, last: null, gpu: null, device: null, notice: null };
   private listeners = new Set<() => void>();
+  private guard: CrashGuard | null = null;
+
+  /**
+   * A crash inside llama.cpp kills the whole app; JavaScript never sees it. So every native model call is
+   * written down before it starts and crossed out after. If the app starts and finds one still written, that
+   * call took the app down: the GPU is no longer used for the model (the CPU path is slower but has never
+   * crashed here), and the vendor is told why.
+   */
+  useGuard(guard: CrashGuard, lastExit: () => Promise<LastExit>) {
+    this.guard = guard;
+    const died = guard.get('llm_busy');
+    if (!died) return;
+    guard.set('llm_busy', null);
+    // Android says how the last run ended: only a crash counts (not the vendor swiping the app away)
+    this.guardChecked = lastExit().then((exit) => {
+      const how = exit?.reason ?? 'unknown';
+      console.error('[llm] previous run ended inside a model call:', died, how, exit?.description);
+      if (how === 'crash_native' || how === 'crash' || how === 'unknown') {
+        if (died.includes('gpu')) guard.set('llm_cpu_only', `the app crashed while the model was ${died}`);
+        this.set({ notice: `Pichhli baar model chalate waqt app band ho gaya tha (${died}). Ab model sirf CPU par chalega.` });
+      } else if (how === 'low_memory') {
+        this.set({ notice: `Pichhli baar phone ki memory kam padne se Android ne app band kiya (${died}). Doosre apps band karke phir koshish karein.` });
+      }
+    }, (e) => console.error('[llm] could not read the last exit reason', e));
+  }
+  private guardChecked: Promise<void> = Promise.resolve();
+
+  /** How the model runs. Measured on the 12R (Jaanch): see DEFAULT_SETUP. Jaanch can switch it to compare. */
+  setup: ModelSetup = DEFAULT_SETUP;
+  async configure(setup: ModelSetup) {
+    await this.release();
+    this.setup = setup;
+  }
+  async release() {
+    const ctx = this.ctx;
+    this.ctx = null;
+    this.loading = null;
+    this.multimodalLoading = null;
+    if (ctx) await ctx.release();
+    this.set({ state: 'off', loadSeconds: null, gpu: null, device: null, last: null });
+  }
+  private async guarded<T>(what: string, fn: () => Promise<T>): Promise<T> {
+    this.guard?.set('llm_busy', `${what} on ${this.status.gpu ? 'gpu' : 'cpu'}`);
+    try {
+      return await fn();
+    } finally {
+      this.guard?.set('llm_busy', null);
+    }
+  }
 
   subscribe(fn: () => void): () => void {
     this.listeners.add(fn);
@@ -73,25 +130,34 @@ class Llm {
     const t0 = Date.now();
     this.set({ state: 'loading', error: null });
     this.loading = (async () => {
+      await this.guardChecked;
       if (!files.externalFilesDir) throw new ModelUnavailable('Android gave this app no external files folder (storage unavailable)');
-      const gpuFile = `${MODEL_DIR}/${QWEN_GPU}`;
-      const useGpu = (await files.fileSize(gpuFile)) > 0;
-      const file = useGpu ? gpuFile : `${MODEL_DIR}/${QWEN}`;
+      const cpuOnly = this.guard?.get('llm_cpu_only') || null;
+      const s = this.setup;
+      const useGpu = s.gpu && !cpuOnly;
+      const file = `${MODEL_DIR}/${s.file}`;
       if ((await files.fileSize(file)) <= 0) throw new ModelUnavailable(`the model file is missing or inaccessible: ${file} (copy it over USB and make the models folder readable by the app)`);
-      this.set({ file });
-      const ctx = await initLlama({
+      this.set({ file, gpu: useGpu });
+      const ctx = await this.guarded('loading the model', () => initLlama({
         model: file,
         n_ctx: N_CTX,
         n_parallel: 1,
         ctx_shift: false,
         use_mlock: false,
-        n_threads: 4, // the 8 Gen 2's 4 big cores; the small ones only slow a matmul down
+        // the files sit on /sdcard (FUSE): mapping them makes every weight read go through FUSE; reading
+        // them into RAM once avoids that (2.4 GB of the 12R's 15.5 GB)
+        use_mmap: s.mmap,
+        n_threads: s.threads,
         n_gpu_layers: useGpu ? 99 : 0,
-      });
+        // on Android llama.rn picks backends from this list (n_gpu_layers is iOS-only): without it the OpenCL
+        // device stays attached even for a "CPU" setup
+        devices: useGpu ? undefined : ['CPU'],
+      }));
       this.ctx = ctx;
       const c = ctx as any;
-      const device = c.gpu ? `GPU (${c.androidLib ?? 'OpenCL'})` : `CPU${c.reasonNoGPU ? ` — no GPU: ${c.reasonNoGPU}` : ''}`;
-      console.log('[llm] loaded', file, 'gpu', c.gpu, c.reasonNoGPU, c.androidLib);
+      const used = Array.isArray(c.devices) ? c.devices.join('+') : '?';
+      const device = `${used}${useGpu ? '' : `, ${s.threads} threads`}${cpuOnly ? ` (GPU off: ${cpuOnly})` : ''}, ${s.file}, ${s.mmap ? 'mmap' : 'in RAM'}`;
+      console.log('[llm] loaded', device, c.reasonNoGPU ?? '');
       this.set({ state: 'ready', loadSeconds: Math.round((Date.now() - t0) / 100) / 10, gpu: !!c.gpu, device });
       return ctx;
     })().catch((e) => {
@@ -112,7 +178,10 @@ class Llm {
       if ((await files.fileSize(file)) <= 0) {
         throw new ModelUnavailable(`the vision projector is missing or inaccessible: ${file} (copy it over USB and make the models folder readable by the app)`);
       }
-      const enabled = await ctx.initMultimodal({ path: file, image_max_tokens: 512 });
+      // The vision encoder runs on the CPU. On the 12R's Adreno (OpenCL) llama.cpp could not allocate the
+      // image encoder's graph and dereferenced null in lm_ggml_gallocr_alloc_graph (clip_image_batch_encode):
+      // a SIGSEGV that closed the app a few seconds into every slip. Measured: tombstones 2026-10-26 08:00.
+      const enabled = await this.guarded('starting vision', () => ctx.initMultimodal({ path: file, use_gpu: false, image_max_tokens: 512 }));
       if (!enabled) throw new ModelUnavailable(`the vision projector could not be initialized: ${file}`);
     })().catch((e) => {
       this.multimodalLoading = null;
@@ -130,7 +199,7 @@ class Llm {
     const t0 = Date.now();
     let r;
     try {
-      r = await ctx.completion({
+      r = await this.guarded('reading a photo', () => ctx.completion({
         messages: [{
           role: 'user',
           content: [
@@ -142,7 +211,7 @@ class Llm {
         n_predict: nPredict,
         n_probs: nProbs,
         enable_thinking: false,
-      });
+      }));
     } catch (error) {
       console.error('Qwen multimodal image inference failed', error);
       throw new ModelUnavailable(`Qwen could not read this photo: ${errorMessage(error)}`);
@@ -165,13 +234,13 @@ class Llm {
   async json(system: string, user: string, schema: string, nPredict: number) {
     const ctx = await this.load();
     const t0 = Date.now();
-    const r = await ctx.completion({
+    const r = await this.guarded('reading text', () => ctx.completion({
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
       response_format: { type: 'json_schema', json_schema: { schema: JSON.parse(schema) } },
       temperature: 0,
       n_predict: nPredict,
       enable_thinking: false, // an instruct model; extractor.py sends think=False too
-    });
+    }));
     this.set({ last: measured(r, t0) });
     console.log('[llm] json', JSON.stringify(this.status.last));
     if (r.stopped_limit || r.truncated) throw new ModelUnavailable(`the model's answer was cut off after ${nPredict} tokens`);

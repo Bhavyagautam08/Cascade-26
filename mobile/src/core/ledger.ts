@@ -36,6 +36,9 @@ export const DEFAULT_SETTINGS: Settings = { llmMaxConfidence: 0.85, voiceRepeatW
 
 export type Heard = { text: string; confidence: number; via: string; engine: string | null; events: number; held: string | null; repeats: number };
 
+// "sharma ji", "sharma uncle"; and "sharmaji" (but "fauji" stays a name: ji joined on only after 4+ letters)
+const HONORIFIC = /(?:\s+(?:ji|jee|uncle|aunty|auntie|bhai|bhaiya|bhaiyya|didi|sahab|saab|sir|madam|seth))+$|(?<=[a-z]{4})ji$/;
+
 const fmtG = (x: number) => (Number.isInteger(x) ? String(x) : String(Number(x.toPrecision(6))));
 
 /** Team rule: every trade is recorded. A purchase without an amount is kept as an order (books nothing). */
@@ -73,7 +76,9 @@ export class Ledger {
 
   // --- recording ---------------------------------------------------------------------------------
   record(cands: CandidateEvent[], supersedes: string[] = []): Event[] {
-    return cands.map(asRecorded).map((c) =>
+    // one key per customer, however they were named ("Sharma ji" = "sharma"); not for bank SMS payees
+    const keyed = cands.map((c) => (c.party && !(c.flags ?? []).includes('bank_sms') ? { ...c, party: this.partyKey(c.party) } : c));
+    return keyed.map(asRecorded).map((c) =>
       this.store.appendLocal(c.kind, c.source, postingsFor(c), { payload: payloadOf(c), confidence: c.confidence, raw: c.raw ?? null, supersedes }),
     );
   }
@@ -268,9 +273,13 @@ export class Ledger {
   // --- udhaar --------------------------------------------------------------------------------------
   /** A customer's name as the books key it: lower case, through the lexicon's aliases ("Sharma ji" -> "sharma"). */
   partyKey(name: string): string {
-    const n = name.trim().toLowerCase().replace(/\s+/g, ' ');
+    const n = name.trim().toLowerCase().replace(/[.,]/g, ' ').replace(/\s+/g, ' ').trim();
     if (!n) throw new Error('customer name is empty');
-    return (this.lexicon.data.aliases ?? {})[n] ?? n;
+    const aliases = this.lexicon.data.aliases ?? {};
+    if (aliases[n]) return aliases[n];
+    // "Sharma ji", "sharma uncle", "Sharmaji" are the same customer as "sharma"
+    const bare = n.replace(HONORIFIC, '').trim();
+    return aliases[bare] ?? (bare || n);
   }
 
   private udhaar(kind: 'credit_given' | 'credit_paid', name: string, rupees: number, raw: string): Event {
