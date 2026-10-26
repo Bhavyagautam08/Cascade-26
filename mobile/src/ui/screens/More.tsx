@@ -15,7 +15,7 @@ export function More() {
     { page: { name: 'books' }, icon: '⚖️', title: t.more.books, note: t.more.booksNote, badge: decisions },
     { page: { name: 'words' }, icon: '🗣️', title: t.more.words, note: t.more.wordsNote },
     { page: { name: 'family' }, icon: '📱', title: t.more.family, note: t.more.familyNote },
-    { page: { name: 'diagnose' }, icon: '🩺', title: 'Jaanch', note: 'Model aur awaaz ka samay naapo' },
+    { page: { name: 'diagnose' }, icon: '🩺', title: 'Phone ki technical jaanch', note: 'Model aur awaaz ki speed naapo (technical)' },
   ];
   return (
     <Screen title={t.more.title}>

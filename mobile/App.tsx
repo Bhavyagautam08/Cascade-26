@@ -14,14 +14,14 @@ import { Record } from './src/ui/screens/Record';
 import { Setup } from './src/ui/screens/Setup';
 import { Stock } from './src/ui/screens/Stock';
 import { Today } from './src/ui/screens/Today';
-import { Udhaar } from './src/ui/screens/Udhaar';
+import { Party, Udhaar } from './src/ui/screens/Udhaar';
 import { Words } from './src/ui/screens/Words';
 import { t } from './src/ui/strings';
 
 type Tab = 'today' | 'record' | 'udhaar' | 'stock' | 'more';
 const TABS: { key: Tab; icon: string }[] = [
   { key: 'today', icon: '🏠' },
-  { key: 'record', icon: '✍️' },
+  { key: 'record', icon: '🎙️' },
   { key: 'udhaar', icon: '📒' },
   { key: 'stock', icon: '📦' },
   { key: 'more', icon: '☰' },
@@ -89,7 +89,8 @@ function Main() {
       <View style={{ flex: 1 }}>
         {page ? (
           page.name === 'entries' ? <Entries /> :
-          page.name === 'entry' ? <EntryDetail key={page.id} id={page.id} /> :
+          page.name === 'entry' ? <EntryDetail key={page.id} id={page.id} edit={page.edit} /> :
+          page.name === 'party' ? <Party key={page.party} party={page.party} /> :
           page.name === 'books' ? <Books /> :
           page.name === 'words' ? <Words /> :
           page.name === 'diagnose' ? <Diagnose /> :

@@ -2,6 +2,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- always-on listening: a microphone foreground service, a wake lock, and its ongoing notification -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- family phones find each other on the same Wi-Fi / hotspot -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
       android:name=".MainApplication"
@@ -15,6 +23,7 @@
       <!-- llama.rn: let the loader reach the Adreno GPU (OpenCL) and Hexagon NPU libraries if the phone has them -->
       <uses-native-library android:name="libOpenCL.so" android:required="false" />
       <uses-native-library android:name="libcdsprpc.so" android:required="false" />
+      <service android:name=".ListenService" android:exported="false" android:foregroundServiceType="microphone" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

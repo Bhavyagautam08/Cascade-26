@@ -44,13 +44,16 @@ export function loadVoice(): Promise<Ctx> {
   return loaded;
 }
 
+/** The recording held no speech (Silero found none, or Whisper read no words): nothing to book, not a fault. */
+export class NoSpeech extends Error {}
+
 /** Transcribe one recorded WAV: Silero rejects silence, Whisper reads the speech. Models stay loaded. */
 export async function transcribeVoice(wavPath: string, prompt: string): Promise<string> {
   const { whisper, vad } = await loadVoice();
   {
     const audioUri = `file://${wavPath}`;
     const speech = await vad.detectSpeech(audioUri, SPEECH_OPTIONS);
-    if (!speech.length) throw new Error('koi awaaz nahi suni; paas se bolkar phir koshish karein');
+    if (!speech.length) throw new NoSpeech('koi awaaz nahi suni; paas se bolkar phir koshish karein');
     const { promise } = whisper.transcribe(audioUri, {
       language: 'en',
       prompt: prompt || undefined,
@@ -59,7 +62,7 @@ export async function transcribeVoice(wavPath: string, prompt: string): Promise<
     const result = await promise;
     if (result.isAborted) throw new Error('voice reading was stopped before it finished');
     const text = result.result.trim();
-    if (!text) throw new Error('awaaz suni, par shabd samajh nahi aaye; dheere aur saaf bolkar koshish karein');
+    if (!text || /^\[[^\]]*\]$|^\([^)]*\)$/.test(text)) throw new NoSpeech('awaaz suni, par shabd samajh nahi aaye; dheere aur saaf bolkar koshish karein'); // "[BLANK_AUDIO]", "(music)"
     return text;
   }
 }

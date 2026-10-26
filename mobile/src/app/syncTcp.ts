@@ -2,7 +2,7 @@ import TcpSocket from 'react-native-tcp-socket';
 import { PeerRefused, ProtocolError, Unreachable, VERSION, type Hello, type Me, type Peer } from '../core/protocol';
 import type { Have } from '../core/store';
 import {
-  handleSyncRpc, parsePeerAddress, parseSyncRpcResponse, SYNC_TCP_MAX_FRAME, SYNC_TCP_PORT,
+  handleSyncRpc, hostsToScan, parsePeerAddress, parseSyncRpcResponse, SYNC_TCP_MAX_FRAME, SYNC_TCP_PORT,
   type RpcPushResponse,
 } from '../core/syncTcp';
 import type { EventStore } from '../core/store';
@@ -154,3 +154,67 @@ export class LocalSyncServer {
 }
 
 export const syncPort = SYNC_TCP_PORT;
+
+// --- finding family phones without typing addresses ---------------------------------------------------
+// Every phone runs the sync server on the same port. Finding the others = asking each address on this
+// phone's own network (Wi-Fi or its hotspot) "hello" with a short timeout. No internet, no cloud, nothing
+// broadcast but this hello; a phone answers only with its name, and only to the right family key.
+export type Found = { url: string; host: string; name: string; actor: string; keyOk: boolean };
+
+const PROBE_TIMEOUT_MS = 900;
+const PROBE_PARALLEL = 48;
+
+/** Ask one address for hello. A Hisaab phone answers (right or wrong key); anything else -> null. */
+export function probe(host: string, familyKey: string, timeoutMs = PROBE_TIMEOUT_MS): Promise<Found | null> {
+  const url = `tcp://${host}:${SYNC_TCP_PORT}`;
+  return new Promise((resolve) => {
+    let done = false;
+    let received = '';
+    const finish = (v: Found | null) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      socket.destroy();
+      resolve(v);
+    };
+    const timer = setTimeout(() => finish(null), timeoutMs);
+    const socket = TcpSocket.createConnection({ host, port: SYNC_TCP_PORT, connectTimeout: timeoutMs }, () => {
+      socket.write(`${JSON.stringify({ key: familyKey, action: 'hello', me: null })}\n`);
+    });
+    socket.setEncoding('utf8');
+    socket.on('data', (chunk) => {
+      received += typeof chunk === 'string' ? chunk : chunk.toString('utf8');
+      const nl = received.indexOf('\n');
+      if (nl < 0) return;
+      try {
+        const r = JSON.parse(received.slice(0, nl)) as { ok: boolean; data?: Hello; error?: string };
+        if (r.ok && r.data) finish({ url, host, name: r.data.name, actor: r.data.actor, keyOk: true });
+        else if (r.error && /family key/.test(r.error)) finish({ url, host, name: '?', actor: '', keyOk: false });
+        else finish(null);
+      } catch {
+        finish(null);
+      }
+    });
+    socket.on('error', () => finish(null));
+    socket.on('close', () => finish(null));
+  });
+}
+
+/** Ask every address on this phone's networks; reports progress as it goes. */
+export async function discover(own: { address: string; prefix: number }[], familyKey: string, onProgress: (done: number, total: number, found: Found[]) => void): Promise<Found[]> {
+  const hosts = hostsToScan(own);
+  const found: Found[] = [];
+  let next = 0;
+  let done = 0;
+  const worker = async () => {
+    while (next < hosts.length) {
+      const host = hosts[next++];
+      const f = await probe(host, familyKey);
+      done++;
+      if (f) found.push(f);
+      if (f || done % 16 === 0 || done === hosts.length) onProgress(done, hosts.length, [...found]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(PROBE_PARALLEL, hosts.length) }, worker));
+  return found;
+}

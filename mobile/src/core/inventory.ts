@@ -5,7 +5,8 @@ import { postingsFor } from './doubleentry';
 import type { CandidateEvent, Event } from './events';
 import type { Ledger } from './ledger';
 import { pyJsonDumps, type LexiconData } from './lexicon';
-import { numbersIn, spokenNumbers } from './rules';
+import { numbersIn, phraseFind, spokenNumbers } from './rules';
+import { fixItemSpelling } from './spelling';
 
 export type InventoryMode = 'opening' | 'closing';
 export type InventoryStatus = 'opening' | 'purchased' | 'unclear' | 'closing';
@@ -117,10 +118,54 @@ function statusFromWords(said: string): InventoryStatus {
 
 function questions(item: string, qty: number | null, unit: string | null, status: InventoryStatus, mode: InventoryMode): string[] {
   const result: string[] = [];
-  if (qty === null) result.push(`How much ${item} is there?`);
-  else if (unit === null && qty !== 0) result.push(`${qty} of ${item} - kilo, litre, or pieces?`);
-  if (mode === 'opening' && status === 'unclear') result.push(`Did you buy the ${item} this morning, or was it already with you?`);
+  if (qty === null) result.push(`${item} kitna hai?`);
+  else if (unit === null && qty !== 0) result.push(`${qty} ${item}: kilo, litre ya piece?`);
+  if (mode === 'opening' && status === 'unclear') result.push(`${item} aaj kharida, ya pehle se tha?`);
   return result;
+}
+
+const NUM = /^\d+(?:\.\d+)?$/;
+
+/**
+ * The stock list read by word rules, for when the language model isn't loaded (on this phone's CPU it takes
+ * minutes). Each clause naming a known item becomes one row: the number before a unit (or before the item) is
+ * the quantity, a number marked as money (or the one other number) is the cost. Every row then goes through
+ * the same checks as the model's answer, so anything not said comes back as a question, never a guess.
+ */
+export function inventoryFromWords(transcript: string, lexicon: LexiconData, mode: InventoryMode): InventoryItem[] {
+  const said = spokenNumbers(fixItemSpelling(transcript, lexicon).text, lexicon);
+  const words: Record<string, string> = {};
+  for (const [local, canonical] of Object.entries(lexicon.items ?? {})) {
+    words[local.toLowerCase()] = canonical;
+    words[canonical.toLowerCase()] = canonical;
+  }
+  const units = new Set(Object.keys(lexicon.units ?? {}).map((u) => u.toLowerCase()));
+  const rows: ModelItem[] = [];
+  for (const clause of said.split(/[,.;\n]+|\s+(?:aur|or|and|phir)\s+/i).map((c) => c.trim()).filter(Boolean)) {
+    const lower = clause.toLowerCase();
+    const key = phraseFind(lower, Object.keys(words));
+    if (!key) continue;
+    const toks = lower.match(/\d+(?:\.\d+)?|[a-z]+/g) ?? [];
+    const itemFirst = key.split(' ')[0];
+    let qty: number | null = null;
+    let unit: string | null = null;
+    let qtyAt = -1;
+    for (let i = 0; i < toks.length && qtyAt < 0; i++) {
+      if (!NUM.test(toks[i])) continue;
+      const two = `${toks[i + 1]} ${toks[i + 2]}`;
+      if (units.has(two)) unit = two;
+      else if (units.has(toks[i + 1])) unit = toks[i + 1];
+      else if (toks[i + 1] !== itemFirst) continue;
+      qty = Number(toks[i]);
+      qtyAt = i;
+    }
+    if (mode === 'closing' && qty === null && toks.some((w) => NONE_LEFT.has(w))) qty = 0;
+    const money = moneyIn(clause);
+    const others = toks.filter((w, i) => NUM.test(w) && i !== qtyAt).map(Number);
+    const cost = money.length === 1 ? money[0] : !money.length && others.length === 1 ? others[0] : null;
+    rows.push({ said: clause, item: words[key], qty, unit, total_cost: mode === 'opening' ? cost : null, status: statusFromWords(clause) as ModelItem['status'] });
+  }
+  return rows.map((raw) => checkModelItem(raw, said, lexicon, mode));
 }
 
 function canonicalUnit(saidUnit: string | null, qty: number | null, lexicon: LexiconData, flags: string[]): [string | null, number | null] {

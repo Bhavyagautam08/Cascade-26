@@ -1,9 +1,8 @@
-// First launch: this phone's name and the family key.
+// First launch: this phone's name and the family key (with an eye to read it back before saving).
 import React, { useState } from 'react';
-import { Text, TextInput } from 'react-native';
 import { service } from '../../app/service';
 import { tryRun } from '../common';
-import { Button, C, Card, ErrorLine, Muted, Screen, s } from '../kit';
+import { Button, Card, ErrorLine, Field, Input, Muted, Screen } from '../kit';
 import { t } from '../strings';
 
 export function Setup({ onDone }: { onDone: () => void }) {
@@ -13,12 +12,10 @@ export function Setup({ onDone }: { onDone: () => void }) {
   return (
     <Screen title={t.setup.title} line={t.setup.line}>
       <Card>
-        <Text style={s.body}>{t.setup.name}</Text>
-        <TextInput style={s.input} value={name} onChangeText={setName} autoCapitalize="none" autoCorrect={false} accessibilityLabel={t.setup.name} />
-        <Text style={s.body}>{t.setup.key}</Text>
-        <TextInput style={s.input} value={key} onChangeText={setKey} autoCapitalize="none" autoCorrect={false} placeholderTextColor={C.faint} accessibilityLabel={t.setup.key} />
+        <Field label={t.setup.name}><Input value={name} onChangeText={setName} autoCapitalize="none" autoCorrect={false} accessibilityLabel={t.setup.name} /></Field>
+        <Field label={t.setup.key}><Input secret value={key} onChangeText={setKey} accessibilityLabel={t.setup.key} /></Field>
         <Muted>{t.setup.keyHint}</Muted>
-        <Button kind="plain" label={t.setup.newKey} onPress={() => setKey(Array.from({ length: 12 }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 31)]).join(''))} />
+        <Button kind="soft" icon="🔑" label={t.setup.newKey} onPress={() => setKey(Array.from({ length: 8 }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 31)]).join(''))} />
       </Card>
       <ErrorLine error={error} />
       <Button label={t.setup.save} onPress={() => tryRun(() => { service.open(name.trim(), key.trim()); onDone(); }, setError)} />

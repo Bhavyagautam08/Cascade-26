@@ -36,7 +36,7 @@ test('only quantities and prices present in the words survive; held-or-bought co
   ] });
   const parsed = parseInventoryAnswer(answer, transcript, lexicon, 'opening');
   expect(parsed[0]).toMatchObject({ item: 'onion', qty: 3, unit: 'kg', total_cost: 90, status: 'opening', flags: ['status_from_words:purchased->opening'] });
-  expect(parsed[1]).toMatchObject({ qty: null, total_cost: null, status: 'opening', question: 'How much tomato is there?', flags: ['quantity_not_heard:5', 'cost_not_heard:200', 'cost_missing'] });
+  expect(parsed[1]).toMatchObject({ qty: null, total_cost: null, status: 'opening', question: 'tomato kitna hai?', flags: ['quantity_not_heard:5', 'cost_not_heard:200', 'cost_missing'] });
 });
 
 test('uses one explicitly marked price from an item description but does not select an ambiguous one', () => {
@@ -48,7 +48,7 @@ test('uses one explicitly marked price from an item description but does not sel
   const ambiguous = parseInventoryAnswer(JSON.stringify({ items: [
     { said: 'tamatar 5 kilo 200 rupaye, aloo 80 rupaye', item: 'tomato', qty: 5, unit: 'kilo', total_cost: null, status: 'opening' },
   ] }), 'tamatar 5 kilo 200 rupaye, aloo 80 rupaye', lexicon, 'opening');
-  expect(ambiguous[0]).toMatchObject({ total_cost: null, question: expect.stringContaining('Did you buy') });
+  expect(ambiguous[0]).toMatchObject({ total_cost: null, question: expect.stringContaining('aaj kharida, ya pehle se tha?') });
 });
 
 test('closing mode treats khatam as zero and asks for every missing count or unit', () => {
@@ -57,7 +57,7 @@ test('closing mode treats khatam as zero and asks for every missing count or uni
     { said: 'mirchi thodi si hai', item: 'chilli', qty: null, unit: null, total_cost: null, status: 'opening' },
   ] }), 'shaam doodh khatam, mirchi thodi si hai', lexicon, 'closing');
   expect(parsed[0]).toMatchObject({ qty: 0, status: 'closing', question: null });
-  expect(parsed[1]).toMatchObject({ status: 'closing', question: 'How much chilli is there?' });
+  expect(parsed[1]).toMatchObject({ status: 'closing', question: 'chilli kitna hai?' });
 });
 
 test('rejects malformed model output rather than guessing fields', () => {

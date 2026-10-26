@@ -104,3 +104,22 @@ export function parseSyncRpcResponse<T>(json: string, url: string): T {
 }
 
 export type RpcPushResponse = { added: number; duplicates: number; rejected: Rejected[]; rotated: unknown };
+
+/** The hosts of this phone's own /24 (or smaller) networks, minus itself. */
+export function hostsToScan(own: { address: string; prefix: number }[]): string[] {
+  const out = new Set<string>();
+  for (const { address, prefix } of own) {
+    const p = Math.max(prefix, 24); // a bigger network is scanned only around this phone's own /24
+    const ip = address.split('.').map(Number);
+    const n = (((ip[0] << 24) >>> 0) + (ip[1] << 16) + (ip[2] << 8) + ip[3]) >>> 0;
+    const mask = p === 32 ? 0xffffffff : (~((1 << (32 - p)) - 1)) >>> 0;
+    const base = (n & mask) >>> 0;
+    const size = 2 ** (32 - p);
+    for (let i = 1; i < size - 1; i++) {
+      const h = (base + i) >>> 0;
+      if (h === n) continue;
+      out.add([h >>> 24, (h >>> 16) & 255, (h >>> 8) & 255, h & 255].join('.'));
+    }
+  }
+  return [...out];
+}

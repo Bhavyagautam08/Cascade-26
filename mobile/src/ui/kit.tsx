@@ -1,6 +1,6 @@
 // Shared look for the phone: big type, big touch targets (>= 56 dp), one main action per card.
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle, type ViewStyle } from 'react-native';
 import { service } from '../app/service';
 import { t } from './strings';
 
@@ -97,8 +97,9 @@ export function Card({ title, aside, children, style, tone }: { title?: string; 
   );
 }
 
-export function Button({ label, onPress, kind = 'main', disabled, small }: { label: string; onPress: () => void; kind?: 'main' | 'plain' | 'warn' | 'danger'; disabled?: boolean; small?: boolean }) {
-  const bg = kind === 'main' ? C.brand : kind === 'warn' ? C.warn : kind === 'danger' ? C.bad : 'transparent';
+export function Button({ label, onPress, kind = 'main', disabled, small, icon, style }: { label: string; onPress: () => void; kind?: 'main' | 'plain' | 'warn' | 'danger' | 'soft'; disabled?: boolean; small?: boolean; icon?: string; style?: ViewStyle }) {
+  const bg = kind === 'main' ? C.brand : kind === 'warn' ? C.warn : kind === 'danger' ? C.bad : kind === 'soft' ? C.brandSoft : 'transparent';
+  const fg = kind === 'plain' || kind === 'soft' ? C.brand : C.brandInk;
   return (
     <Pressable
       accessibilityRole="button"
@@ -106,10 +107,121 @@ export function Button({ label, onPress, kind = 'main', disabled, small }: { lab
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [s.btn, small && s.btnSmall, { backgroundColor: bg }, kind === 'plain' && s.btnPlain, (pressed || disabled) && { opacity: 0.55 }]}
+      style={({ pressed }) => [s.btn, small && s.btnSmall, { backgroundColor: bg }, kind === 'plain' && s.btnPlain, (pressed || disabled) && { opacity: 0.55 }, style]}
     >
-      <Text style={[s.btnText, small && { fontSize: 16 }, kind === 'plain' && { color: C.brand }]}>{label}</Text>
+      <Text style={[s.btnText, small && { fontSize: 16 }, { color: fg }]}>{icon ? `${icon}  ` : ''}{label}</Text>
     </Pressable>
+  );
+}
+
+/** A row of equal buttons (e.g. ✓ Sahi · ✎ Badlo · 🗑 Hatao). */
+export function Actions({ children }: { children: React.ReactNode }) {
+  return <View style={{ flexDirection: 'row', gap: 8 }}>{React.Children.map(children, (c) => (c ? <View style={{ flex: 1 }}>{c}</View> : null))}</View>;
+}
+
+/** A label above an input. */
+export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <View style={{ gap: 4, flex: 1 }}>
+      <Text style={s.label}>{label}</Text>
+      {children}
+    </View>
+  );
+}
+
+/** A text input; for secrets (the family key) an eye inside the box shows or hides what was typed. */
+export function Input({ secret, style, ...props }: React.ComponentProps<typeof TextInput> & { secret?: boolean }) {
+  const [shown, setShown] = useState(false);
+  if (!secret) return <TextInput placeholderTextColor={C.faint} {...props} style={[s.input, style]} />;
+  return (
+    <View style={[s.input, s.inputRow, style]}>
+      <TextInput
+        placeholderTextColor={C.faint}
+        autoCapitalize="none"
+        autoCorrect={false}
+        {...props}
+        secureTextEntry={!shown}
+        style={{ flex: 1, fontSize: shown ? 22 : 18, color: C.ink, letterSpacing: shown ? 2 : 0, fontFamily: shown ? 'monospace' : undefined, paddingVertical: 8 }}
+      />
+      <Pressable
+        onPress={() => setShown((x) => !x)}
+        accessibilityRole="button"
+        accessibilityLabel={shown ? t.secret.hide : t.secret.show}
+        hitSlop={10}
+        style={({ pressed }) => [s.eye, pressed && { opacity: 0.6 }]}
+      >
+        <Text style={{ fontSize: 20 }}>{shown ? '🙈' : '👁️'}</Text>
+        <Text style={{ fontSize: 12, color: C.brand, fontWeight: '700' }}>{shown ? t.secret.hide : t.secret.show}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/** A card that is obviously tappable: a coloured edge, and "Dekho ›" on the right. */
+export function Tile({ title, children, onPress, cta, style, tone }: { title: string; children: React.ReactNode; onPress: () => void; cta?: string; style?: ViewStyle; tone?: 'warn' }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}: ${cta ?? t.open}`} style={({ pressed }) => [s.card, s.tile, tone === 'warn' && { borderLeftColor: C.warn }, pressed && { backgroundColor: '#F2F7F5' }, style]}>
+      <Text style={s.cardTitle}>{title}</Text>
+      {children}
+      <View style={s.tileCta}>
+        <Text style={s.tileCtaText}>{cta ?? t.open} ›</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+/** How loud the mic hears the room; speech has to cross the line to be heard as a sentence. */
+export function LevelMeter({ level, threshold, on }: { level: number; threshold?: number; on: boolean }) {
+  const scale = Math.max(0.05, (threshold ?? 0.01) * 4);
+  const lvl = on ? Math.min(100, (level / scale) * 100) : 0;
+  const thr = threshold ? Math.min(100, (threshold / scale) * 100) : null;
+  const loud = threshold ? level > threshold : level > 0.02;
+  return (
+    <View accessibilityLabel={on ? `${t.mic.level} ${Math.round(lvl)}%` : t.mic.off} style={{ height: 14, borderRadius: 7, backgroundColor: '#E8E4DA', overflow: 'hidden', justifyContent: 'center' }}>
+      <View style={{ width: `${lvl}%`, height: '100%', backgroundColor: loud ? C.good : '#A8B5AF' }} />
+      {thr != null ? <View style={{ position: 'absolute', left: `${thr}%`, top: 0, bottom: 0, width: 3, backgroundColor: C.warn }} /> : null}
+    </View>
+  );
+}
+
+/** The big round microphone button. */
+export function MicButton({ on, busy, onPress, label, disabled }: { on: boolean; busy?: boolean; onPress: () => void; label: string; disabled?: boolean }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled || busy}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !!(disabled || busy), checked: on }}
+      style={({ pressed }) => [s.micBtn, { backgroundColor: on ? C.bad : C.brand }, (pressed || disabled || busy) && { opacity: 0.6 }]}
+    >
+      <Text style={{ fontSize: 34 }}>{busy ? '⏳' : on ? '⏹️' : '🎙️'}</Text>
+      <Text style={s.micLabel}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/** A small pulsing-looking dot plus words: what the mic is doing right now. */
+export function StatusDot({ on, text, tone }: { on: boolean; text: string; tone?: 'warn' | 'bad' }) {
+  const color = tone === 'bad' ? C.bad : tone === 'warn' ? C.warn : on ? C.good : C.faint;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: color }} />
+      <Text style={{ fontSize: 16, fontWeight: '700', color }}>{text}</Text>
+    </View>
+  );
+}
+
+/** Extra detail, closed until asked for (technical facts, rarely used options). */
+export function More({ label, children }: { label: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <View style={{ gap: 10 }}>
+      <Pressable onPress={() => setOpen((x) => !x)} accessibilityRole="button" accessibilityState={{ expanded: open }} hitSlop={8} style={{ paddingVertical: 6 }}>
+        <Text style={{ color: C.brand, fontWeight: '700', fontSize: 16 }}>{open ? '▾' : '▸'} {label}</Text>
+      </Pressable>
+      {open ? children : null}
+    </View>
   );
 }
 
@@ -131,9 +243,9 @@ export function ErrorLine({ error }: { error: string | null }) {
   ) : null;
 }
 
-export function KindTag({ kind }: { kind: string }) {
+export function KindTag({ kind, label }: { kind: string; label?: string }) {
   const [fg, bg] = KIND_COLOR[kind] ?? KIND_COLOR.adjustment;
-  return <Text style={[s.tag, { color: fg, backgroundColor: bg }]}>{t.kinds[kind] ?? kind}</Text>;
+  return <Text style={[s.tag, { color: fg, backgroundColor: bg }]}>{label ?? t.kinds[kind] ?? kind}</Text>;
 }
 
 export function Pill({ children, tone = 'warn' }: { children: React.ReactNode; tone?: 'warn' | 'muted' | 'good' }) {
@@ -240,4 +352,12 @@ export const s = StyleSheet.create({
   stepBtn: { width: 52, height: 52, borderRadius: 26, borderWidth: 1.5, borderColor: C.brand, alignItems: 'center', justifyContent: 'center' },
   stepText: { fontSize: 26, color: C.brand, fontWeight: '700', marginTop: -2 },
   mono: { fontFamily: 'monospace', fontSize: 13, color: C.muted },
+  label: { fontSize: 14, fontWeight: '700', color: C.muted },
+  inputRow: { flexDirection: 'row', alignItems: 'center', paddingRight: 4 },
+  eye: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, minWidth: 64, minHeight: 48, borderLeftWidth: 1, borderLeftColor: C.line },
+  tile: { borderLeftWidth: 5, borderLeftColor: C.brand },
+  tileCta: { alignSelf: 'flex-end', backgroundColor: C.brandSoft, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
+  tileCtaText: { color: C.brand, fontWeight: '800', fontSize: 15 },
+  micBtn: { alignSelf: 'center', width: 168, height: 168, borderRadius: 84, alignItems: 'center', justifyContent: 'center', gap: 6, elevation: 4, paddingHorizontal: 10 },
+  micLabel: { color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' },
 });

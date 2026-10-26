@@ -1,17 +1,18 @@
-// Likho: every way a trade comes in. Ported from frontend/src/views/Record.tsx (Type tab).
-// Bolo and Parchi both require review before any recognized text is written to the ledger.
+// Likho: every way a trade comes in. Ported from frontend/src/views/Record.tsx.
+// Likho (type), Bolo (the always-on mic + one recorded trade), Parchi (slip photo). Bolo's single recording
+// and Parchi are shown for review before anything is written to the ledger.
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import LiveAudioStream from '@fugood/react-native-audio-pcm-stream';
 import { launchCamera, launchImageLibrary, type Asset } from 'react-native-image-picker';
 import React, { useEffect, useRef, useState } from 'react';
-import { AppState, Image, Linking, PermissionsAndroid, Text, TextInput, View } from 'react-native';
+import { AppState, Image, Linking, Text, View } from 'react-native';
 import { files } from '../../app/files';
 import { llm } from '../../app/llm';
-import { transcribeVoice } from '../../app/voice';
+import { clipRecorder, MicBlocked } from '../../app/mic';
 import type { Event, Source } from '../../core/events';
 import { checkSlipConsistency, lineConfidences, normalizeSlip, parseSlip, type Slip } from '../../core/slip';
-import { EntryRow, ledger, useNav } from '../common';
-import { Body, Button, C, Card, ErrorLine, Muted, Pill, Row, Screen, Segmented, s } from '../kit';
+import type { SpellingFix } from '../../core/spelling';
+import { AskKind, EntryRow, MicPanel, confirmRemove, itemKey, itemName, ledger, useClip, useNav } from '../common';
+import { Actions, Body, Button, C, Card, ErrorLine, Field, Input, LevelMeter, MicButton, More, Muted, Pill, Row, Screen, Segmented, s } from '../kit';
 import { t } from '../strings';
 
 const EXAMPLES = [
@@ -24,21 +25,64 @@ const EXAMPLES = [
 ];
 
 type Mode = 'type' | 'voice' | 'slip';
-type Result = { events: Event[]; unparsed: string[]; engine: string; fallback: string | null; normalized?: string };
-type SlipDraftLine = { item: string; qty: string; unit: string; amount: string; confidence: number; text: string; notes: string[] };
+type Result = { text: string; source: Source; events: Event[]; unparsed: string[]; engine: string; fallback: string | null; normalized?: string; spelling: SpellingFix[] };
+type SlipDraftLine = { item: string; readAs: string | null; qty: string; unit: string; amount: string; confidence: number; text: string; notes: string[] };
 type SlipDraft = { supplier: string; total: string; rotation: number; text: string; warnings: string[]; lines: SlipDraftLine[] };
 const SLIP_READ_TOKENS = 512;
+const MAX_CLIP_SECONDS = 60;
 
 export function Record() {
   const [mode, setMode] = useState<Mode>('type');
   return (
     <Screen title={t.record.title} line={t.record.line}>
-      <Segmented value={mode} onChange={setMode} options={(['type', 'voice', 'slip'] as Mode[]).map((m) => ({ value: m, label: t.record.modes[m] }))} />
+      <Segmented value={mode} onChange={setMode} options={([['type', '⌨️'], ['voice', '🎙️'], ['slip', '🧾']] as [Mode, string][]).map(([m, icon]) => ({ value: m, label: `${icon} ${t.record.modes[m]}` }))} />
       {mode === 'type' && <TypeIt />}
       {mode === 'voice' && <VoiceIt />}
       {mode === 'slip' && <SlipIt />}
     </Screen>
   );
+}
+
+/** What was just booked, each with ✎ / 🗑 right there, plus how the words were read. */
+function Booked({ result, onRemoved, onBooked }: { result: Result; onRemoved: (id: string) => void; onBooked: (events: Event[]) => void }) {
+  const nav = useNav();
+  const [error, setError] = useState<string | null>(null);
+  const engine = t.record.engines[result.engine] ?? result.engine;
+  return (
+    <Card title={result.events.length ? t.record.booked(result.events.length, engine) : t.record.nothing(engine)} tone={result.events.length ? 'good' : undefined}>
+      {result.spelling.length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          {result.spelling.map((f) => <Pill key={`${f.from}-${f.to}`}>{t.record.spelling(f.from, f.to)}</Pill>)}
+        </View>
+      ) : null}
+      {result.normalized ? <Muted>{t.record.normalized(result.normalized)}</Muted> : null}
+      {result.events.map((e) => {
+        const flags = ((e.payload.flags as string[]) ?? []).filter((f) => t.record.flags[f]);
+        return (
+          <View key={e.id} style={{ gap: 6 }}>
+            <EntryRow e={e} onPress={() => nav.push({ name: 'entry', id: e.id })} />
+            {flags.length ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {flags.map((f) => <Pill key={f}>{t.record.flags[f]}</Pill>)}
+              </View>
+            ) : null}
+            <Actions>
+              <Button small kind="soft" icon="✎" label={t.review.edit} onPress={() => nav.push({ name: 'entry', id: e.id, edit: true })} />
+              <Button small kind="plain" icon="🗑" label={t.review.remove} onPress={() => confirmRemove(e, setError, () => onRemoved(e.id))} />
+            </Actions>
+          </View>
+        );
+      })}
+      {result.unparsed.length ? <Text style={[s.body, { color: C.warn }]}>{t.record.unparsed}: “{result.unparsed.join('” · “')}”</Text> : null}
+      {result.fallback ? <Muted>{t.record.fallback(result.fallback)}</Muted> : null}
+      {!result.events.length ? <AskKind text={result.text} source={result.source} onBooked={(ids) => onBooked(ids.map((id) => ledger().store.get(id)).filter((e): e is Event => !!e))} /> : null}
+      <ErrorLine error={error} />
+    </Card>
+  );
+}
+
+function asResult(r: Awaited<ReturnType<ReturnType<typeof ledger>['handleText']>>, text: string, source: Source): Result {
+  return { text, source, events: r.events, unparsed: r.unparsed, engine: r.engine, fallback: r.fallback_reason, normalized: r.normalized_text, spelling: r.spelling };
 }
 
 function asDraft(slip: Slip): SlipDraft {
@@ -48,15 +92,19 @@ function asDraft(slip: Slip): SlipDraft {
     rotation: slip.rotation,
     text: slip.text,
     warnings: slip.warnings,
-    lines: slip.lines.map((line) => ({
-      item: line.item,
-      qty: line.qty === null ? '' : String(line.qty),
-      unit: line.unit ?? '',
-      amount: line.amount_rupees === null ? '' : String(line.amount_rupees),
-      confidence: line.confidence,
-      text: line.text,
-      notes: line.notes,
-    })),
+    lines: slip.lines.map((line) => {
+      const matched = line.notes.map((n) => /read as '(.+?)', matched '(.+?)'/.exec(n)).find(Boolean);
+      return {
+        item: itemName(line.item),
+        readAs: matched ? matched[1] : null,
+        qty: line.qty === null ? '' : String(line.qty),
+        unit: line.unit ?? '',
+        amount: line.amount_rupees === null ? '' : String(line.amount_rupees),
+        confidence: line.confidence,
+        text: line.text,
+        notes: line.notes.filter((n) => !/read as '/.test(n)),
+      };
+    }),
   };
 }
 
@@ -77,16 +125,28 @@ async function removeTempImage(path: string) {
 function numericField(value: string, name: string): number | null {
   if (!value.trim()) return null;
   const number = Number(value.replace(/,/g, ''));
-  if (!Number.isFinite(number) || number < 0) throw new Error(`${name} should be a non-negative number`);
+  if (!Number.isFinite(number) || number < 0) throw new Error(`${name} mein 0 ya usse zyada number likhiye`);
   return number;
 }
+
+const emptyLine = (): SlipDraftLine => ({ item: '', readAs: null, qty: '', unit: '', amount: '', confidence: 1, text: '', notes: [] });
 
 function SlipIt() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [draft, setDraft] = useState<SlipDraft | null>(null);
   const [busy, setBusy] = useState(false);
+  const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
+  const stopped = useRef(false);
+
+  useEffect(() => {
+    if (!busy) return;
+    const started = Date.now();
+    setSeconds(0);
+    const id = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [busy]);
 
   async function choosePhoto(camera: boolean) {
     setError(null);
@@ -109,6 +169,7 @@ function SlipIt() {
   async function readSlip() {
     if (!photo) return;
     setBusy(true);
+    stopped.current = false;
     setError(null);
     setSaved(null);
     try {
@@ -121,10 +182,16 @@ function SlipIt() {
       }
       const textLines = answer.content.split('\n');
       const parsed = parseSlip(textLines);
-      if (!parsed.lines.length) throw new Error('photo se koi item line nahi padh paaya; roshni/saaf photo ke saath phir koshish karein');
+      if (!parsed.lines.length) {
+        if (stopped.current) {
+          setDraft({ supplier: '', total: '', rotation: 0, text: answer.content, warnings: [], lines: [emptyLine()] });
+          return;
+        }
+        throw new Error('photo se koi item line nahi padh paaya; roshni/saaf photo ke saath phir koshish karein, ya "Line khud likho"');
+      }
       const confidence = lineConfidences(answer.content, answer.probabilities);
-      const warnings = ['photo orientation is not auto-detected; check that the reviewed lines match the photo'];
-      if (answer.truncated) warnings.push('Qwen stopped at its output limit; some lines may be missing. Add any missing items and check every row before saving.');
+      const warnings = ['photo ki disha apne aap nahi pehchaani jaati; har line photo se milaa kar dekhein'];
+      if (answer.truncated || stopped.current) warnings.push('padhai beech mein ruki; kuch line chhoot sakti hain. Chhooti line jodkar har line jaanchein.');
       const slip = normalizeSlip(checkSlipConsistency({
         supplier: parsed.supplier,
         lines: parsed.lines.map(({ index, line }) => ({
@@ -134,7 +201,7 @@ function SlipIt() {
           amount_rupees: line.amount_rupees,
           confidence: line.item ? (confidence[index] ?? 0.5) : 0.5,
           text: textLines[index]?.trim() ?? '',
-          notes: line.item ? line.notes : [...line.notes, 'item not clear; correct before saving'],
+          notes: line.item ? line.notes : [...line.notes, 'maal ka naam saaf nahi; save se pehle theek karein'],
         })),
         total_rupees: parsed.total_rupees,
         rotation: 0,
@@ -157,25 +224,10 @@ function SlipIt() {
     }) : current);
   }
 
-  function addSlipLine() {
-    setDraft((current) => current ? ({
-      ...current,
-      lines: [...current.lines, {
-        item: '',
-        qty: '',
-        unit: '',
-        amount: '',
-        confidence: 0.5,
-        text: '',
-        notes: ['manually added; copy from the slip'],
-      }],
-    }) : current);
-  }
-
   function saveSlip() {
     if (!draft) return;
     try {
-      const total = numericField(draft.total, 'total');
+      const total = numericField(draft.total, t.record.slipTotal);
       const slip = checkSlipConsistency({
         supplier: draft.supplier.trim() || null,
         total_rupees: total,
@@ -183,11 +235,11 @@ function SlipIt() {
         text: draft.text,
         warnings: [],
         lines: draft.lines.map((line) => ({
-          item: line.item.trim(),
-          qty: numericField(line.qty, 'quantity'),
+          item: itemKey(line.item) ?? '',
+          qty: numericField(line.qty, t.record.slipQty),
           unit: line.unit.trim() || null,
-          amount_rupees: numericField(line.amount, 'price'),
-          confidence: line.confidence,
+          amount_rupees: numericField(line.amount, t.record.slipPrice),
+          confidence: 1, // the vendor checked every line before saving
           text: line.text,
           notes: line.notes,
         })),
@@ -204,7 +256,7 @@ function SlipIt() {
         unit: line.unit,
         amount_rupees: line.amount_rupees,
         party: slip.supplier,
-        raw: line.text,
+        raw: line.text || null,
       })));
       setDraft(null);
       setPhoto(null);
@@ -219,50 +271,53 @@ function SlipIt() {
     <>
       <Card title={t.record.slipTitle}>
         <Muted>{t.record.slipNote}</Muted>
-        <Button label={t.record.slipCamera} onPress={() => choosePhoto(true)} disabled={busy} />
-        <Button label={t.record.slipGallery} kind="plain" onPress={() => choosePhoto(false)} disabled={busy} />
+        <Actions>
+          <Button icon="📷" label={t.record.slipCamera} onPress={() => choosePhoto(true)} disabled={busy} />
+          <Button icon="🖼️" label={t.record.slipGallery} kind="plain" onPress={() => choosePhoto(false)} disabled={busy} />
+        </Actions>
         {photo ? <Image source={{ uri: photo }} resizeMode="contain" style={{ width: '100%', height: 220, marginTop: 8 }} accessibilityLabel={t.record.slipPhoto} /> : null}
-        {photo && !draft ? <Button label={busy ? t.record.slipReading : t.record.slipRead} onPress={readSlip} disabled={busy} /> : null}
+        {photo && !draft ? <Button label={busy ? t.record.slipReading(seconds) : t.record.slipRead} onPress={readSlip} disabled={busy} /> : null}
+        {busy ? (
+          <>
+            <Muted>{t.record.slipSlow}</Muted>
+            <Button kind="warn" label={t.record.slipStop} onPress={() => { stopped.current = true; void llm.stop(); }} />
+          </>
+        ) : null}
+        {!draft && !busy ? <Button small kind="plain" icon="✎" label={t.record.slipManual} onPress={() => setDraft({ supplier: '', total: '', rotation: 0, text: '', warnings: [], lines: [emptyLine()] })} /> : null}
         <ErrorLine error={error} />
-        {saved !== null ? <Body style={{ color: C.good }}>{t.record.slipSaved(saved)}</Body> : null}
+        {saved !== null ? <Body style={{ color: C.good, fontWeight: '700' }}>✓ {t.record.slipSaved(saved)}</Body> : null}
       </Card>
 
       {draft ? (
         <Card title={t.record.slipReview} tone={draft.warnings.length ? 'warn' : undefined}>
-          <Muted>{t.record.slipRotation(draft.rotation)}</Muted>
           {draft.warnings.map((warning) => <Text key={warning} style={[s.body, { color: C.warn }]}>{warning}</Text>)}
-          <Text style={s.small}>{t.record.slipSupplier}</Text>
-          <TextInput style={s.input} value={draft.supplier} onChangeText={(supplier) => setDraft({ ...draft, supplier })} placeholder={t.record.slipSupplier} placeholderTextColor={C.faint} />
-          <Text style={s.small}>{t.record.slipTotal}</Text>
-          <TextInput style={s.input} value={draft.total} onChangeText={(total) => setDraft({ ...draft, total })} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={C.faint} />
+          <Field label={t.record.slipSupplier}><Input value={draft.supplier} onChangeText={(supplier) => setDraft({ ...draft, supplier })} placeholder={t.record.slipSupplier} /></Field>
+          <Field label={t.record.slipTotal}><Input value={draft.total} onChangeText={(total) => setDraft({ ...draft, total })} keyboardType="decimal-pad" placeholder="0" /></Field>
           {draft.lines.map((line, index) => (
-            <View key={`${index}-${line.text}`} style={{ borderTopWidth: 1, borderTopColor: C.line, paddingTop: 12, marginTop: 12 }}>
+            <View key={index} style={{ borderTopWidth: 1, borderTopColor: C.line, paddingTop: 12, marginTop: 6, gap: 6 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={[s.small, line.confidence < 0.6 ? { color: C.warn } : null]}>{t.record.slipConfidence(Math.round(line.confidence * 100))}</Text>
-                {line.notes.length ? <Pill>{t.record.slipCheck}</Pill> : null}
+                {line.notes.length || line.confidence < 0.6 ? <Pill>{t.record.slipCheck}</Pill> : null}
               </View>
-              <Muted>{line.text}</Muted>
-              <Text style={s.small}>{t.record.slipItem}</Text>
-              <TextInput style={s.input} value={line.item} onChangeText={(item) => updateLine(index, { item })} placeholder={t.record.slipItem} placeholderTextColor={C.faint} />
+              {line.text ? <Muted>{line.text}</Muted> : null}
+              <Field label={t.record.slipItem}><Input value={line.item} onChangeText={(item) => updateLine(index, { item, readAs: null })} placeholder={t.record.slipItem} /></Field>
+              {line.readAs ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <Pill>{t.record.spelling(line.readAs, line.item)}</Pill>
+                  <Button small kind="plain" label={t.record.slipUndo(line.readAs)} onPress={() => updateLine(index, { item: line.readAs!, readAs: null })} />
+                </View>
+              ) : null}
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.small}>{t.record.slipQty}</Text>
-                  <TextInput style={s.input} value={line.qty} onChangeText={(qty) => updateLine(index, { qty })} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={C.faint} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.small}>{t.record.slipUnit}</Text>
-                  <TextInput style={s.input} value={line.unit} onChangeText={(unit) => updateLine(index, { unit })} placeholder="kg" placeholderTextColor={C.faint} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.small}>{t.record.slipPrice}</Text>
-                  <TextInput style={s.input} value={line.amount} onChangeText={(amount) => updateLine(index, { amount })} keyboardType="decimal-pad" placeholder="₹" placeholderTextColor={C.faint} />
-                </View>
+                <Field label={t.record.slipQty}><Input value={line.qty} onChangeText={(qty) => updateLine(index, { qty })} keyboardType="decimal-pad" placeholder="0" /></Field>
+                <Field label={t.record.slipUnit}><Input value={line.unit} onChangeText={(unit) => updateLine(index, { unit })} placeholder="kg" /></Field>
+                <Field label={t.record.slipPrice}><Input value={line.amount} onChangeText={(amount) => updateLine(index, { amount })} keyboardType="decimal-pad" placeholder="₹" /></Field>
               </View>
               {line.notes.map((note) => <Muted key={note}>{note}</Muted>)}
+              <Button small kind="plain" icon="🗑" label={t.stock.removeItem} onPress={() => setDraft({ ...draft, lines: draft.lines.filter((_, i) => i !== index) })} />
             </View>
           ))}
-          <Button kind="plain" label={t.record.slipAddLine} onPress={addSlipLine} />
-          <Button label={t.record.slipConfirm} onPress={saveSlip} disabled={busy || draft.lines.some((line) => !line.item.trim() || line.item === '?')} />
+          <Button kind="plain" icon="＋" label={t.record.slipAddLine} onPress={() => setDraft({ ...draft, lines: [...draft.lines, emptyLine()] })} />
+          <Button icon="✓" label={t.record.slipConfirm} onPress={saveSlip} disabled={busy || !draft.lines.length || draft.lines.some((line) => !line.item.trim() || line.item === '?')} />
           <Button label={t.record.slipDiscard} kind="plain" onPress={() => setDraft(null)} disabled={busy} />
         </Card>
       ) : null}
@@ -271,101 +326,48 @@ function SlipIt() {
 }
 
 function VoiceIt() {
-  const nav = useNav();
-  const [recording, setRecording] = useState(false);
-  const [seconds, setSeconds] = useState(0);
+  const clip = useClip();
   const [busy, setBusy] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [micBlocked, setMicBlocked] = useState(false);
-  const recordingRef = useRef(false);
-  const chunks = useRef<string[]>([]);
-  const startedAt = useRef(0);
-  const SAMPLE_RATE = 16000;
-  const MAX_RECORDING_SECONDS = 60;
+  const [blocked, setBlocked] = useState(false);
 
   async function stopAndRead() {
-    if (!recordingRef.current) return;
-    recordingRef.current = false;
-    setRecording(false);
+    if (!clipRecorder.active) return;
     setBusy(true);
     setError(null);
-    let wavPath: string | null = null;
     try {
-      await LiveAudioStream.stop();
-      const audioChunks = chunks.current.splice(0);
-      if (!audioChunks.length) throw new Error('microphone ne audio nahi bheja; permission aur mic jaanch kar phir koshish karein');
-      wavPath = await files.writeWav(`${files.cacheDir}/cascade-voice-${Date.now()}.wav`, audioChunks, SAMPLE_RATE);
-      const text = await transcribeVoice(wavPath, ledger().lexicon.hotwords());
-      setTranscript(text);
+      setTranscript(await clipRecorder.stopAndRead(ledger()));
       setResult(null);
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      if (wavPath) {
-        const deleted = await files.deleteFile(wavPath);
-        if (!deleted) console.warn(`could not delete temporary voice recording: ${wavPath}`);
-      }
       setBusy(false);
     }
   }
 
   useEffect(() => {
-    LiveAudioStream.on('data', (data) => {
-      if (recordingRef.current) chunks.current.push(data);
-    });
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state !== 'active' && recordingRef.current) void stopAndRead();
-    });
-    return () => {
-      subscription.remove();
-      if (recordingRef.current) {
-        recordingRef.current = false;
-        void LiveAudioStream.stop();
-      }
-    };
-  }, []);
+    if (clip.active && clip.seconds >= MAX_CLIP_SECONDS) void stopAndRead();
+  }, [clip.active, clip.seconds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!recording) return;
-    const timer = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startedAt.current) / 1000);
-      setSeconds(elapsed);
-      if (elapsed >= MAX_RECORDING_SECONDS) void stopAndRead();
-    }, 250);
-    return () => clearInterval(timer);
-  }, [recording]);
+    // leaving the app ends a single recording (the always-on mic keeps going on its own)
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active' && clipRecorder.active) void stopAndRead();
+    });
+    return () => sub.remove();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function startRecording() {
     setError(null);
     setResult(null);
     setTranscript('');
     try {
-      const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
-      if (permission === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-        // Android no longer shows the prompt after "don't ask again": only the app's settings page can allow it
-        setMicBlocked(true);
-        throw new Error('mic band hai (pehle "Allow nahi" chuna gaya tha). Neeche button se Settings kholein: Permissions > Microphone > Allow');
-      }
-      if (permission !== PermissionsAndroid.RESULTS.GRANTED) throw new Error('mic ki permission nahi mili; phir se "Bolna shuru karein" dabakar Allow chunein');
-      setMicBlocked(false);
-      chunks.current = [];
-      await LiveAudioStream.init({
-        sampleRate: SAMPLE_RATE,
-        channels: 1,
-        bitsPerSample: 16,
-        audioSource: 6,
-        wavFile: '',
-        bufferSize: 4096,
-      });
-      recordingRef.current = true;
-      startedAt.current = Date.now();
-      setSeconds(0);
-      await LiveAudioStream.start();
-      setRecording(true);
+      await clipRecorder.start();
+      setBlocked(false);
     } catch (e) {
-      recordingRef.current = false;
+      setBlocked(e instanceof MicBlocked);
       setError((e as Error).message);
     }
   }
@@ -375,8 +377,7 @@ function VoiceIt() {
     setBusy(true);
     setError(null);
     try {
-      const parsed = await ledger().handleText(transcript.trim(), 'voice');
-      setResult({ events: parsed.events, unparsed: parsed.unparsed, engine: parsed.engine, fallback: parsed.fallback_reason, normalized: parsed.normalized_text });
+      setResult(asResult(await ledger().handleText(transcript.trim(), 'voice'), transcript.trim(), 'voice'));
       setTranscript('');
     } catch (e) {
       setError((e as Error).message);
@@ -387,45 +388,34 @@ function VoiceIt() {
 
   return (
     <>
-      <Card title={t.record.voiceTitle}>
-        <Muted>{t.record.voiceNote}</Muted>
-        <Button label={recording ? t.record.voiceStop(seconds) : busy ? t.record.voiceReading : t.record.voiceStart} onPress={recording ? stopAndRead : startRecording} disabled={busy} />
+      <MicPanel />
+      <Card title={t.record1.title}>
+        <Muted>{t.record1.note}</Muted>
+        <MicButton on={clip.active} busy={busy} onPress={clip.active ? stopAndRead : startRecording} label={clip.active ? t.record1.stop(Math.floor(clip.seconds)) : busy ? t.record1.reading : t.record1.start} />
+        {clip.active ? (
+          <>
+            <LevelMeter level={clip.level} on />
+            <Button small kind="plain" label={t.cancel} onPress={() => void clipRecorder.cancel()} />
+          </>
+        ) : null}
         <ErrorLine error={error} />
-        {micBlocked ? <Button kind="warn" label="Settings kholo (mic allow karo)" onPress={() => void Linking.openSettings()} /> : null}
+        {blocked ? <Button kind="warn" label={t.mic.openSettings} onPress={() => void Linking.openSettings()} /> : null}
         {busy ? <Muted>{t.record.voiceProgress}</Muted> : null}
         {transcript ? (
           <>
-            <Text style={s.small}>{t.record.voiceHeard}</Text>
-            <TextInput
-              style={[s.input, { minHeight: 100, textAlignVertical: 'top', paddingTop: 12 }]}
-              multiline
-              value={transcript}
-              onChangeText={setTranscript}
-              placeholderTextColor={C.faint}
-              accessibilityLabel={t.record.voiceHeard}
-            />
-            <Button label={t.record.voiceBook} onPress={bookTranscript} disabled={busy || !transcript.trim()} />
+            <Text style={s.label}>{t.record.voiceHeard}</Text>
+            <Input style={{ minHeight: 100, textAlignVertical: 'top', paddingTop: 12 }} multiline value={transcript} onChangeText={setTranscript} accessibilityLabel={t.record.voiceHeard} />
+            <Button icon="✓" label={t.record.voiceBook} onPress={bookTranscript} disabled={busy || !transcript.trim()} />
             <Button kind="plain" label={t.record.voiceDiscard} onPress={() => setTranscript('')} disabled={busy} />
           </>
         ) : null}
       </Card>
-
-      {result ? (
-        <Card title={result.events.length ? t.record.booked(result.events.length, result.engine) : t.record.nothing(result.engine)} tone={result.events.length ? 'good' : undefined}>
-          {result.normalized ? <Muted>{t.record.normalized(result.normalized)}</Muted> : null}
-          {result.events.map((event) => (
-            <EntryRow key={event.id} e={event} onPress={() => nav.push({ name: 'entry', id: event.id })} />
-          ))}
-          {result.unparsed.length ? <Text style={[s.body, { color: C.warn }]}>{t.record.unparsed}: “{result.unparsed.join('” · “')}”</Text> : null}
-          {result.fallback ? <Muted>{t.record.fallback(result.fallback)}</Muted> : null}
-        </Card>
-      ) : null}
+      {result ? <Booked result={result} onRemoved={(id) => setResult({ ...result, events: result.events.filter((e) => e.id !== id) })} onBooked={(events) => setResult({ ...result, events })} /> : null}
     </>
   );
 }
 
 function TypeIt() {
-  const nav = useNav();
   const [text, setText] = useState('');
   const [source, setSource] = useState<Source>('manual');
   const [engine, setEngine] = useState<'auto' | 'llm' | 'rules'>('auto');
@@ -437,8 +427,7 @@ function TypeIt() {
     if (!text.trim()) return;
     setBusy(true);
     try {
-      const r = await ledger().handleText(text.trim(), source, { engine });
-      setResult({ events: r.events, unparsed: r.unparsed, engine: r.engine, fallback: r.fallback_reason, normalized: r.normalized_text });
+      setResult(asResult(await ledger().handleText(text.trim(), source, { engine }), text.trim(), source));
       setText('');
       setError(null);
     } catch (e) {
@@ -451,43 +440,18 @@ function TypeIt() {
   return (
     <>
       <Card title={t.record.what}>
-        <TextInput
-          style={[s.input, { minHeight: 120, textAlignVertical: 'top', paddingTop: 12 }]}
-          multiline
-          value={text}
-          onChangeText={setText}
-          placeholder={t.record.placeholder}
-          placeholderTextColor={C.faint}
-          accessibilityLabel={t.record.what}
-        />
-        <Button label={busy ? t.record.reading : t.record.add} onPress={submit} disabled={busy || !text.trim()} />
+        <Input style={{ minHeight: 120, textAlignVertical: 'top', paddingTop: 12 }} multiline value={text} onChangeText={setText} placeholder={t.record.placeholder} accessibilityLabel={t.record.what} />
+        <Button icon="＋" label={busy ? t.record.reading : t.record.add} onPress={submit} disabled={busy || !text.trim()} />
         <ErrorLine error={error} />
-        <Text style={s.small}>{t.record.from}</Text>
-        <Segmented value={source} onChange={setSource} options={(['manual', 'sms', 'tally', 'voice'] as Source[]).map((x) => ({ value: x, label: t.record.sources[x] }))} />
-        <Text style={s.small}>{t.record.reader}</Text>
-        <Segmented value={engine} onChange={setEngine} options={(['auto', 'llm', 'rules'] as const).map((x) => ({ value: x, label: t.record.readers[x] }))} />
+        <More label={t.record.options}>
+          <Text style={s.label}>{t.record.from}</Text>
+          <Segmented value={source} onChange={setSource} options={(['manual', 'sms', 'tally', 'voice'] as Source[]).map((x) => ({ value: x, label: t.record.sources[x] }))} />
+          <Text style={s.label}>{t.record.reader}</Text>
+          <Segmented value={engine} onChange={setEngine} options={(['auto', 'llm', 'rules'] as const).map((x) => ({ value: x, label: t.record.readers[x] }))} />
+        </More>
       </Card>
 
-      {result ? (
-        <Card title={result.events.length ? t.record.booked(result.events.length, result.engine) : t.record.nothing(result.engine)} tone={result.events.length ? 'good' : undefined}>
-          {result.normalized ? <Muted>{t.record.normalized(result.normalized)}</Muted> : null}
-          {result.events.map((e) => {
-            const flags = ((e.payload.flags as string[]) ?? []).filter((f) => t.record.flags[f]);
-            return (
-              <View key={e.id}>
-                <EntryRow e={e} onPress={() => nav.push({ name: 'entry', id: e.id })} />
-                {flags.length ? (
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingTop: 6 }}>
-                    {flags.map((f) => <Pill key={f}>{t.record.flags[f]}</Pill>)}
-                  </View>
-                ) : null}
-              </View>
-            );
-          })}
-          {result.unparsed.length ? <Text style={[s.body, { color: C.warn }]}>{t.record.unparsed}: “{result.unparsed.join('” · “')}”</Text> : null}
-          {result.fallback ? <Muted>{t.record.fallback(result.fallback)}</Muted> : null}
-        </Card>
-      ) : null}
+      {result ? <Booked result={result} onRemoved={(id) => setResult({ ...result, events: result.events.filter((e) => e.id !== id) })} onBooked={(events) => setResult({ ...result, events })} /> : null}
 
       <Card title={t.record.examples}>
         <Muted>{t.record.examplesNote}</Muted>

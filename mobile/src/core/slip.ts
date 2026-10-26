@@ -1,4 +1,5 @@
 import type { LexiconData } from './lexicon';
+import { closestItem } from './spelling';
 
 export type SlipLine = {
   item: string;
@@ -241,9 +242,11 @@ export function normalizeSlip(slip: Slip, lexicon: LexiconData): Slip {
         .map((candidate) => ({ candidate, similarity: 1 - levenshtein(item, candidate) / Math.max(item.length, candidate.length, 1) }))
         .filter(({ similarity }) => similarity >= 0.8)
         .sort((a, b) => b.similarity - a.similarity || a.candidate.localeCompare(b.candidate))[0];
-      if (close) {
-        notes.push(`read as '${item}', matched '${close.candidate}'`);
-        item = items.get(close.candidate)!;
+      const sounds = close ? null : closestItem(item, lexicon); // "tamattax" -> "tamatar"
+      const match = close?.candidate ?? sounds;
+      if (match) {
+        notes.push(`read as '${item}', matched '${match}'`);
+        item = items.get(match) ?? match;
       }
     }
     let { qty, unit } = line;

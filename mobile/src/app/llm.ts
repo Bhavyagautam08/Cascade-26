@@ -156,6 +156,11 @@ class Llm {
     };
   }
 
+  /** Stop the answer being written now (the vendor gave up waiting); the call then returns what it had. */
+  async stop(): Promise<void> {
+    if (this.ctx) await this.ctx.stopCompletion();
+  }
+
   /** One structured answer: system + user message, JSON schema enforced, temperature 0. */
   async json(system: string, user: string, schema: string, nPredict: number) {
     const ctx = await this.load();

@@ -13,12 +13,14 @@ import { dayProfit, receivables } from './inference';
 import type { Lexicon } from './lexicon';
 import { CONF_NO_AMOUNT, CONF_PRICED_FROM_LIST, numbersIn, parse, parseDetailed, spokenNumbers } from './rules';
 import { parseSms, type BankTxn } from './sms';
-import type { EventStore } from './store';
+import { fixItemSpelling, type SpellingFix } from './spelling';
+import { causalOrder, type EventStore } from './store';
 
 export class ModelUnavailable extends Error {}
 export class ModelOutputInvalid extends Error {}
 export class NotFound extends Error {}
 export class NotTheSameTrade extends Error {}
+export class AlreadyReplaced extends Error {}
 
 export interface Extractor {
   name: string;
@@ -129,12 +131,17 @@ export class Ledger {
   /** engine: auto (model, else rules if the model is unavailable / off-schema) | llm | rules */
   async handleText(text: string, source: Source, opts: { engine?: 'auto' | 'llm' | 'rules'; heardConfidence?: number; extraFlags?: string[]; dropRepeats?: boolean } = {}) {
     const { engine = 'auto', heardConfidence = 1, extraFlags = [], dropRepeats = false } = opts;
-    const result: { engine: string; is_transaction: boolean; events: Event[]; unparsed: string[]; fallback_reason: string | null; cross_check: unknown; normalized_text?: string; repeats?: unknown[] } = {
-      engine: 'rules', is_transaction: false, events: [], unparsed: [], fallback_reason: null, cross_check: null,
+    const result: { engine: string; is_transaction: boolean; events: Event[]; unparsed: string[]; fallback_reason: string | null; cross_check: unknown; normalized_text?: string; spelling: SpellingFix[]; repeats?: unknown[] } = {
+      engine: 'rules', is_transaction: false, events: [], unparsed: [], fallback_reason: null, cross_check: null, spelling: [],
     };
     let cands: CandidateEvent[] | null = null;
     const txn = parseSms(text);
-    const said = txn ? text : spokenNumbers(text, this.lexicon.data); // "soo gram" -> "100 gram"
+    let said = text;
+    if (!txn) {
+      const fixed = fixItemSpelling(text, this.lexicon.data); // "tamattar" -> "tamatar", shown to the vendor
+      result.spelling = fixed.fixes;
+      said = spokenNumbers(fixed.text, this.lexicon.data); // "soo gram" -> "100 gram"
+    }
     if (said !== text) result.normalized_text = said;
     if (txn) {
       cands = [this.fromBankSms(txn, source, text)];
@@ -158,7 +165,8 @@ export class Ledger {
     }
     for (const c of cands) {
       c.confidence = Math.round(c.confidence * heardConfidence * 1000) / 1000;
-      c.flags = [...(c.flags ?? []), ...extraFlags];
+      const spelled = result.spelling.filter((f) => (c.raw ?? said).toLowerCase().includes(f.to)).map((f) => `spelling:${f.from}->${f.to}`);
+      c.flags = [...(c.flags ?? []), ...spelled, ...extraFlags];
     }
     result.is_transaction = cands.length > 0;
     if (dropRepeats) {
@@ -188,6 +196,18 @@ export class Ledger {
     return result;
   }
 
+  /** Numbers but no trade word ("tomato 200 gram 40 rupee"): maybe a trade, but sold or bought isn't said. */
+  mightBeTrade(text: string): boolean {
+    return numbersIn(spokenNumbers(text, this.lexicon.data), (this.lexicon.data.numbers ?? {}) as Record<string, number>).size > 0;
+  }
+
+  /** The vendor says what such a sentence was: it is read again with the shop's own word for that kind. */
+  async bookAs(text: string, kind: 'sale' | 'purchase' | 'expense' | 'credit_given' | 'credit_paid', source: Source) {
+    const verb = Object.entries(this.lexicon.data.verbs ?? {}).find(([w, k]) => k === kind && !w.includes(' '))?.[0];
+    if (!verb) throw new Error(`the shop's words have no verb for ${kind}; add one under Dukaan ke shabd`);
+    return this.handleText(`${text.trim().replace(/[.!?]+$/, '')} ${verb}`, source, { engine: 'rules', extraFlags: ['kind_from_vendor'] });
+  }
+
   // --- human decisions: stored as new events -----------------------------------------------------
   private byId(id: string): Event {
     const e = this.store.get(id);
@@ -209,20 +229,73 @@ export class Ledger {
     );
   }
 
+  /** Every copy of the trade `id` belongs to: one trade heard on two phones (or heard and also typed) is
+   *  fused into one, so withdrawing or correcting only one copy would leave the other counting. */
+  tradeIds(id: string): string[] {
+    const e = this.byId(id);
+    const all = this.store.all();
+    if (all.some((x) => x.supersedes.includes(e.id))) throw new AlreadyReplaced(`entry ${id} was already corrected or withdrawn`);
+    return fuse(all).duplicates.find((g) => g.includes(e.id)) ?? [e.id];
+  }
+
   /** Withdraw a wrong entry. The original stays in the log; it just stops counting. */
   void(id: string): Event {
-    this.byId(id);
-    return this.store.appendLocal('adjustment', 'manual', [], { payload: { voided: id }, raw: `void ${id}`, supersedes: [id] });
+    const ids = this.tradeIds(id);
+    return this.store.appendLocal('adjustment', 'manual', [], { payload: { voided: id }, raw: `void ${id}`, supersedes: ids });
   }
 
   /** The vendor's version replaces the original with full confidence. Only the fields given change. */
-  correct(id: string, changes: Partial<Pick<CandidateEvent, 'kind' | 'item' | 'qty' | 'unit' | 'amount_rupees' | 'party' | 'direction'>>): Event[] {
+  correct(id: string, changes: Partial<Pick<CandidateEvent, 'kind' | 'item' | 'qty' | 'unit' | 'amount_rupees' | 'party' | 'direction'>>, flag = 'corrected'): Event[] {
+    const ids = this.tradeIds(id);
     const old = this.byId(id);
     const fields = { item: old.payload.item ?? null, qty: old.payload.qty ?? null, unit: old.payload.unit ?? null, amount_rupees: old.payload.amount_rupees ?? null, party: old.payload.party ?? null, direction: old.payload.direction ?? null, ...changes } as Record<string, unknown>;
     const kind = changes.kind ?? old.kind;
     if (kind !== 'adjustment') fields.direction = null;
     delete fields.kind;
-    return this.record([{ kind, source: 'manual', confidence: 1, flags: ['corrected'], raw: `correction of ${id}`, ...(fields as Partial<CandidateEvent>) }], [id]);
+    // keeps the words that were said, so the vendor still sees where the entry came from
+    const c = asRecorded({ kind, source: 'manual', confidence: 1, flags: [flag], raw: old.raw ?? `correction of ${id}`, ...(fields as Partial<CandidateEvent>) });
+    const core = payloadOf(c);
+    // what else the original carried (a stock count's morning/evening tag, its recording id) stays with it
+    const extra = Object.fromEntries(Object.entries(old.payload).filter(([k]) => !(k in core) && k !== 'evidence'));
+    return [this.store.appendLocal(c.kind, c.source, postingsFor(c), { payload: { ...extra, ...core }, confidence: 1, raw: c.raw ?? null, supersedes: ids })];
+  }
+
+  /** "This entry is right as it is": the same facts again, now vendor-checked (confidence 1). */
+  confirm(id: string): Event[] {
+    return this.correct(id, {}, 'confirmed');
+  }
+
+  // --- udhaar --------------------------------------------------------------------------------------
+  /** A customer's name as the books key it: lower case, through the lexicon's aliases ("Sharma ji" -> "sharma"). */
+  partyKey(name: string): string {
+    const n = name.trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!n) throw new Error('customer name is empty');
+    return (this.lexicon.data.aliases ?? {})[n] ?? n;
+  }
+
+  private udhaar(kind: 'credit_given' | 'credit_paid', name: string, rupees: number, raw: string): Event {
+    if (!Number.isFinite(rupees) || rupees <= 0) throw new Error('amount must be more than ₹0');
+    return this.record([{ kind, source: 'manual', confidence: 1, party: this.partyKey(name), amount_rupees: rupees, raw }])[0];
+  }
+
+  /** The customer paid back `rupees` (cash in, their udhaar down). */
+  udhaarPaid(name: string, rupees: number): Event {
+    return this.udhaar('credit_paid', name, rupees, `udhaar wapas: ${name} ne ${fmtG(rupees)} diye`);
+  }
+
+  /** The customer took `rupees` more on credit. */
+  udhaarGiven(name: string, rupees: number): Event {
+    return this.udhaar('credit_given', name, rupees, `udhaar diya: ${name} ko ${fmtG(rupees)}`);
+  }
+
+  /** Every entry that moved this customer's udhaar, oldest first, with withdrawn/corrected ones marked. */
+  udhaarHistory(name: string) {
+    const account = `receivable:${this.partyKey(name)}`;
+    const all = this.store.all();
+    const gone = new Set(all.flatMap((e) => e.supersedes));
+    return causalOrder(all)
+      .filter((e) => e.postings.some((p) => p.account === account))
+      .map((e) => ({ event: e, counts: !gone.has(e.id), paise: e.postings.find((p) => p.account === account)!.amount }));
   }
 
   /** "These are different trades." */

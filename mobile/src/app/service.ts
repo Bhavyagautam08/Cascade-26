@@ -8,7 +8,9 @@ import { EventStore, type Clocks } from '../core/store';
 import { parsePeerAddress } from '../core/syncTcp';
 import { phoneExtractor } from './llm';
 import { SqlitePersistence } from './sqlite';
-import { LocalSyncServer, TcpPeer, type SyncServerState } from './syncTcp';
+import { device } from './device';
+import { listener } from './mic';
+import { discover, LocalSyncServer, TcpPeer, type Found, type SyncServerState } from './syncTcp';
 
 declare const performance: { now(): number }; // React Native's global (monotonic, since the app started)
 
@@ -75,7 +77,66 @@ class Service {
     this.db.setMeta('sync_key', key.trim());
     this.configurePeers();
     this.changed();
+    void this.findPhones().catch(() => {}); // the new key may open the door to a phone found before
   }
+
+  pref(key: string): string | null {
+    return this.db.loadMeta()[`pref_${key}`] ?? null;
+  }
+  setPref(key: string, value: string) {
+    this.db.setMeta(`pref_${key}`, value);
+  }
+
+  // --- finding family phones on the same Wi-Fi / hotspot (no addresses to type) ---------------------------
+  discovery: { scanning: boolean; done: number; total: number; found: Found[]; error: string | null; at: number | null } = {
+    scanning: false, done: 0, total: 0, found: [], error: null, at: null,
+  };
+
+  /** Look for family phones on this phone's network and keep every one that has the same family key. */
+  async findPhones(): Promise<Found[]> {
+    if (this.discovery.scanning || !this.ledger) return this.discovery.found;
+    const me = this.ledger.store.deviceId;
+    this.discovery = { ...this.discovery, scanning: true, done: 0, total: 0, error: null };
+    this.changed();
+    try {
+      // a /32 or /31 is a VPN or mobile-data tunnel, not a Wi-Fi / hotspot other phones can share
+      const own = (await device.localAddresses()).filter((a) => a.prefix < 31);
+      if (!own.length) throw new Error('ye phone kisi Wi-Fi ya hotspot se juda nahi hai. Dono phones ko ek hi Wi-Fi par rakhein, ya ek phone ka hotspot chalu karke doosra usse jodein.');
+      const found = (await discover(own, this.syncKey(), (done, total, f) => {
+        this.discovery = { ...this.discovery, done, total, found: f.filter((x) => x.actor !== me) };
+        this.changed();
+      })).filter((x) => x.actor !== me);
+      const known = this.peerAddresses();
+      const names = new Map((this.sync?.status().peers ?? []).map((p) => [p.url, p.name]));
+      for (const f of found.filter((x) => x.keyOk)) {
+        // the same phone at a new address (the Wi-Fi gave it another one): replace the old address
+        for (const url of known) if (url !== f.url && names.get(url) === f.name) this.removePeerAddress(url);
+        if (!this.peerAddresses().includes(f.url)) this.addPeerAddress(f.url);
+      }
+      this.discovery = { ...this.discovery, scanning: false, found, at: Date.now() };
+      this.changed();
+      if (found.some((x) => x.keyOk)) void this.sync?.runOnce().catch(() => {});
+      return found;
+    } catch (e) {
+      this.discovery = { ...this.discovery, scanning: false, error: (e as Error).message, at: Date.now() };
+      this.changed();
+      throw e;
+    }
+  }
+
+  /** Every minute: if no family phone is reachable, look again (a phone came on, or its address changed). */
+  private autoFind() {
+    if (this.findTimer) clearInterval(this.findTimer);
+    const tick = () => {
+      if (!this.syncKey() || this.discovery.scanning) return;
+      const peers = this.sync?.status().peers ?? [];
+      if (peers.length && peers.every((p) => p.state === 'ok')) return;
+      void this.findPhones().catch(() => {});
+    };
+    this.findTimer = setInterval(tick, 60_000);
+    setTimeout(tick, 3_000);
+  }
+  private findTimer: ReturnType<typeof setInterval> | null = null;
 
   /** Open this phone's ledger (first launch: also gives it its name and the family key). */
   open(name: string, syncKey?: string) {
@@ -103,6 +164,15 @@ class Service {
     this.syncServer.start();
     store.listeners.push(() => this.changed());
     this.changed();
+    this.autoFind();
+    // the vendor left the mic on: keep hearing the day after the app is reopened
+    if (this.pref('listening') === 'on') void listener.start(() => this.ledger!).catch(() => {});
+  }
+
+  async setListening(on: boolean) {
+    if (on) await listener.start(() => this.ledger!);
+    else await listener.stop();
+    this.setPref('listening', on ? 'on' : 'off');
   }
 
   private configurePeers() {

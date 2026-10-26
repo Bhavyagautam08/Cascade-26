@@ -1,7 +1,10 @@
 package com.cascade.invisibleworker
 
+import android.content.Intent
+import android.os.Build
 import android.util.Base64
 import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
@@ -11,6 +14,8 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.uimanager.ViewManager
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.net.Inet4Address
+import java.net.NetworkInterface
 
 /**
  * Where this app's files live, asked from Android itself (no fixed path): the model files copied over USB
@@ -92,7 +97,51 @@ class AppFilesModule(ctx: ReactApplicationContext) : ReactContextBaseJavaModule(
   }
 }
 
+/** The always-on mic's foreground service, and this phone's own local addresses (for finding family phones). */
+class DeviceModule(ctx: ReactApplicationContext) : ReactContextBaseJavaModule(ctx) {
+  override fun getName() = "Device"
+
+  @ReactMethod
+  fun startListening(promise: Promise) {
+    try {
+      val intent = Intent(reactApplicationContext, ListenService::class.java)
+      if (Build.VERSION.SDK_INT >= 26) reactApplicationContext.startForegroundService(intent) else reactApplicationContext.startService(intent)
+      promise.resolve(true)
+    } catch (e: Exception) {
+      promise.reject("LISTEN_SERVICE_FAILED", "Android did not allow the listening service: ${e.message}", e)
+    }
+  }
+
+  @ReactMethod
+  fun stopListening(promise: Promise) {
+    promise.resolve(reactApplicationContext.stopService(Intent(reactApplicationContext, ListenService::class.java)))
+  }
+
+  /** Private IPv4 addresses of the interfaces that are up (Wi-Fi, or this phone's own hotspot), with their prefix. */
+  @ReactMethod
+  fun localAddresses(promise: Promise) {
+    try {
+      val out = Arguments.createArray()
+      for (nif in NetworkInterface.getNetworkInterfaces()) {
+        if (!nif.isUp || nif.isLoopback) continue
+        for (a in nif.interfaceAddresses) {
+          val ip = a.address
+          if (ip !is Inet4Address || !ip.isSiteLocalAddress) continue
+          out.pushMap(Arguments.createMap().apply {
+            putString("address", ip.hostAddress)
+            putInt("prefix", a.networkPrefixLength.toInt())
+            putString("interface", nif.name)
+          })
+        }
+      }
+      promise.resolve(out)
+    } catch (e: Exception) {
+      promise.reject("NO_ADDRESSES", "could not read this phone's network addresses: ${e.message}", e)
+    }
+  }
+}
+
 class AppFilesPackage : ReactPackage {
-  override fun createNativeModules(ctx: ReactApplicationContext): List<NativeModule> = listOf(AppFilesModule(ctx))
+  override fun createNativeModules(ctx: ReactApplicationContext): List<NativeModule> = listOf(AppFilesModule(ctx), DeviceModule(ctx))
   override fun createViewManagers(ctx: ReactApplicationContext): List<ViewManager<*, *>> = emptyList()
 }
