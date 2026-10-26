@@ -7,6 +7,8 @@ without a server, count a trade heard by two phones once, and survive broken clo
 
 - **Set up a laptop:** [docs/SETUP.md](docs/SETUP.md) — install 4 programs, then
   `scripts\setup_device.ps1 -DeviceId phone-2 -SyncKey <family key> -Peers http://<ip>:8000` and `scripts\start.ps1`
+- **Set up the Android app:** [docs/MOBILE_SETUP.md](docs/MOBILE_SETUP.md) — build/install, copy on-device
+  models over USB, use voice/photo/inventory entry, and configure local phone sync
 - **How it works, trade-offs, constraints:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **What's done, what's left:** [docs/PLAN.md](docs/PLAN.md)
 

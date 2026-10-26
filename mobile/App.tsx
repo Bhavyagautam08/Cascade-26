@@ -6,6 +6,7 @@ import { service } from './src/app/service';
 import { Nav, isUdhaar, type Page } from './src/ui/common';
 import { C, useLedgerVersion } from './src/ui/kit';
 import { Books } from './src/ui/screens/Books';
+import { Diagnose } from './src/ui/screens/Diagnose';
 import { Entries, EntryDetail } from './src/ui/screens/Entries';
 import { Family } from './src/ui/screens/Family';
 import { More } from './src/ui/screens/More';
@@ -91,6 +92,7 @@ function Main() {
           page.name === 'entry' ? <EntryDetail key={page.id} id={page.id} /> :
           page.name === 'books' ? <Books /> :
           page.name === 'words' ? <Words /> :
+          page.name === 'diagnose' ? <Diagnose /> :
           <Family />
         ) : (
           <>

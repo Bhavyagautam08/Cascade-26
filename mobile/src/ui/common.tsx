@@ -11,7 +11,7 @@ import { t } from './strings';
 export const ledger = () => service.ledger!;
 
 // --- navigation: a tab plus a stack of pages (Android back pops the stack) -----------------------------
-export type Page = { name: 'entries' } | { name: 'entry'; id: string } | { name: 'books' } | { name: 'words' } | { name: 'family' };
+export type Page = { name: 'entries' } | { name: 'entry'; id: string } | { name: 'books' } | { name: 'words' } | { name: 'family' } | { name: 'diagnose' };
 export const Nav = createContext<{ push: (p: Page) => void; pop: () => void; tab: (name: string) => void }>({ push: () => {}, pop: () => {}, tab: () => {} });
 export const useNav = () => useContext(Nav);
 

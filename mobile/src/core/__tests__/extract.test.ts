@@ -17,6 +17,11 @@ test('chatter: is_transaction false, no events', () => {
   expect(parseExtraction('{"is_transaction": false, "events": []}', 'x', 'voice')).toEqual({ is_transaction: false, events: [] });
 });
 
+test('accepts llama.cpp assistant markers around a valid JSON answer', () => {
+  expect(parseExtraction('<|im_start|>assistant\n{"is_transaction": false, "events": []}<|im_end|>', 'x', 'manual'))
+    .toEqual({ is_transaction: false, events: [] });
+});
+
 test('is_transaction true with no events counts as not a transaction (extractor.py)', () => {
   expect(parseExtraction('{"is_transaction": true, "events": []}', 'x', 'voice').is_transaction).toBe(false);
 });

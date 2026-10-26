@@ -1,29 +1,43 @@
 // Parivaar ke phones: this phone's identity, what it has seen, and each other phone's last sync.
-// Ported from frontend/src/views/Devices.tsx. The phone-to-phone transport (hotspot) is the next step;
-// until then the list of other phones is empty and the screen says so.
-import React, { useEffect, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+// Ported from frontend/src/views/Devices.tsx; phones connect over the local TCP sync transport.
+import React, { useEffect, useState } from 'react';
+import { Text, TextInput, View } from 'react-native';
 import { llm } from '../../app/llm';
 import { service } from '../../app/service';
+import { syncPort } from '../../app/syncTcp';
 import { nameOf } from '../../core/identity';
 import { ledger, useNav } from '../common';
 import { Body, Button, C, Card, ErrorLine, Muted, Pill, Row, Screen, s, useLedgerVersion } from '../kit';
 import { t } from '../strings';
 
 export function Family() {
-  const v = useLedgerVersion();
+  useLedgerVersion();
   const nav = useNav();
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [address, setAddress] = useState('');
+  const [keyDraft, setKeyDraft] = useState(service.syncKey());
+  const [keySaved, setKeySaved] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setTick((x) => x + 1), 2000); // "last synced N s ago" keeps moving
     return () => clearInterval(id);
   }, []);
-  const st = useMemo(() => service.sync!.status(), [v, tick]);
-  const frontier = useMemo(() => Object.entries(ledger().store.frontier()).sort(), [v]);
-  const count = useMemo(() => ledger().store.all().length, [v]);
+  const st = service.sync!.status();
+  const frontier = Object.entries(ledger().store.frontier()).sort();
+  const count = ledger().store.all().length;
   const keySet = !!service.syncKey();
+  const addresses = service.peerAddresses();
+
+  function addPeer() {
+    try {
+      service.addPeerAddress(address);
+      setAddress('');
+      setError(null);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
 
   async function syncNow() {
     setBusy(true);
@@ -53,19 +67,58 @@ export function Family() {
       </Card>
       <ModelCard />
       <Card title={t.family.peers}>
-        {st.peers.length === 0 ? <Muted>{t.family.noPeers}</Muted> : st.peers.map((p) => (
-          <Row key={p.url}>
+        <Body>
+          {service.syncServerState === 'listening' ? t.family.serverListening(syncPort)
+            : service.syncServerState === 'starting' ? t.family.serverStarting
+              : service.syncServerState === 'error' ? t.family.serverError(service.syncServerError ?? 'unknown error')
+                : t.family.serverStopped}
+        </Body>
+        <Muted>{t.family.peerHint}</Muted>
+        <Text style={s.body}>{t.family.keyEdit}</Text>
+        <TextInput
+          style={s.input}
+          value={keyDraft}
+          onChangeText={(value) => { setKeyDraft(value); setKeySaved(false); }}
+          autoCapitalize="none"
+          autoCorrect={false}
+          secureTextEntry
+          accessibilityLabel={t.family.keyEdit}
+        />
+        <Button kind="plain" label={t.family.saveKey} onPress={() => {
+          service.setSyncKey(keyDraft);
+          setKeySaved(true);
+          setError(null);
+        }} />
+        {keySaved ? <Muted>{t.family.keySaved}</Muted> : null}
+        <TextInput
+          style={s.input}
+          value={address}
+          onChangeText={setAddress}
+          placeholder={t.family.peerAddress}
+          placeholderTextColor={C.faint}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="numbers-and-punctuation"
+          accessibilityLabel={t.family.peerAddress}
+        />
+        <Button kind="plain" label={t.family.addPeer} disabled={!address.trim()} onPress={addPeer} />
+        {addresses.length === 0 ? <Muted>{t.family.noPeers}</Muted> : addresses.map((url) => {
+          const p = st.peers.find((peer) => peer.url === url);
+          return (
+          <Row key={url}>
             <View style={{ flex: 1 }}>
-              <Text style={[s.body, { fontWeight: '700' }]}>{p.name ?? p.url}</Text>
-              <Text style={s.mono}>{p.url}</Text>
-              {p.lastError && p.state !== 'ok' ? <Text style={{ color: C.warn }}>{p.lastError}</Text> : null}
-              {p.warnings.map((w) => <Text key={w} style={{ color: C.warn }}>{w}</Text>)}
+              <Text style={[s.body, { fontWeight: '700' }]}>{p?.name ?? url}</Text>
+              <Text style={s.mono}>{url}</Text>
+              {p?.lastError && p.state !== 'ok' ? <Text style={{ color: C.warn }}>{p.lastError}</Text> : null}
+              {p?.warnings.map((w) => <Text key={w} style={{ color: C.warn }}>{w}</Text>)}
             </View>
-            <Text style={{ color: p.state === 'ok' ? C.good : C.warn, maxWidth: 150, textAlign: 'right' }}>
+            {p ? <Text style={{ color: p.state === 'ok' ? C.good : C.warn, maxWidth: 150, textAlign: 'right' }}>
               {p.state === 'ok' ? t.family.ok(t.secondsAgo(p.lastOkSAgo ?? 0)) : p.state === 'unreachable' ? t.family.away(p.failuresInARow) : p.state === 'refused' ? t.family.refused : p.state === 'error' ? t.family.error : t.family.never}
-            </Text>
+            </Text> : null}
+            <Button kind="danger" small label={t.family.removePeer} onPress={() => service.removePeerAddress(url)} />
           </Row>
-        ))}
+          );
+        })}
         <Button kind="plain" label={t.family.syncNow} disabled={busy || st.peers.length === 0} onPress={syncNow} />
         <ErrorLine error={error} />
       </Card>

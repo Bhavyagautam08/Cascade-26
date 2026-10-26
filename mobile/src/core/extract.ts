@@ -9,13 +9,21 @@ const isNum = (x: unknown) => typeof x === 'number' && Number.isFinite(x);
 const optStr = (x: unknown) => x === undefined || x === null || typeof x === 'string';
 const optNum = (x: unknown) => x === undefined || x === null || isNum(x);
 
+export function stripAssistantMarkers(text: string): string {
+  return text
+    .replace(/^\s*<\|im_start\|>assistant(?:\s*\n)?/, '')
+    .replace(/\s*<\|im_end\|>\s*$/, '')
+    .trim();
+}
+
 /** Parse and validate the model's JSON (LLMOutput), then build CandidateEvents (extractor.from_text). */
 export function parseExtraction(json: string, text: string, source: Source): { is_transaction: boolean; events: CandidateEvent[] } {
   let out: any;
+  const answer = stripAssistantMarkers(json);
   try {
-    out = JSON.parse(json);
+    out = JSON.parse(answer);
   } catch (e) {
-    throw new ModelOutputInvalid(`the model's answer is not JSON (${(e as Error).message}): ${json.slice(0, 160)}`);
+    throw new ModelOutputInvalid(`the model's answer is not JSON (${(e as Error).message}): ${answer.slice(0, 160)}`);
   }
   const bad = (why: string) => new ModelOutputInvalid(`the model answered outside the schema: ${why}`);
   if (!out || typeof out !== 'object' || Array.isArray(out)) throw bad('not an object');

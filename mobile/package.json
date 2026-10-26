@@ -10,12 +10,18 @@
     "test": "jest"
   },
   "dependencies": {
+    "@bam.tech/react-native-image-resizer": "^3.0.11",
+    "@fugood/react-native-audio-pcm-stream": "^1.1.4",
+    "@noble/hashes": "^1.8.0",
     "@op-engineering/op-sqlite": "18.2.5",
     "@react-native/new-app-screen": "0.87.1",
     "llama.rn": "0.12.9",
     "react": "19.2.3",
     "react-native": "0.87.1",
-    "react-native-safe-area-context": "^5.5.2"
+    "react-native-image-picker": "8.3.0",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-tcp-socket": "^6.4.3",
+    "whisper.rn": "^0.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
