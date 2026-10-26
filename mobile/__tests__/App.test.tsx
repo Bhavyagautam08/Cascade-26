@@ -13,7 +13,11 @@ jest.mock('../src/app/files', () => ({
   files: { externalFilesDir: '/test', cacheDir: '/cache', fileSize: async () => -1, deleteFile: async () => true, writeWav: async (p: string) => p },
 }));
 jest.mock('../src/app/device', () => ({
-  device: { startListening: async () => true, stopListening: async () => true, localAddresses: async () => [], lastExit: async () => null },
+  device: {
+    startListening: async () => true, stopListening: async () => true, localAddresses: async () => [], lastExit: async () => null,
+    download: async () => '', cancelDownload: () => {}, partialSize: async () => 0,
+  },
+  onDownload: () => () => {},
 }));
 jest.mock('llama.rn', () => ({ initLlama: jest.fn(), getBackendDevicesInfo: jest.fn(async () => []) }));
 jest.mock('whisper.rn', () => ({ initWhisper: jest.fn(), initWhisperVad: jest.fn() }), { virtual: true });

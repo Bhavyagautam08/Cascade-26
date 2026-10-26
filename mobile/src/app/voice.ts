@@ -1,8 +1,9 @@
 import { initWhisper, initWhisperVad } from 'whisper.rn';
 import { files } from './files';
+import { byId } from './models';
 
-const WHISPER = 'ggml-small.bin';
-const SILERO = 'ggml-silero-v5.1.2.bin';
+const WHISPER = byId('whisper').file;
+const SILERO = byId('vad').file;
 const SPEECH_OPTIONS = {
   threshold: 0.5,
   minSpeechDurationMs: 250,
@@ -19,7 +20,7 @@ function modelFile(name: string): string {
 async function checkModel(name: string): Promise<string> {
   const path = modelFile(name);
   if ((await files.fileSize(path)) <= 0) {
-    throw new Error(`voice model is missing or inaccessible: ${path} (copy it over USB and make the models folder readable by the app)`);
+    throw new Error(`voice model is missing or inaccessible: ${path} (Aur → Models: ek baar download karein)`);
   }
   return path;
 }

@@ -457,7 +457,30 @@ export const hi = {
     modelStart: 'Model abhi chalu karo',
   },
 
+  models: {
+    title: 'Models (ek baar)',
+    line: (size: string) => `Parchi padhne aur awaaz samajhne ke liye ${size} ek baar download. Uske baad sab bina internet chalega.`,
+    notes: [
+      'Wi-Fi par download karein (bahut bada hai).',
+      'Download ke dauraan app khula rakhein. Ruk jaye to "Phir se shuru" dabaiye; wahin se aage badhega.',
+      'Har file download ke baad jaanchi jaati hai (checksum); kharab file kabhi use nahi hoti.',
+      'Likhna, udhaar, stock aur sync bina models ke bhi chalte hain.',
+    ],
+    start: 'Models download karo',
+    resume: 'Phir se shuru (jahan ruka tha)',
+    pause: 'Roko',
+    progress: (done: string, total: string) => `${done} / ${total}`,
+    allReady: '✓ Sab models phone par hain. Parchi aur awaaz ab bina internet chalenge.',
+    files: 'Files',
+    states: { missing: 'Nahi hai', partial: 'Aadha', downloading: 'Aa raha hai…', verifying: 'Jaanch rahe hain…', ready: '✓ Taiyaar', error: 'Gadbad' } as Record<string, string>,
+    banner: 'Parchi aur awaaz ke liye models chahiye (ek baar download).',
+    bannerCta: 'Download karo',
+    missing: 'Ye model phone par nahi hai. Aur → Models par jaakar ek baar download karein.',
+  },
+
   more: {
+    modelsTitle: 'Models (ek baar download)',
+    modelsNote: 'Parchi aur awaaz ke liye',
     title: 'Aur',
     entries: 'Saare hisaab',
     entriesNote: 'Har entry, hatayi hui bhi',

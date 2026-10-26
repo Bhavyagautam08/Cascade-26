@@ -4,6 +4,7 @@
 import { initLlama, type LlamaContext, type NativeCompletionTokenProb } from 'llama.rn';
 import type { LastExit } from './device';
 import { files } from './files';
+import { byId } from './models';
 import type { Source } from '../core/events';
 import { parseExtraction, stripAssistantMarkers } from '../core/extract';
 import { ModelUnavailable, type Extractor } from '../core/ledger';
@@ -11,11 +12,11 @@ import type { Lexicon } from '../core/lexicon';
 import { EXTRACT_OPTIONS, EXTRACT_SCHEMA, extractSystem } from '../core/prompts.generated';
 
 export const MODEL_DIR = `${files.externalFilesDir}/models`;
-export const QWEN = 'qwen3-vl-4b-instruct.gguf'; // Q4_K_M (= the laptop's Ollama blob): CPU only on Android
-// The same model in Q4_0, the only 4-bit format llama.cpp's Adreno (OpenCL) backend accelerates. If it is on
-// the phone it is used with every layer on the GPU; CPU measured 25 s to load and >6 min per sentence.
-export const QWEN_GPU = 'Qwen3-VL-4B-Instruct-Q4_0.gguf';
-export const QWEN_MMPROJ = 'qwen3-vl-4b-instruct-mmproj.gguf';
+// Q4_K_M (= the laptop's Ollama blob): kept only for Jaanch comparisons; not downloaded for other phones
+export const QWEN = 'qwen3-vl-4b-instruct.gguf';
+// The model the app uses (Q4_0, on the CPU, in RAM: see DEFAULT_SETUP) and its vision projector (models.ts)
+export const QWEN_GPU = byId('qwen').file;
+export const QWEN_MMPROJ = byId('vision').file;
 export const SLIP_TRANSCRIBE = 'Read the handwritten purchase slip. Return only one short line per item, in this exact format: item | quantity and unit | price. Copy every item, quantity, unit, and price exactly; include prices written at the far right. If a total is written, add one final line: TOTAL | amount. Do not describe the photo, explain, translate, guess missing values, or add any other text.';
 const N_CTX = 4096; // the prompt (rules + examples + lexicon) is ~2.5k tokens; answers are capped at 1024
 
@@ -60,7 +61,7 @@ class Llm {
   private ctx: LlamaContext | null = null;
   private loading: Promise<LlamaContext> | null = null;
   private multimodalLoading: Promise<void> | null = null;
-  status: LlmState = { state: 'off', error: null, file: `${MODEL_DIR}/${QWEN}`, loadSeconds: null, last: null, gpu: null, device: null, notice: null };
+  status: LlmState = { state: 'off', error: null, file: `${MODEL_DIR}/${QWEN_GPU}`, loadSeconds: null, last: null, gpu: null, device: null, notice: null };
   private listeners = new Set<() => void>();
   private guard: CrashGuard | null = null;
 
@@ -136,7 +137,7 @@ class Llm {
       const s = this.setup;
       const useGpu = s.gpu && !cpuOnly;
       const file = `${MODEL_DIR}/${s.file}`;
-      if ((await files.fileSize(file)) <= 0) throw new ModelUnavailable(`the model file is missing or inaccessible: ${file} (copy it over USB and make the models folder readable by the app)`);
+      if ((await files.fileSize(file)) <= 0) throw new ModelUnavailable(`the model file is missing or inaccessible: ${file} (Aur → Models: ek baar download karein)`);
       this.set({ file, gpu: useGpu });
       const ctx = await this.guarded('loading the model', () => initLlama({
         model: file,
@@ -176,7 +177,7 @@ class Llm {
     this.multimodalLoading = (async () => {
       const file = `${MODEL_DIR}/${QWEN_MMPROJ}`;
       if ((await files.fileSize(file)) <= 0) {
-        throw new ModelUnavailable(`the vision projector is missing or inaccessible: ${file} (copy it over USB and make the models folder readable by the app)`);
+        throw new ModelUnavailable(`the vision projector is missing or inaccessible: ${file} (Aur → Models: ek baar download karein)`);
       }
       // The vision encoder runs on the CPU. On the 12R's Adreno (OpenCL) llama.cpp could not allocate the
       // image encoder's graph and dereferenced null in lm_ggml_gallocr_alloc_graph (clip_image_batch_encode):

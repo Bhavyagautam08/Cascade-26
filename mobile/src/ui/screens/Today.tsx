@@ -9,6 +9,7 @@ import { causalOrder } from '../../core/store';
 import { Dispute, EntryRow, MaybeTwice, MicPanel, ReviewItem, itemName, ledger, standing, tryRun, useNav } from '../common';
 import { Big, Body, Button, C, Card, ErrorLine, Muted, RangeBar, Screen, Tile, cap, inr, paise, s, useLedgerVersion } from '../kit';
 import { t } from '../strings';
+import { useDownloads } from './Models';
 
 export function worstWaste(ingredients: Record<string, any>) {
   const ok = Object.entries(ingredients).filter(([, g]) => g.status === 'ok' && g.unexplained != null);
@@ -24,6 +25,7 @@ export function Today() {
   const nav = useNav();
   const [error, setError] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
+  const dl = useDownloads();
   const d = useMemo(() => {
     const L = ledger();
     const sum = L.summary();
@@ -71,6 +73,12 @@ export function Today() {
         </Card>
       )}
       <ErrorLine error={error} />
+
+      {!dl.allReady() && Object.keys(dl.states).length ? (
+        <Tile title={t.models.title} onPress={() => nav.push({ name: 'models' })} cta={t.models.bannerCta} tone="warn">
+          <Body>{t.models.banner}</Body>
+        </Tile>
+      ) : null}
 
       <MicPanel compact />
 

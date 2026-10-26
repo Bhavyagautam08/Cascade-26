@@ -9,6 +9,7 @@ import { Books } from './src/ui/screens/Books';
 import { Diagnose } from './src/ui/screens/Diagnose';
 import { Entries, EntryDetail } from './src/ui/screens/Entries';
 import { Family } from './src/ui/screens/Family';
+import { Models } from './src/ui/screens/Models';
 import { More } from './src/ui/screens/More';
 import { Record } from './src/ui/screens/Record';
 import { Setup } from './src/ui/screens/Setup';
@@ -93,6 +94,7 @@ function Main() {
           page.name === 'entries' ? <Entries /> :
           page.name === 'entry' ? <EntryDetail key={page.id} id={page.id} edit={page.edit} /> :
           page.name === 'party' ? <Party key={page.party} party={page.party} /> :
+          page.name === 'models' ? <Models /> :
           page.name === 'books' ? <Books /> :
           page.name === 'words' ? <Words /> :
           page.name === 'diagnose' ? <Diagnose /> :
